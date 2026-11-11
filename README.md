@@ -1,5 +1,7 @@
 # 13RDPA Hearts and Minds
 
+Version **1.1.0**.
+
 Campagne Hearts and Minds pour Arma Reforger, jouée sur Kolguyev. Les joueurs sont l'armée rouge du 13e RDPA. En face, les forces US tiennent l'île par cellules : un maître, ses points autour, et tout ce qui vit entre les deux.
 
 Ce n'est pas une partie de Conflit où l'on pousse des bases à la chaîne. On découvre le pays, on parle aux civils, on prend un point, puis on le garde. L'eau, les vivres, les munitions et les hommes décident si la zone reste à nous.
@@ -198,7 +200,7 @@ Le bloc `ai` règle la perception, la distance de tir, la navigation et la vites
 
 `time` et `weather` posent l'heure, la date et le ciel au lancement. `game` reprend les options de partie du Conflit : arsenal, ravitaillement de réapparition, tirs alliés, déguisement.
 
-`groupAccess.whitelistIds` liste qui peut ouvrir les outils réservés. On y met un identifiant Steam ou un identifiant de compte, un par ligne. Ce n'est pas un réglage de difficulté.
+`groupAccess.whitelistIds` liste qui peut ouvrir les outils réservés. On y met un identifiant Steam ou un identifiant de compte, un par ligne. Les valeurs livrées avec le mod, `STEAM64_EXEMPLE` et `IDENTIFIANT_COMPTE_EXEMPLE`, sont des exemples : on les remplace par les vrais identifiants dans le JSON du profil. Ce n'est pas un réglage de difficulté.
 
 `gm.enableBudgets` laisse les budgets du Game Master s'appliquer. Décoché, ils ne bloquent pas les poses.
 

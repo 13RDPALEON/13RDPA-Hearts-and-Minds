@@ -991,8 +991,8 @@ class HAM_Settings
 		lines.Insert("");
 		lines.Insert("  \"groupAccess\": {");
 		lines.Insert("    \"whitelistIds\": [");
-		lines.Insert("      \"76561198264674074\",");
-		lines.Insert("      \"9785b4cd-e324-4863-9c51-f527b210d3d9\"");
+		lines.Insert("      \"STEAM64_EXEMPLE\",");
+		lines.Insert("      \"IDENTIFIANT_COMPTE_EXEMPLE\"");
 		lines.Insert("    ]");
 		lines.Insert("  },");
 		lines.Insert("");
