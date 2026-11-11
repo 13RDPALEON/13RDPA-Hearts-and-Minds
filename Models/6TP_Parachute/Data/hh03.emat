@@ -1,0 +1,5 @@
+MatPBRBasic {
+ Color 0.767 0.728 0.644 1
+ BCRMap "{EEAC04F2D4612401}Assets/Parachute/HALO_Rig_Retex.edds"
+ NMOMap "{66EDF848F4BE18A0}Assets/Parachute/HALO_Rig_NMO.edds"
+}

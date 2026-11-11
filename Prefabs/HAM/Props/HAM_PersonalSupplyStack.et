@@ -1,0 +1,46 @@
+GenericEntity : "{A8A4609979D3385D}Prefabs/Props/Military/SupplyBox/SupplyStack/SupplyStack_Small_01/SupplyStack_Small_01_item.et" {
+ ID "F0DBA538AC2A0552"
+ components {
+  MeshObject "{5872F0EB7FA40561}" {
+   Materials {
+    MaterialAssignClass "{56A8DC351E604E01}" {
+     SourceMaterial "Pallet_01"
+     AssignedMaterial "{6E0C629D056F2F0C}Common/Materials/ColorPalette/Color_palette_01_GREY_27_S0_R0.emat"
+    }
+    MaterialAssignClass "{56A8DC351E604E02}" {
+     SourceMaterial "PortableSupplyContainer_Large"
+     AssignedMaterial "{6E0C629D056F2F0C}Common/Materials/ColorPalette/Color_palette_01_GREY_27_S0_R0.emat"
+    }
+    MaterialAssignClass "{56A8DC351E604E03}" {
+     SourceMaterial "Color_Palette_01"
+     AssignedMaterial "{6E0C629D056F2F0C}Common/Materials/ColorPalette/Color_palette_01_GREY_27_S0_R0.emat"
+    }
+   }
+  }
+  InventoryItemComponent "{5D84C328C8C0CCBC}" {
+   Attributes SCR_ItemAttributeCollection "{5D84C328CA2E20AD}" {
+    ItemDisplayName SCR_InventoryUIInfo "{5D84C328CC0CCBB8}" {
+     Name "Ressources perso"
+    }
+   }
+  }
+  ActionsManagerComponent "{5D247A59598D718D}" {
+   additionalActions {
+    SCR_ResourceContainerStoreAction "{5D247A59598D7076}" {
+     Enabled 0
+    }
+   }
+  }
+  SCR_ResourceComponent "{5D247A59598D71AE}" {
+   m_aContainers {
+    SCR_ResourceContainer "{5D3CDAE74F1A6127}" {
+     m_eStorageType ORPHAN
+     m_fResourceValueMax 100
+     m_bEnableResourceDecay 0
+     m_fResourceDecay 0
+     m_eOnEmptyBehavior NONE
+    }
+   }
+  }
+ }
+}

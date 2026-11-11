@@ -1,0 +1,89 @@
+GenericEntity : "{A9CAD0E46BE21AB7}Prefabs/Props/Furniture/FlagDecorative_01/FlagDecorative_01_USA.et" {
+ ID "6A5F02B100000090"
+ components {
+  RplComponent "{6A5F02B100000092}" {
+   Enabled 1
+  }
+  FactionAffiliationComponent "{6A5F02B100000093}" {
+   "faction affiliation" "USSR"
+  }
+  HAM_TeleportPointComponent "{6A5F02B1000000B0}" {
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A5F02B100000094}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A5F02B100000095}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A5F02B100000096}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A5F02B100000097}" {
+  }
+  SCR_EditableEntityComponent "{6A5F02B100000098}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A5F02B100000099}" {
+    Name "Drapeau téléport"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE THEME_MILITARY SIZE_S CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A5F02B10000009A}" {
+      m_BudgetType CAMPAIGN
+      m_Value 0
+     }
+     SCR_EntityBudgetValue "{6A5F02B10000009B}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{6A5F02B10000009C}" {
+   ActionContexts {
+    UserActionContext "{6A5F02B10000009D}" {
+     ContextName "Teleport"
+     Position PointInfo "{6A5F02B10000009E}" {
+      Offset 0 1.2 0
+     }
+     Radius 3.5
+     Height 2.5
+     "Display UI At Reference Point" 0
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6A5F02B10000009F}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Teleport"
+     }
+     UIInfo SCR_ActionUIInfo "{6A5F02B1000000A0}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+    HAM_PlayerTeleportUserAction "{6A5F02B1000000A1}" {
+     ParentContextList {
+      "Teleport"
+     }
+     Duration 1
+     UIInfo SCR_ActionUIInfo "{6A5F02B1000000A2}" {
+      Name "Téléportation joueurs"
+     }
+    }
+    HAM_BaseTeleportUserAction "{6A5F02B1000000A3}" {
+     ParentContextList {
+      "Teleport"
+     }
+     Duration 1
+     UIInfo SCR_ActionUIInfo "{6A5F02B1000000A4}" {
+      Name "Téléportation bases"
+     }
+    }
+   }
+  }
+ }
+}

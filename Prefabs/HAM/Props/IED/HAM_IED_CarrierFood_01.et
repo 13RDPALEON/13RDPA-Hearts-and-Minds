@@ -1,0 +1,8 @@
+GenericEntity : "{627F29E940C7A12A}Prefabs/Props/Civilian/CarrierFood_01/CarrierFood_01.et" {
+ ID "E770CDF229D3118B"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

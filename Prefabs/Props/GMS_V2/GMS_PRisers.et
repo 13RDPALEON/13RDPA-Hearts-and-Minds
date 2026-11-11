@@ -1,0 +1,19 @@
+GenericEntity {
+ ID "EE001B18632DA801"
+ components {
+  TRN_Para_ParachuteV2AnimComponent "{EE001B18632DA804}" {
+   m_DeployAnim "{321DF2B5A12C8594}Assets/Parachutes/GMS_ParachuteV2/gms_prisers_deploy_demo.anm"
+   m_SteerRAnim "{2EDCD796F2504713}Assets/Parachutes/GMS_ParachuteV2/gms_prisers_steer_r.anm"
+   m_SteerLAnim "{DFD7EFC2810F72FF}Assets/Parachutes/GMS_ParachuteV2/gms_prisers_steer_l.anm"
+   m_SteerFAnim "{4E8158A837638C2A}Assets/Parachutes/GMS_ParachuteV2/gms_prisers_steer_f.anm"
+   m_BindPoseMesh "{8FDCB4B7499E4F85}Assets/Parachutes/GMS_ParachuteV2/GMS_PRisers.xob"
+   m_bSetBindPose 0
+   m_iShowAtMs 0
+  }
+  MeshObject "{EE001B18632DA802}" {
+   Object "{8FDCB4B7499E4F85}Assets/Parachutes/GMS_ParachuteV2/GMS_PRisers.xob"
+  }
+  AnimationPlayerComponent "{EE001B18632DA803}" {
+  }
+ }
+}

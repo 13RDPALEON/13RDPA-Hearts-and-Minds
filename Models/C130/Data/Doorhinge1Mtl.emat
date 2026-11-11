@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{2F02EC2906B68E56}Models/C130/Data/Doorhinge1_diff.edds"
+ OpacityMap "{2F02EC2906B68E56}Models/C130/Data/Doorhinge1_diff.edds"
+}

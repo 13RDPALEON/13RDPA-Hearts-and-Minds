@@ -1,0 +1,18 @@
+GenericEntity Udarnik_Patrouille_1_R100 : "{1A8791C2BC2B8B75}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_empty.et" {
+ Flags 0x100000 0
+ coords 4364.754 23.578 2929.435
+}
+$grp GenericEntity : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_base.et" {
+ Udarnik_Patrouille_2_R100 {
+  Flags 0x100000 0
+  coords 5054.934 88.925 3431.66
+ }
+ Udarnik_Patrouille_3_R100 {
+  Flags 0x100000 0
+  coords 5453.272 45.75 3218.629
+ }
+ Udarnik_Patrouille_4_R100 {
+  Flags 0x100000 0
+  coords 3626.309 10.327 3935.866
+ }
+}

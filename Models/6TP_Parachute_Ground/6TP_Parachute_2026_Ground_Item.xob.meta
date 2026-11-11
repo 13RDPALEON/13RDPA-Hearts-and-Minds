@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{618B5D6EB97E7FC8}Models/6TP_Parachute_Ground/6TP_Parachute_2026_Ground_Item.xob"
+ Configurations {
+  XOBResourceClass PC {
+  }
+  XOBResourceClass XBOX_ONE : PC {
+  }
+  XOBResourceClass XBOX_SERIES : PC {
+  }
+  XOBResourceClass PS4 : PC {
+  }
+  XOBResourceClass PS5 : PC {
+  }
+  XOBResourceClass HEADLESS : PC {
+  }
+ }
+}

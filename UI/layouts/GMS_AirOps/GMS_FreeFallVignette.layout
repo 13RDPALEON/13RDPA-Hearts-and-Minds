@@ -1,0 +1,31 @@
+FrameWidgetClass {
+ Name "GMS_FFVignetteRoot"
+ {
+  OverlayWidgetClass "{69EE3A01C4F20001}" {
+   Name "VignetteOverlay"
+   Slot FrameWidgetSlot "{69EE3A01C4F20002}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   {
+    ImageWidgetClass "{69EE3A01C4F20003}" {
+     Name "SpeedVignette"
+     Slot OverlayWidgetSlot "{69EE3A01C4F20004}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0 0 0 1
+     Texture "{6FE2C64CB67BA627}UI/Textures/Editor/Overlays/Vignette/vignette.edds"
+     Size 512 512
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,66 @@
+StaticModelEntity : "{80DF3BD810D032AF}Prefabs/Structures/Industrial/Towers/LightTower_01/LightTower_01.et" {
+ ID "B94721BD62ADFC0E"
+ components {
+  FactionAffiliationComponent "{6A5F02B1000000D0}" {
+   "faction affiliation" "USSR"
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A5F02B1000000B2}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A5F02B1000000D1}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A5F02B1000000D2}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A5F02B1000000D3}" {
+  }
+  SCR_EditableEntityComponent "{6A5F02B1000000B3}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A5F02B1000000B4}" {
+    Name "Tour d'éclairage"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{B65C98D15C225FDA}UI/Textures/EditorPreviews/Auto/Structures/Industrial/Towers/E_LightTower_01.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE TRAIT_ILLUMINATION THEME_MILITARY SIZE_M CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A5F02B1000000B5}" {
+      m_BudgetType CAMPAIGN
+      m_Value 50
+     }
+     SCR_EntityBudgetValue "{6A5F02B1000000B6}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{591A8592E6D58CC1}" {
+   ActionContexts +{
+    UserActionContext "{6A5F02B1000000D5}" {
+     ContextName "Disassembly"
+     Position PointInfo "{6A5F02B1000000D6}" {
+      Offset 0 0.5 0
+     }
+     Radius 5
+     Height 0
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions +{
+    SCR_CampaignBuildingDisassemblyUserAction "{6A5F02B1000000D7}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Disassembly"
+     }
+     UIInfo SCR_ActionUIInfo "{6A5F02B1000000D8}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+   }
+  }
+ }
+}

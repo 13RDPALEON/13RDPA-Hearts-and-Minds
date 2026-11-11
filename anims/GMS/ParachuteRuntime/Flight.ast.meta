@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{43A6BDE50B109738}anims/GMS/ParachuteRuntime/Flight.ast"
+ Configurations {
+  ASTResourceClass PC {
+  }
+  ASTResourceClass XBOX_ONE : PC {
+  }
+  ASTResourceClass XBOX_SERIES : PC {
+  }
+  ASTResourceClass PS4 : PC {
+  }
+  ASTResourceClass PS5 : PC {
+  }
+  ASTResourceClass HEADLESS : PC {
+  }
+ }
+}

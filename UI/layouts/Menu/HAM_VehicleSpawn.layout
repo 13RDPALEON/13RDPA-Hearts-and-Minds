@@ -1,0 +1,196 @@
+FrameWidgetClass {
+ Name "Root"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 1 1
+ }
+ Color 0 0 0 0.45
+ {
+  FrameWidgetClass {
+   Name "Panel"
+   Slot FrameWidgetSlot {
+    PositionX 40
+    PositionY 28
+    SizeX 1520
+    SizeY 920
+   }
+   Color 0.027 0.051 0.094 0.96
+   {
+    ImageWidgetClass {
+     Name "PanelFill"
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+     Color 0.027 0.051 0.094 0.96
+    }
+    FrameWidgetClass {
+     Name "Accent"
+     Slot FrameWidgetSlot { OffsetLeft 18 OffsetTop 78 OffsetRight 18 SizeY 2 }
+     Color 0.776 0.631 0.357 1
+    }
+    TextWidgetClass {
+     Name "Title"
+     Slot FrameWidgetSlot { OffsetLeft 28 OffsetTop 16 SizeX 640 SizeY 34 }
+     Text "Garage"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 28
+    }
+    TextWidgetClass {
+     Name "Subtitle"
+     Slot FrameWidgetSlot { OffsetLeft 28 OffsetTop 50 SizeX 640 SizeY 20 }
+     Text "Choisir, viser, valider"
+     Color 0.6 0.65 0.7 1
+     "Font Size" 16
+    }
+    ImageWidgetClass {
+     Name "SearchBg"
+     Slot FrameWidgetSlot { OffsetLeft 980 OffsetTop 22 SizeX 360 SizeY 36 }
+     Color 0.16 0.22 0.34 1
+    }
+    EditBoxWidgetClass {
+     Name "Search"
+     Slot FrameWidgetSlot { OffsetLeft 980 OffsetTop 22 SizeX 360 SizeY 36 }
+     Color 0.95 0.96 0.97 1
+     style blank
+     "Font Size" 18
+    }
+    ButtonWidgetClass {
+     Name "SearchBtn"
+     Slot FrameWidgetSlot { OffsetLeft 1352 OffsetTop 22 SizeX 140 SizeY 36 }
+     Color 0.118 0.227 0.373 1
+     {
+      TextWidgetClass {
+       Name "SearchBtnText"
+       Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+       Text "Chercher"
+       Color 0.95 0.96 0.97 1
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item0"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 96 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item0Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item1"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 150 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item1Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item2"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 204 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item2Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item3"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 258 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item3Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item4"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 312 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item4Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item5"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 366 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item5Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item6"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 420 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item6Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Item7"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 474 SizeX 700 SizeY 48 }
+     Color 0.05 0.08 0.14 1
+     { TextWidgetClass { Name "Item7Text" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 } Text "—" Color 0.95 0.96 0.97 1 "Font Size" 20 "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Prev"
+     Slot FrameWidgetSlot { OffsetLeft 24 OffsetTop 850 SizeX 160 SizeY 40 }
+     Color 0.118 0.227 0.373 1
+     { TextWidgetClass { Name "PrevText" Slot FrameWidgetSlot { Anchor 0 0 1 1 } Text "Précédent" Color 0.95 0.96 0.97 1 "Font Size" 16 "Horizontal Alignment" Center "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Next"
+     Slot FrameWidgetSlot { OffsetLeft 196 OffsetTop 850 SizeX 160 SizeY 40 }
+     Color 0.118 0.227 0.373 1
+     { TextWidgetClass { Name "NextText" Slot FrameWidgetSlot { Anchor 0 0 1 1 } Text "Suivant" Color 0.95 0.96 0.97 1 "Font Size" 16 "Horizontal Alignment" Center "Vertical Alignment" Center } }
+    }
+    FrameWidgetClass {
+     Name "Card"
+     Slot FrameWidgetSlot { OffsetLeft 760 OffsetTop 96 SizeX 720 SizeY 640 }
+     Color 0.071 0.102 0.184 1
+     {
+      ImageWidgetClass {
+       Name "CardFill"
+       Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+       Color 0.071 0.102 0.184 1
+      }
+      TextWidgetClass {
+       Name "DetailName"
+       Slot FrameWidgetSlot { OffsetLeft 20 OffsetTop 16 SizeX 680 SizeY 36 }
+       Text "Sélectionner un véhicule"
+       Color 0.95 0.96 0.97 1
+       "Font Size" 24
+      }
+      ItemPreviewWidgetClass {
+       Name "VehPreview"
+       Slot FrameWidgetSlot { OffsetLeft 20 OffsetTop 60 SizeX 680 SizeY 300 }
+      }
+      TextWidgetClass {
+       Name "CostValue"
+       Slot FrameWidgetSlot { OffsetLeft 20 OffsetTop 376 SizeX 220 SizeY 28 }
+       Text "Coût"
+       Color 0.24 0.86 1 1
+       "Font Size" 20
+      }
+      TextWidgetClass {
+       Name "RankValue"
+       Slot FrameWidgetSlot { OffsetLeft 250 OffsetTop 376 SizeX 220 SizeY 28 }
+       Text "Grade"
+       Color 0.95 0.96 0.97 1
+       "Font Size" 20
+      }
+      TextWidgetClass {
+       Name "CargoValue"
+       Slot FrameWidgetSlot { OffsetLeft 480 OffsetTop 376 SizeX 220 SizeY 28 }
+       Text "Soute"
+       Color 0.95 0.96 0.97 1
+       "Font Size" 20
+      }
+      TextWidgetClass {
+       Name "Hint"
+       Slot FrameWidgetSlot { OffsetLeft 20 OffsetTop 416 SizeX 680 SizeY 40 }
+       Text ""
+       Color 0.6 0.65 0.7 1
+       "Font Size" 15
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Validate"
+     Slot FrameWidgetSlot { OffsetLeft 760 OffsetTop 748 SizeX 720 SizeY 48 }
+     Color 0.118 0.227 0.373 1
+     { TextWidgetClass { Name "ValidateText" Slot FrameWidgetSlot { Anchor 0 0 1 1 } Text "Valider" Color 0.95 0.96 0.97 1 "Font Size" 22 "Horizontal Alignment" Center "Vertical Alignment" Center } }
+    }
+    ButtonWidgetClass {
+     Name "Close"
+     Slot FrameWidgetSlot { OffsetLeft 760 OffsetTop 806 SizeX 720 SizeY 48 }
+     Color 0.55 0.16 0.16 1
+     { TextWidgetClass { Name "CloseText" Slot FrameWidgetSlot { Anchor 0 0 1 1 } Text "Fermer" Color 0.95 0.96 0.97 1 "Font Size" 20 "Horizontal Alignment" Center "Vertical Alignment" Center } }
+    }
+   }
+  }
+ }
+}

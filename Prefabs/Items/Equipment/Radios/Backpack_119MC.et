@@ -1,0 +1,98 @@
+GenericEntity : "{09D6A1C9543E4A95}Prefabs/Items/Core/Backpack_Base.et" {
+ ID "511E9C6ADE70F798"
+ components {
+  SignalsManagerComponent "{6A176D174A24A56F}" {
+  }
+  BaseRadioComponent "{6A176D174A24A548}" {
+   "Encryption key" "coldBorscht"
+   "Turned on" 1
+   Transceivers {
+    RadioTransceiver "{6A176D174A24A54B}" {
+     ChannelFrequency 50000
+     "Transmitting Range" 20000
+     "Min tunable frequency" 100
+     "Max tunable frequency" 100000
+     "Frequency resolution" 100
+    }
+    RadioTransceiver "{6A8F5ABE822D498A}" {
+     ChannelFrequency 30000
+     "Transmitting Range" 20000
+     "Min tunable frequency" 100
+     "Max tunable frequency" 100000
+     "Frequency resolution" 100
+    }
+   }
+  }
+  MeshObject "{511E9C6ADE70F7BD}" {
+   Object "{851544619B786CEF}Assets/AnPRC119floor1.xob"
+   Materials {
+    MaterialAssignClass "{6A176D174A24A54E}" {
+     SourceMaterial "Backpack_Medical_M5"
+     AssignedMaterial "{55EDB6CDFB5293CE}Assets/119nMCT.emat"
+    }
+   }
+  }
+  SCR_RadioComponent "{6A176D174A24A540}" {
+   m_iRadioCategory MANPACK
+   m_iRadioType ANPRC77
+  }
+  SCR_UniversalInventoryStorageComponent "{5222CB03A40528FA}" {
+   Attributes SCR_ItemAttributeCollection "{5222CB039E9715D1}" {
+    ItemDisplayName UIInfo "{5222CB03904B414C}" {
+     Name "ANPRC-119 Multicam"
+     Description "Long-range radio backpack"
+    }
+    ItemPhysAttributes ItemPhysicalAttributes PhysicalAttributes {
+     Weight 5
+     SizeSetupStrategy Manual
+     ItemDimensions 20 20 20
+     ItemVolume 4001
+    }
+    CustomAttributes {
+     PreviewRenderAttributes "{52BCBDD2B54658EC}" {
+      CameraPreset Top
+      CameraOrbitAngles 0 0 0
+      CameraDistanceToItem 2.54
+      CameraOffset 0 -0.25 0
+      PreviewModel "{851544619B786CEF}Assets/AnPRC119floor1.xob"
+     }
+     SCR_VONPreviewAttributes "{6A176D174A24A55B}" {
+      CameraPreset Top
+      CameraDistanceToItem 3.01
+      CameraOffset 0 -0.25 0
+      FOV 12.6
+     }
+    }
+   }
+   UseCapacityCoefficient 0
+   CapacityCoefficient 1
+   MaxCumulativeVolume 40000
+   MaxItemSize 20 20 20
+   m_fMaxWeight 40
+  }
+  SimpleSoundComponent "{6A176D174A24A55F}" {
+   Filenames {
+    "{3D8789E7ACF6EDD3}Sounds/Items/_SharedData/PickUp/Items_PickUp_BackPack.acp" "{F2BEB3DF3F95849F}Sounds/Items/_SharedData/Open/Backpack_Medical_M5/Items_Backpack_Medical_M5.acp"
+   }
+  }
+  BaseLoadoutClothComponent "{511E9C6ADE70F7BB}" {
+   WornModel "{BBBC28C7CCE605DB}Assets/AnPRC119.xob"
+   ItemModel "{851544619B786CEF}Assets/AnPRC119floor1.xob"
+   DeflatedModel "{BBBC28C7CCE605DB}Assets/AnPRC119.xob"
+   AreaTypeWhenModelChange {
+    LoadoutArmoredVestSlotArea "{6A176D174A24A553}" {
+    }
+   }
+  }
+  ActionsManagerComponent "{511E9C6ADE70F786}" {
+   ActionContexts {
+    UserActionContext "{511E9C6ADE70F788}" {
+     Position PointInfo "{511E9C6ADE70F78D}" {
+      Offset 0 0.1805 0.1041
+     }
+     Radius 1
+    }
+   }
+  }
+ }
+}

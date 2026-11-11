@@ -1,0 +1,8 @@
+GenericEntity : "{1F3291C2A7E2BA00}Prefabs/Props/Wrecks/BRDM2_wreck/BRDM2_wreck_static.et" {
+ ID "F0DBA538AC2A0552"
+ components {
+  RplComponent "{1E4A0615B9BBFAD9}" {
+   Enabled 1
+  }
+ }
+}

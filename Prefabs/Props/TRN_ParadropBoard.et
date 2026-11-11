@@ -1,0 +1,85 @@
+GenericEntity : "{CED426FA78A2D480}Prefabs/Structures/Signs/Large/SignLarge_01_DurrasQuarry.et" {
+ ID "50D67C36F4200F97"
+ components {
+  FactionAffiliationComponent "{6AA33470EE100030}" {
+   "faction affiliation" "USSR"
+  }
+  SCR_CampaignBuildingCompositionComponent "{6AA33470EE100031}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6AA33470EE100032}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6AA33470EE100033}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  MeshObject "{54969A6AAAADA251}" {
+   Materials {
+    MaterialAssignClass "{6AA33470EE100021}" {
+     SourceMaterial "SignLarge_01"
+     AssignedMaterial "{6AA33470EE500002}Assets/Materials/TRN_ParadropBoard.emat"
+    }
+    MaterialAssignClass "{6AA33470EE100022}" {
+     SourceMaterial "SignLarge_01_MLOD"
+     AssignedMaterial "{6AA33470EE500003}Assets/Materials/TRN_ParadropBoard_MLOD.emat"
+    }
+   }
+  }
+  ActionsManagerComponent "{6AA33470EE100002}" {
+   ActionContexts {
+    UserActionContext "{6AA33470EE100003}" {
+     ContextName "Paradrop"
+     Position PointInfo "{6AA33470EE100004}" {
+      Offset 0 1.2 0
+     }
+     Radius 3.5
+     Height 2.5
+     "Display UI At Reference Point" 0
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6AA33470EE100034}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Paradrop"
+     }
+     UIInfo SCR_ActionUIInfo "{6AA33470EE100035}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+    HAM_ParadropUserAction "{6AA33470EE100005}" {
+     ParentContextList {
+      "Paradrop"
+     }
+     Duration 1
+     UIInfo SCR_ActionUIInfo "{6AA33470EE100006}" {
+      Name "Se redéployer"
+     }
+    }
+   }
+  }
+  SCR_EditableEntityComponent "{6AA33470EE100007}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6AA33470EE100008}" {
+    Name "Panneau paradrop"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM THEME_MILITARY SIZE_S CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6AA33470EE100036}" {
+      m_BudgetType CAMPAIGN
+      m_Value 0
+     }
+     SCR_EntityBudgetValue "{6AA33470EE100037}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+ }
+}

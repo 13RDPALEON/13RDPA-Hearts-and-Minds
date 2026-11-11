@@ -1,0 +1,4 @@
+GenericEntity Udarnik_Mines_1_et_Udarnik_IED_1_R100 : "{EC13D4E934B2ADD8}Prefabs/Items/Demining/MineFlags/MineFlag_US.et" {
+ Flags 0x100000 0
+ coords 4372.615 22.776 2937.426
+}

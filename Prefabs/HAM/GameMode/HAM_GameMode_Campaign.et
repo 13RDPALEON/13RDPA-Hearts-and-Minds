@@ -1,0 +1,85 @@
+SCR_GameModeCampaign : "{3B230AAC5252108F}Prefabs/MP/Modes/Conflict/GameMode_Campaign.et" {
+ ID "B161D6A17117F6DB"
+ components {
+  HAM_MissionComponent "{79AA25010D0E1AC1}" {
+   m_sMapKey "Cain"
+  }
+  SCR_IdentityManagerComponent "{5AEEA80681EA61AF}" {
+   m_eIdentityItemGenerationType 0
+   m_bEnableIdentityItemSlot 0
+   m_bGenerateValuableIntel 0
+  }
+  HAM_MilsimSettingsComponent "{6E2EE47703CC81B4}" {
+  }
+  HAM_AISettingsComponent "{B3DA3B3187A38F99}" {
+   m_aTRN_StylePresets {
+    "{630D9CE4DFD746EF}Configs/Styles/HAM_Style_Default.conf" "{29051E152E19F0AD}Configs/Styles/HAM_Style_Offensive.conf" "{A888DB368594C287}Configs/Styles/HAM_Style_Urban.conf" "{324ABD1A000B41FE}Configs/Styles/HAM_Style_Defensive.conf" "{AF36CBECE63E9DDB}Configs/Styles/HAM_Style_Mechanized.conf" "{BBC554E113ACF2DA}Configs/Styles/HAM_Style_CQBDefensive.conf" "{A8A100DBA4C2A2DA}Configs/Styles/HAM_Style_CQBOffensive.conf"
+   }
+  }
+  SCR_ArsenalManagerComponent "{6120A34EB1E9BBEF}" {
+   m_eArsenalGameModeType UNRESTRICTED
+   m_bRankLockedItems 0
+   m_fRefundDifferentFactionItemMultiplier 1
+  }
+  SCR_CacheManagerComponent "{691E6E472CBA6978}" {
+   m_iAmount 0
+  }
+  SCR_DebriefingScreenComponent "{5D349E302A88E42C}" {
+   m_sHeaderTitle "13RDPA Hearts and Minds"
+   m_sHeaderSubtitle "Kolguyev"
+  }
+  SCR_GroupsManagerComponent "{5706EC99934496F5}" {
+   m_aGroupFlags {
+   }
+  }
+  SCR_RespawnSystemComponent "{56B2B4793051E7C9}" {
+   m_SpawnLogic SCR_MenuSpawnLogic "{5CEAA65B714D5CFF}" {
+    m_fDeployMenuOpenDelay 10
+   }
+  }
+  SCR_WelcomeScreenComponent "{5D349E3E9CC39991}" {
+   m_sHeaderTitle "13RDPA Hearts and Minds"
+   m_BaseLayout SCR_WelcomeScreenThreeHorizontalColumns "{5D349E3E90D4315E}" {
+    m_MiddleColumn SCR_WelcomeScreenMissionObjectivesContent "{5D349E3E8A5CF4C3}" {
+     m_sTitleText "Objectifs"
+     m_aMissionObjectives {
+      SCR_WelcomeScreenMissionObjectives "{5D349E3F455821CC}" {
+       m_sObjectiveQuadName "Seize"
+       m_sDescription "Prendre les cellules du front : le maître d'abord, puis ses esclaves. Le QG ennemi tombe en dernier."
+      }
+      SCR_WelcomeScreenMissionObjectives "{5D349E3F45C63A88}" {
+       m_sObjectiveQuadName "Defend"
+       m_sDescription "Tenir ce qui est pris : eau, nourriture, munitions et hommes au-dessus des seuils, sinon la cellule retombe."
+      }
+      SCR_WelcomeScreenMissionObjectives "{5D349E3F45967A8B}" {
+       m_sObjectiveQuadName "Reconfigure"
+       m_sDescription "Gagner la population : la réputation fait parler les civils et révèle les cellules cachées."
+      }
+     }
+    }
+    m_RightColumn SCR_WelcomeScreenIntroductionContent "{5D349E3E89289BE9}" {
+     m_sTitleText "13RDPA Hearts and Minds"
+     m_aIntroduction {
+      SCR_WelcomeScreenIntroduction "{5D349E3F6FF705DE}" {
+       m_sContentImage "{4B4DDC7134E529D4}UI/Textures/MissionLoadingScreens/HAM_LC.edds"
+       m_sContentTitleText "Le front"
+       m_sContentDescriptionText "Kolguyev est découpée en cellules. Seules celles qui touchent les vôtres sont ouvertes. Passer derrière le front renvoie au QG et coûte de la réputation."
+      }
+      SCR_WelcomeScreenIntroduction "{5D349E3F6C78332F}" {
+       m_sContentImage "{E00CCCF1DB6DE5F3}UI/Textures/FieldManual/MPModes/Conflict/Images/Conflict_service_supply_UI.edds"
+       m_sContentTitleText "Logistique"
+       m_sContentDescriptionText "Les dépôts ennemis donnent eau, nourriture et munitions. Chargez-les en camion et livrez-les au maître. Les hommes partent en convoi depuis le tableau H&M."
+      }
+      SCR_WelcomeScreenIntroduction "{5D349E3F6C38011F}" {
+       m_sContentImage "{EFF804FB17026599}UI/Textures/FieldManual/MPModes/Conflict/Images/Conflict_service_antenna_UI.edds"
+       m_sContentTitleText "Renseignement"
+       m_sContentDescriptionText "Fouillez les corps et les bâtiments pour trouver des intels. IED, mines et missions secondaires attendent sur les cellules ennemies."
+      }
+     }
+    }
+   }
+  }
+  HAM_ParadropComponent "{6AA33470EE4000A1}" {
+  }
+ }
+}

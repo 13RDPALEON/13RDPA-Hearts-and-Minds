@@ -1,0 +1,12 @@
+GenericEntity {
+ ID EE001B18632D9AC6
+ components {
+  MeshObject "{0B5F000651E9EA28}" {
+   Object "{6DAF92DEAEEB97E5}Assets/Parachutes/GMS_Parachute/GMS_Parachute.xob"
+  }
+  AnimationPlayerComponent "{8C732221CAB23541}" {
+  }
+  TRN_Para_ParachuteAnimComponent "{8C732221CAB23542}" {
+  }
+ }
+}

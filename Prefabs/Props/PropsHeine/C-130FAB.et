@@ -1,0 +1,71 @@
+GenericEntity : "{DED4DB7D08E6E0BE}Prefabs/Structures/Military/Radar/ApproachRadar_RPL5_01/ApproachRadar_RPL5_01.et" {
+ ID "F0DBA538AC2A0552"
+ components {
+  SignalsManagerComponent "{61E70EAE27202F22}" {
+   Enabled 0
+  }
+  SoundComponent "{61E70EAE272050D4}" {
+   Enabled 0
+   Filenames {
+    "{64F8970E7653FABF}Sounds/Structures/Military/Radar/Structures_ApproachRadar.acp"
+   }
+   IncludeInactive 1
+  }
+  MeshObject "{5872F0EB7FA40561}" {
+   Object "{ACBDAD49193DC29F}Models/C130/C-130.xob"
+  }
+  RigidBody "{5872F0EB7DFB5A9D}" {
+   Kinematic 1
+  }
+  ProcAnimComponent "{5A4ED832D66CA486}" {
+   Enabled 0
+   Parameters {
+    ProcAnimParams "{5A4ED832D0272DD6}" {
+     SimulationDistance 2000
+    }
+   }
+  }
+  SCR_DestructionMultiPhaseComponent "{5624A88D86EFE8BA}" {
+   Enabled 0
+   m_aDamagePhases {
+    SCR_DamagePhaseData "{5A50E304ED73C0AE}" {
+     m_PhaseModel "{92FCA00964390EA0}Assets/Decals/Concrete/Damage/Runway_Cracks_01.xob"
+    }
+   }
+  }
+  SCR_EditableEntityComponent "{61E70EAE272050EA}" {
+   m_UIInfo SCR_EditableEntityUIInfo "{61E70EAE272050E9}" {
+    Name "C-130 FAB"
+    m_aAuthoredLabels {
+     ENTITYTYPE_OBJECT FACTION_NONE CONTENT_MODDED
+    }
+   }
+  }
+  Hierarchy "{61E70EAE27205093}" {
+  }
+  Persistence "{69A4D537F6515147}" {
+  }
+  ActionsManagerComponent "{6AA33470EE200001}" {
+   ActionContexts {
+    UserActionContext "{6AA33470EE200002}" {
+     ContextName "Jump"
+     Position PointInfo "{6AA33470EE200003}" {
+      Offset 0 0 0
+     }
+     Radius 25
+     Height 8
+    }
+   }
+   additionalActions {
+    HAM_ParadropJumpAction "{6AA33470EE200004}" {
+     ParentContextList {
+      "Jump"
+     }
+     UIInfo SCR_ActionUIInfo "{6AA33470EE200005}" {
+      Name "Sauter"
+     }
+    }
+   }
+  }
+ }
+}

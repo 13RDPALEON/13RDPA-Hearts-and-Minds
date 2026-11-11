@@ -1,0 +1,4 @@
+GenericEntity Udarnik_Civils_1_R100 : "{1A8791C2BC2B8B75}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_empty.et" {
+ Flags 0x100000 0
+ coords 2721.704 49.614 5474.847
+}

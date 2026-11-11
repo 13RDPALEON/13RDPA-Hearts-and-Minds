@@ -1,0 +1,10 @@
+DepthOfFieldEffect {
+ Enabled 1
+ FocalDistance 0.3
+ FocalChange 300
+ FocalChangeNear 10000
+ BlurFactor 2.5
+ SimpleDOF 1
+ SimpleDOFGauss 3
+ SkipFar 0
+}

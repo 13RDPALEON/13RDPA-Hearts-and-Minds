@@ -1,0 +1,26 @@
+GenericEntity : "{1A707AE02D03FD69}Prefabs/Items/Equipment/Radios/Backpack_119MC.et" {
+ ID "511E9C6ADE70F798"
+ components {
+  MeshObject "{511E9C6ADE70F7BD}" {
+   Object "{2477E3D10819FC6B}Assets/AnPRC119floor1od.xob"
+   Materials {
+    MaterialAssignClass "{6A176D174A24A54E}" {
+     SourceMaterial "Backpack_Medical_M5"
+     AssignedMaterial "{55B6B12340CF1F39}Assets/119nOD.emat"
+    }
+   }
+  }
+  SCR_UniversalInventoryStorageComponent "{5222CB03A40528FA}" {
+   Attributes SCR_ItemAttributeCollection "{5222CB039E9715D1}" {
+    ItemDisplayName UIInfo "{5222CB03904B414C}" {
+     Name "ANPRC-119 OD"
+    }
+   }
+  }
+  BaseLoadoutClothComponent "{511E9C6ADE70F7BB}" {
+   WornModel "{9EAC9D71915B2D59}Assets/AnPRC119od.xob"
+   ItemModel "{2477E3D10819FC6B}Assets/AnPRC119floor1od.xob"
+   DeflatedModel "{9EAC9D71915B2D59}Assets/AnPRC119od.xob"
+  }
+ }
+}

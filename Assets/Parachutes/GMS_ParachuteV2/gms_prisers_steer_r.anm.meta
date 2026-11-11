@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{2EDCD796F2504713}Assets/Parachutes/GMS_ParachuteV2/gms_prisers_steer_r.anm"
+ Configurations {
+  ANMResourceClass PC {
+  }
+  ANMResourceClass XBOX_ONE : PC {
+  }
+  ANMResourceClass XBOX_SERIES : PC {
+  }
+  ANMResourceClass PS4 : PC {
+  }
+  ANMResourceClass PS5 : PC {
+  }
+  ANMResourceClass HEADLESS : PC {
+  }
+ }
+}

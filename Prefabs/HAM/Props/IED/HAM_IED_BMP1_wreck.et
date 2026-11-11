@@ -1,0 +1,8 @@
+GenericEntity : "{25B265F3E7CBDFC8}Prefabs/Props/Wrecks/BMP1_wreck/BMP1_wreck.et" {
+ ID "5112869E2988305B"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

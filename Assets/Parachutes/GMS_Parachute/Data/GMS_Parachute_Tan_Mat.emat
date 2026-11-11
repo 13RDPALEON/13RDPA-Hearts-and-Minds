@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{9A984FD584F36611}Assets/Parachutes/GMS_Parachute/Data/GMS_Parachute_Tan_BCR.edds"
+ NMOMap "{DDDB27B406015B29}Assets/Parachutes/GMS_Parachute/Data/GMS_Parachute_NMO.edds"
+}

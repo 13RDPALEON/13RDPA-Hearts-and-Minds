@@ -1,0 +1,33 @@
+GenericEntity {
+ ID "69F1B89B0BC59011"
+ components {
+  RplComponent "{B743A08CC6DADC71}" {
+  }
+  Hierarchy "{4E0250E5E65B4B71}" {
+  }
+  ActionsManagerComponent "{9C771286EE18DE71}" {
+   ActionContexts {
+    UserActionContext "{AB59C5B5F34A8671}" {
+     ContextName "HAM_Ask"
+     Position PointInfo "{F399F765BEA46571}" {
+      Offset 0 0 0
+     }
+     Radius 2
+     Height 2
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions {
+    HAM_CivilianInterrogateUserAction "{95A66663836EDD71}" {
+     ParentContextList {
+      "HAM_Ask"
+     }
+     UIInfo SCR_ActionUIInfo "{5E6DB25DF9B5DB71}" {
+      Name "Interroger"
+     }
+     Duration 0
+    }
+   }
+  }
+ }
+}

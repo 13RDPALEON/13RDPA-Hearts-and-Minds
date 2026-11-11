@@ -1,0 +1,1490 @@
+AnimSrcGraphFile {
+ Sheets {
+  AnimSrcGraphSheet GMS_Flight {
+   Nodes {
+AnimSrcNodeVarSet MasterControl {
+ Tags { "TagGMSParachutePrivate" }
+ Child "GMS_FlightOrHold"
+ VarSet { AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C1000}" {
+      VariableName "GMSP_SL_HoldLeft" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 103, GetCommandIc(CMD_Gesture_NPC)/100.0, 0), LastValue)"
+    }
+AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C1001}" {
+      VariableName "GMSP_SL_HoldRight" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 103, GetCommandId(CMD_Gesture_NPC)/100.0, 0), LastValue)"
+    }
+AnimSrcNodeVarSetBoolItem "{A97A1DFE4A1C1002}" {
+      VariableName "GMSP_HALO_Enabled" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), GetCommandIa(CMD_Gesture_NPC) == 101, LastValue)"
+    }
+AnimSrcNodeVarSetBoolItem "{A97A1DFE4A1C1003}" {
+      VariableName "GMSP_SL_ObserverRoot" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), false, LastValue)"
+    }
+AnimSrcNodeVarSetBoolItem "{A97A1DFE4A1C1004}" {
+      VariableName "GMSP_SL_Enabled" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), GetCommandIa(CMD_Gesture_NPC) == 102, LastValue)"
+    }
+AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C1005}" {
+      VariableName "GMSP_SL_RecoveryOffsetX" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 102 && GetCommandIb(CMD_Gesture_NPC) >= 96, GetCommandF(CMD_Gesture_NPC), 0), LastValue)"
+    }
+AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C1006}" {
+      VariableName "GMSP_SL_RecoveryOffsetZ" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 102 && GetCommandIb(CMD_Gesture_NPC) >= 96, (GetCommandId(CMD_Gesture_NPC)*256 + if(GetCommandIc(CMD_Gesture_NPC) < 0, GetCommandIc(CMD_Gesture_NPC)+256, GetCommandIc(CMD_Gesture_NPC)))/1000.0, 0), LastValue)"
+    }
+AnimSrcNodeVarSetIntItem "{A97A1DFE4A1C1007}" {
+      VariableName "GMSP_SL_Phase" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIb(CMD_Gesture_NPC) >= 96, 3, if(GetCommandIb(CMD_Gesture_NPC) >= 64, 2, if(GetCommandIb(CMD_Gesture_NPC) >= 32, 1, 0))), LastValue)"
+    }
+AnimSrcNodeVarSetBoolItem "{A97A1DFE4A1C1008}" {
+      VariableName "GMSP_FF_Active" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), inRange(GetCommandIa(CMD_Gesture_NPC), 101, 102), LastValue)"
+    }
+AnimSrcNodeVarSetIntItem "{A97A1DFE4A1C1009}" {
+      VariableName "GMSP_FF_Dir" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), GetCommandIb(CMD_Gesture_NPC) - 32*(if(GetCommandIb(CMD_Gesture_NPC) >= 96, 3, if(GetCommandIb(CMD_Gesture_NPC) >= 64, 2, if(GetCommandIb(CMD_Gesture_NPC) >= 32, 1, 0)))), LastValue)"
+    }
+AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C100A}" {
+      VariableName "GMSP_FF_DirX" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 102 && GetCommandIb(CMD_Gesture_NPC) >= 96, 0, GetCommandIc(CMD_Gesture_NPC)/100.0), LastValue)"
+    }
+AnimSrcNodeVarSetFloatItem "{A97A1DFE4A1C100B}" {
+      VariableName "GMSP_FF_DirY" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), if(GetCommandIa(CMD_Gesture_NPC) == 102 && GetCommandIb(CMD_Gesture_NPC) >= 96, 0, GetCommandId(CMD_Gesture_NPC)/100.0), LastValue)"
+    }
+AnimSrcNodeVarSetBoolItem "{A97A1DFE4A1C100C}" {
+      VariableName "GMSP_HoldActive" SetOnInit 1 SetOnMainPath 1 SetOnBlendOut 1 PostEval 1 Value "if(inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103), GetCommandIa(CMD_Gesture_NPC) == 103, LastValue)"
+    } }
+}
+AnimSrcNodeVarUpdate GMS_PacketHold {
+ Child "GMS_FlightOrHold"
+ Varupdate { AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2000}" {
+      VariableName "GMSP_SL_HoldLeft" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2001}" {
+      VariableName "GMSP_SL_HoldRight" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2002}" {
+      VariableName "GMSP_HALO_Enabled" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2003}" {
+      VariableName "GMSP_SL_ObserverRoot" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2004}" {
+      VariableName "GMSP_SL_Enabled" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2005}" {
+      VariableName "GMSP_SL_RecoveryOffsetX" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2006}" {
+      VariableName "GMSP_SL_RecoveryOffsetZ" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2007}" {
+      VariableName "GMSP_SL_Phase" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2008}" {
+      VariableName "GMSP_FF_Active" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C2009}" {
+      VariableName "GMSP_FF_Dir" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C200A}" {
+      VariableName "GMSP_FF_DirX" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C200B}" {
+      VariableName "GMSP_FF_DirY" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    }
+AnimSrcNodeVarUpdateItem "{A97A1DFE4A1C200C}" {
+      VariableName "GMSP_HoldActive" UpdateOnInit 1 UpdateOnMainPath 1 UpdateOnBlendOut 1
+      Condition "inRange(GetCommandIa(CMD_Gesture_NPC), 101, 103)"
+    } }
+}
+AnimSrcNodeBlend GMS_FlightOrHold {
+ BlendWeight "if(GMSP_HoldActive, 1, 0)"
+ Child0 "GMS_ParachuteMode" Child1 "GMS_HoldRight"
+ Optimization "Skip blended out"
+}
+AnimSrcNodeBufferUse GMS_HoldBase { BufferName "FullBodyNPC" }
+AnimSrcNodePose GMS_HoldLeftPose { Source "ZZ_GMSFF.Default.Steer_L" Time "0" }
+AnimSrcNodePose GMS_HoldRightPose { Source "ZZ_GMSFF.Default.Steer_R" Time "0" }
+AnimSrcNodeBlend GMS_HoldLeft {
+ Child0 "GMS_HoldBase" Child1 "GMS_HoldLeftPose"
+ BlendWeight "GMSP_SL_HoldLeft" Optimization "Always eval both"
+}
+AnimSrcNodeBlend GMS_HoldRight {
+ Child0 "GMS_HoldLeft" Child1 "GMS_HoldRightPose"
+ BlendWeight "GMSP_SL_HoldRight" Optimization "Always eval both"
+}
+
+AnimSrcNodeStateMachine GMS_ParachuteMode {
+     EditorPos -100 -20
+     states {
+      AnimSrcNodeState NoRig {
+       Child "GMSFF_SrcNeutral"
+       StartCondition "!GMSP_SL_Enabled && !GMSP_HALO_Enabled"
+      }
+      AnimSrcNodeState HALO {
+       EditorPos -104 -17
+       Child "GMSFF_Compass"
+       StartCondition "GMSP_HALO_Enabled && !GMSP_SL_Enabled"
+      }
+      AnimSrcNodeState StaticLine {
+       EditorPos -96 -17
+       Child "GMS_SL_StaticLine"
+       StartCondition "GMSP_SL_Enabled"
+      }
+     }
+     transitions {
+      AnimSrcNodeTransition SL_Select {
+       FromState ""
+       ToState "StaticLine"
+       Duration "0.1"
+       Condition "GMSP_SL_Enabled"
+       Reentering Forbidden
+      }
+      AnimSrcNodeTransition HALO_Select {
+       FromState ""
+       ToState "HALO"
+       Duration "0.1"
+       Condition "GMSP_HALO_Enabled && !GMSP_SL_Enabled"
+       Reentering Forbidden
+      }
+      AnimSrcNodeTransition NoRig_Select {
+       FromState ""
+       ToState "NoRig"
+       Duration "0.1"
+       Condition "!GMSP_SL_Enabled && !GMSP_HALO_Enabled"
+       Reentering Forbidden
+      }
+     }
+    }
+AnimSrcNodeStateMachine GMS_SL_StaticLine {
+     Tags {
+      "TagGMSFF"
+      "TagGMSSLBranch"
+     }
+     EditorPos -100 25
+     states {
+      AnimSrcNodeState SL_Fall {
+       EditorPos -108 30
+       Child "GMS_SL_FallSourceLandingFrame"
+       StartCondition "GMSP_SL_Phase == 0"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Exit {
+       EditorPos -100 30
+       Child "GMS_SL_ExitSourceLandingFrame"
+       StartCondition "GMSP_SL_Phase == 1"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Hang {
+       EditorPos -92 30
+       Child "GMS_SL_HangPoseLandingFrame"
+       StartCondition "GMSP_SL_Phase == 2"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Land {
+       EditorPos -84 40
+       Child "GMS_SL_LandingSound"
+       StartCondition "GMSP_SL_Phase == 3"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Roll {
+       EditorPos -84 41
+       Child "GMS_SL_RollSourceAligned"
+       StartCondition "false"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Recover {
+       EditorPos -84 43
+       Child "GMS_SL_RecoverSourceAligned"
+       StartCondition "false"
+       TimeStorage "Real Time"
+      }
+      AnimSrcNodeState SL_Done {
+       EditorPos -84 44
+       Child "GMS_SL_CrouchPoseAligned"
+       StartCondition "false"
+       TimeStorage "Real Time"
+      }
+     }
+     transitions {
+      AnimSrcNodeTransition SL_TouchdownHang {
+       FromState "SL_Hang"
+       ToState "SL_Land"
+       Duration ".2"
+       Condition "GMSP_SL_Phase == 3"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition SL_TouchdownExit {
+       FromState "SL_Exit"
+       ToState "SL_Land"
+       Duration ".2"
+       Condition "GMSP_SL_Phase == 3"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition SL_RollOver {
+       FromState "SL_Land"
+       ToState "SL_Roll"
+       Duration ".3"
+       Condition "RemainingTimeLess(3.133333)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition SL_GetUp {
+       FromState "SL_Roll"
+       ToState "SL_Recover"
+       Duration ".25"
+       Condition "RemainingTimeLess(0.25)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition SL_Recovered {
+       FromState "SL_Recover"
+       ToState "SL_Done"
+       Duration ".1"
+       Condition "RemainingTimeLess(0.1)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition SL_Deploy {
+       FromState "SL_Fall"
+       ToState "SL_Exit"
+       Duration "0.05"
+       Condition "GMSP_SL_Phase == 1"
+      }
+      AnimSrcNodeTransition SL_Opened {
+       FromState "SL_Exit"
+       ToState "SL_Hang"
+       Duration "0.1"
+       Condition "GMSP_SL_Phase == 2"
+      }
+      AnimSrcNodeTransition SL_Reset {
+       FromState ""
+       ToState "SL_Fall"
+       Duration "0.1"
+       Condition "GMSP_SL_Phase == 0"
+       Reentering Forbidden
+      }
+     }
+    }
+AnimSrcNodeSource GMS_SL_FallSource {
+     EditorPos -108 34
+     Source "ZZ_GMSSL.Default.Fall"
+     Looptype "Loop"
+    }
+AnimSrcNodeSource GMS_SL_ExitSource {
+     EditorPos -100 34
+     Source "ZZ_GMSSL.Default.Exit"
+     Looptype "No Loop"
+    }
+AnimSrcNodePose GMS_SL_HangPose {
+     EditorPos -92 34
+     Source "ZZ_GMSSL.Default.Hang"
+     Time "1.0"
+    }
+AnimSrcNodeProcTransform GMS_SL_FallSourceLandingFrame {
+     Child "GMS_SL_FallSource"
+     Expression "if(GMSP_SL_Phase == 3, rad(90), 0)"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_AirRoot {
+       Operation "Rotate Around"
+       Axis X
+       Amount "1"
+       Space Model
+       PivotBone "Scene_Root"
+       Bone "EntityPosition"
+      }
+     }
+    }
+AnimSrcNodeProcTransform GMS_SL_ExitSourceLandingFrame {
+     Child "GMS_SL_ExitSource"
+     Expression "if(GMSP_SL_Phase == 3, rad(90), 0)"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_AirRoot {
+       Operation "Rotate Around"
+       Axis X
+       Amount "1"
+       Space Model
+       PivotBone "Scene_Root"
+       Bone "EntityPosition"
+      }
+     }
+    }
+AnimSrcNodeProcTransform GMS_SL_HangPoseLandingFrame {
+     Child "GMS_SL_HangPose"
+     Expression "if(GMSP_SL_Phase == 3, rad(90), 0)"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_AirRoot {
+       Operation "Rotate Around"
+       Axis X
+       Amount "1"
+       Space Model
+       PivotBone "Scene_Root"
+       Bone "EntityPosition"
+      }
+     }
+    }
+AnimSrcNodeProcTransform GMS_SL_RollSourceAligned {
+     Child "GMS_SL_RollSource"
+     Expression "1"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_RecoveryX {
+       Operation Translate
+       Axis X
+       Amount "GMSP_SL_RecoveryOffsetX"
+       Space Model
+       Bone "Hips"
+      }
+      AnimSrcNodeProcTrBoneItem SL_RecoveryZ {
+       Operation Translate
+       Axis Z
+       Amount "GMSP_SL_RecoveryOffsetZ"
+       Space Model
+       Bone "Hips"
+      }
+     }
+    }
+AnimSrcNodeProcTransform GMS_SL_RecoverSourceAligned {
+     Child "GMS_SL_RecoverSource"
+     Expression "1"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_RecoveryX {
+       Operation Translate
+       Axis X
+       Amount "GMSP_SL_RecoveryOffsetX"
+       Space Model
+       Bone "Hips"
+      }
+      AnimSrcNodeProcTrBoneItem SL_RecoveryZ {
+       Operation Translate
+       Axis Z
+       Amount "GMSP_SL_RecoveryOffsetZ"
+       Space Model
+       Bone "Hips"
+      }
+     }
+    }
+AnimSrcNodeProcTransform GMS_SL_CrouchPoseAligned {
+     Child "GMS_SL_CrouchPose"
+     Expression "1"
+     Bones {
+      AnimSrcNodeProcTrBoneItem SL_RecoveryX {
+       Operation Translate
+       Axis X
+       Amount "GMSP_SL_RecoveryOffsetX"
+       Space Model
+       Bone "Hips"
+      }
+      AnimSrcNodeProcTrBoneItem SL_RecoveryZ {
+       Operation Translate
+       Axis Z
+       Amount "GMSP_SL_RecoveryOffsetZ"
+       Space Model
+       Bone "Hips"
+      }
+     }
+    }
+AnimSrcNodeEvent GMS_SL_LandingSound {
+     EditorPos -84 37
+     Child "GMS_SL_LandSource"
+     Events {
+      AnimSrcEventGeneric "{97A5E0B1F629CC51}" {
+       Name "Sound"
+       MainPathOnly 1
+       InitOnly 1
+       UserString "SOUND_LANDING.leftfoot"
+       UserInt -1
+      }
+      AnimSrcEventGeneric "{97A5E0B1F629CC52}" {
+       Name "Sound"
+       MainPathOnly 1
+       InitOnly 1
+       UserString "SOUND_CHAR_LAND_GEAR"
+       UserInt -1
+      }
+     }
+    }
+AnimSrcNodeSource GMS_SL_LandSource {
+     Tags { "TagGMSSLLanding" }
+     Source "ZZ_GMSFF.Default.LandBwd"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMS_SL_RollSource {
+     Tags { "TagGMSSLRoll" }
+     Source "Unconscious.Default.UnconsciousBackTrans"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMS_SL_RecoverSource {
+     Tags { "TagGMSSLRecover" }
+     Source "StanceTransitions.PneLow.GoCro"
+     Looptype "No Loop"
+    }
+AnimSrcNodePose GMS_SL_CrouchPose {
+     Tags { "TagGMSSLDone" }
+     Source "StanceTransitions.PneLow.GoCro"
+     Time "1.0"
+    }
+AnimSrcNodeStateMachine GMSFF_Compass {
+     Tags {
+      "TagGMSFF"
+      "TagGMSHALOBranch"
+     }
+     EditorPos -80 -14
+     states {
+      AnimSrcNodeState GMSFF_Neutral {
+       EditorPos -80 0
+       Child "GMSFF_SrcNeutral"
+       StartCondition "true"
+      }
+      AnimSrcNodeState GMSFF_FF_F {
+       EditorPos -80 -8
+       Child "GMSFF_SrcFF_F"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_F_In {
+       EditorPos -80 -4
+       Child "GMSFF_SrcFF_F_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_RF {
+       EditorPos -74.3 -5.7
+       Child "GMSFF_SrcFF_RF"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_RF_In {
+       EditorPos -77.2 -2.8
+       Child "GMSFF_SrcFF_RF_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_R {
+       EditorPos -72 0
+       Child "GMSFF_SrcFF_R"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_R_In {
+       EditorPos -76 0
+       Child "GMSFF_SrcFF_R_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_RB {
+       EditorPos -74.3 5.7
+       Child "GMSFF_SrcFF_RB"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_RB_In {
+       EditorPos -77.2 2.8
+       Child "GMSFF_SrcFF_RB_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_B {
+       EditorPos -80 8
+       Child "GMSFF_SrcFF_B"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_B_In {
+       EditorPos -80 4
+       Child "GMSFF_SrcFF_B_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_LB {
+       EditorPos -85.7 5.7
+       Child "GMSFF_SrcFF_LB"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_LB_In {
+       EditorPos -82.8 2.8
+       Child "GMSFF_SrcFF_LB_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_L {
+       EditorPos -88 0
+       Child "GMSFF_SrcFF_L"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_L_In {
+       EditorPos -84 0
+       Child "GMSFF_SrcFF_L_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_LF {
+       EditorPos -85.7 -5.7
+       Child "GMSFF_SrcFF_LF"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_FF_LF_In {
+       EditorPos -82.8 -2.8
+       Child "GMSFF_SrcFF_LF_In"
+       StartCondition "false"
+      }
+      AnimSrcNodeState GMSFF_Pull {
+       EditorPos -68 0
+       Child "GMSFF_SrcPull"
+       StartCondition "false"
+       TimeStorage "Real Time"
+       IsExit 0
+      }
+      AnimSrcNodeState GMSFF_Para {
+       EditorPos -66 0
+       Child "GMSFF_ParaQ"
+       StartCondition "false"
+       TimeStorage "Real Time"
+       IsExit 0
+      }
+     }
+     transitions {
+      AnimSrcNodeTransition "{A03E23C72B7DE461}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_F_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{45F38CABEC2263EE}" {
+       FromState "GMSFF_FF_F_In"
+       ToState "GMSFF_FF_F"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{A726F1458D2FBBDD}" {
+       FromState "GMSFF_FF_F_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{95B6C3CA08E4385C}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{717BB0945709F175}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{86E1997B74A46B95}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{E90DA885689608C8}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{D571E8B9BDB868E2}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{BF805DFFCE2990F0}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{95F76C8F1008C432}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{217E9524BDFAC350}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{2D1764F7DF0C8690}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_RF_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{745D7AA3603C9E1A}" {
+       FromState "GMSFF_FF_RF_In"
+       ToState "GMSFF_FF_RF"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{25BE997C27123CC3}" {
+       FromState "GMSFF_FF_RF_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{BFB9C8C7633DF728}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{E58213878F5B8A39}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{669EAC7DE2A5A323}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{EA624141BAC548D5}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9ECCC363D4E2E1F4}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{EA201EDFB22FDEBC}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{C40928408360CA61}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{2D088FAB01794CF1}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{8077BF30AFF4BC91}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_R_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{3CDD11B5C90F55C9}" {
+       FromState "GMSFF_FF_R_In"
+       ToState "GMSFF_FF_R"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{992F2174FC5ED16D}" {
+       FromState "GMSFF_FF_R_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{5FCC94B40EA75219}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{0ED3CA4065D5A710}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{DF706685DDE1F5FB}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{2FA84E28D4CB33AD}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{5BEFEE64A9D547D7}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{8283DC8CC727D72F}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{BD4097F01782E77E}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9F044267CDE4E52A}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{4AF131CC6F2CBBE7}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_RB_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{0E96F26AF7B9CC81}" {
+       FromState "GMSFF_FF_RB_In"
+       ToState "GMSFF_FF_RB"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{FD5B4EC231E41E2D}" {
+       FromState "GMSFF_FF_RB_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{534D5C37F7A3C5B9}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{6AFCA84A3024E945}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{12E38A37AD3E58F5}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{009985113994E835}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{1AC7225E121707DA}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{C9290FC1D8C61A08}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{7AF781DD9BA36FE3}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{F806254289E51888}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9867878B1BC36F18}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_B_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{23869DC93D5C8F0A}" {
+       FromState "GMSFF_FF_B_In"
+       ToState "GMSFF_FF_B"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{0B16072A62DD5A6E}" {
+       FromState "GMSFF_FF_B_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{384B39F203B35D73}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{7A0D969433501C9C}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{635CECE689E0EB93}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{2BDC8C80D1F94898}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{B3713A13AF7611AC}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{A9663629DCC05906}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{E6154833B1315C50}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{EF8EDDD5D3F41BA0}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{7D31DF0E737AEF16}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_LB_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{27B386DFC28CE820}" {
+       FromState "GMSFF_FF_LB_In"
+       ToState "GMSFF_FF_LB"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{CE80610251F162F7}" {
+       FromState "GMSFF_FF_LB_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{BBA016BDC8D4E584}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{1243603814E1C63F}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{E53DC0327B1582AD}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{5FD475DDEE812FA2}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{A5B291A82531C77B}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{FEFE9640C8618D58}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{48B6316EE0DC485D}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9B69A2774A0BD4A1}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{54AD779112B2BEA6}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_L_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9BCD89FFC8CB3A49}" {
+       FromState "GMSFF_FF_L_In"
+       ToState "GMSFF_FF_L"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{E057F04CFD4B3BC8}" {
+       FromState "GMSFF_FF_L_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{94DF8F3F3AA1E660}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{45B2386AEA32D60B}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{6D536F047E8AEC95}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{47FCC8752B926A4E}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{80AA209B1E87DEDB}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{ED0AE015A15B79DD}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{F2FDFF4BB4968C19}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{111575AAC472D064}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_FF_LF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{A883E8334753E662}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_FF_LF_In"
+       Duration "0.35"
+       Condition "GMSP_FF_Dir == 8"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{12134C279D8E18FC}" {
+       FromState "GMSFF_FF_LF_In"
+       ToState "GMSFF_FF_LF"
+       Duration "0.5"
+       Condition "RemainingTimeLess(0.5)"
+       BlendFn "S"
+       PostEval 1
+      }
+      AnimSrcNodeTransition "{492A2A147F9416A8}" {
+       FromState "GMSFF_FF_LF_In"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{2B937F2C58133F89}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_Neutral"
+       Duration "0.7"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{EFB5BC74124BA2D5}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_F"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 1"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{9CBD2B0F1630B2C6}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_RF"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 2"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{E5EC3813FBF8A626}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_R"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 3"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{1BC3FCEB7262DE6D}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_RB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 4"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{8851CDC9B31D65D7}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_B"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 5"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{F5E117D8D3AA6496}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_LB"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 6"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{5966B9238B2ACC25}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_FF_L"
+       Duration "0.6"
+       Condition "GMSP_FF_Dir == 7"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{6D5FA110C3B70100}" {
+       FromState "GMSFF_Pull"
+       ToState "GMSFF_Para"
+       Duration "0.3"
+       Condition "GMSP_FF_Dir == 11 || GMSP_FF_Dir == 9"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{D2C3030AF4188475}" {
+       FromState "GMSFF_Neutral"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{A5252A83CE7D9671}" {
+       FromState "GMSFF_FF_F"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{581A4C71FCB0EAE1}" {
+       FromState "GMSFF_FF_RF"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{6F522ED3E7B59920}" {
+       FromState "GMSFF_FF_R"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{FFC82A0330A5EAA2}" {
+       FromState "GMSFF_FF_RB"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{C8D02650D9797AC7}" {
+       FromState "GMSFF_FF_B"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{6F38D95249BC600C}" {
+       FromState "GMSFF_FF_LB"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{96FDD3931A657CED}" {
+       FromState "GMSFF_FF_L"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{33E7FE2356E725B3}" {
+       FromState "GMSFF_FF_LF"
+       ToState "GMSFF_Pull"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 9 || GMSP_FF_Dir == 10 || GMSP_FF_Dir == 11"
+       BlendFn "S"
+      }
+      AnimSrcNodeTransition "{61F74C38BE875940}" {
+       FromState "GMSFF_Para"
+       ToState "GMSFF_Neutral"
+       Duration "0.8"
+       Condition "GMSP_FF_Dir == 0"
+       BlendFn "S"
+      }
+     }
+    }
+AnimSrcNodeSource GMSFF_SrcNeutral {
+     EditorPos -80 14
+     Source "ZZ_GMSFF.Default.FF_Neutral"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_F {
+     EditorPos -80 16
+     Source "ZZ_GMSFF.Default.FF_F"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_F_In {
+     EditorPos -80 18
+     Source "ZZ_GMSFF.Default.FF_NtoF"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_RF {
+     EditorPos -78.2 16
+     Source "ZZ_GMSFF.Default.FF_RF"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_RF_In {
+     EditorPos -78.2 18
+     Source "ZZ_GMSFF.Default.FF_NtoRF"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_R {
+     EditorPos -76.4 16
+     Source "ZZ_GMSFF.Default.FF_R"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_R_In {
+     EditorPos -76.4 18
+     Source "ZZ_GMSFF.Default.FF_NtoR"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_RB {
+     EditorPos -74.6 16
+     Source "ZZ_GMSFF.Default.FF_RB"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_RB_In {
+     EditorPos -74.6 18
+     Source "ZZ_GMSFF.Default.FF_NtoRB"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_B {
+     EditorPos -72.8 16
+     Source "ZZ_GMSFF.Default.FF_B"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_B_In {
+     EditorPos -72.8 18
+     Source "ZZ_GMSFF.Default.FF_NtoB"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_LB {
+     EditorPos -71 16
+     Source "ZZ_GMSFF.Default.FF_LB"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_LB_In {
+     EditorPos -71 18
+     Source "ZZ_GMSFF.Default.FF_NtoLB"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_L {
+     EditorPos -69.2 16
+     Source "ZZ_GMSFF.Default.FF_L"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_L_In {
+     EditorPos -69.2 18
+     Source "ZZ_GMSFF.Default.FF_NtoL"
+    }
+AnimSrcNodeSource GMSFF_SrcFF_LF {
+     EditorPos -67.4 16
+     Source "ZZ_GMSFF.Default.FF_LF"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_SrcFF_LF_In {
+     EditorPos -67.4 18
+     Source "ZZ_GMSFF.Default.FF_NtoLF"
+    }
+AnimSrcNodeSource GMSFF_CanIdleSrc {
+     EditorPos -72 17
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Canopy_Idle"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_CanTurnLSrc {
+     EditorPos -74 17
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Canopy_TurnL"
+     Looptype Loop
+    }
+AnimSrcNodeSource GMSFF_CanTurnRSrc {
+     EditorPos -70 17
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Canopy_TurnR"
+     Looptype Loop
+    }
+AnimSrcNodeBlendN GMSFF_CanTurnBN {
+     EditorPos -72 16
+     BlendWeight "GMSP_FF_DirX"
+     BlendFn "S"
+     Thresholds {
+      -1 0 1
+     }
+     Children {
+      "GMSFF_CanTurnLSrc" "GMSFF_CanIdleSrc" "GMSFF_CanTurnRSrc"
+     }
+     IsCyclic 0
+    }
+AnimSrcNodeSource GMSFF_SrcLand02 {
+     EditorPos -66.105 11.6
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Land02"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcLand03 {
+     EditorPos -66.105 11.6
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Land03"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcLandBwd {
+     EditorPos -66.105 11.6
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.LandBwd"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcLandKTL {
+     EditorPos -66.105 11.6
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.LandKTL"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcLandKTR {
+     EditorPos -66.105 11.6
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.LandKTR"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcOpen {
+     EditorPos -66.105 12.2
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Open"
+     Looptype "No Loop"
+    }
+AnimSrcNodeSource GMSFF_SrcPull {
+     EditorPos -66.105 12.632
+     NodeGroup ""
+     Source "ZZ_GMSFF.Default.Pull"
+     Looptype "No Loop"
+    }
+AnimSrcNodeQueue GMSFF_ParaQ {
+     EditorPos -66 1.5
+     Child "GMSFF_CanArmR"
+     QueueItems {
+      AnimSrcNodeQueueItem "{6D5FA110C3B70300}" {
+       Child "GMSFF_SrcLand03"
+       StartExpr "GMSP_FF_Dir == 12"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.3
+       EnqueueMethod OverlapAll
+      }
+      AnimSrcNodeQueueItem "{6D5FA110C3B70301}" {
+       Child "GMSFF_SrcLand02"
+       StartExpr "GMSP_FF_Dir == 13"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.3
+       EnqueueMethod OverlapAll
+      }
+      AnimSrcNodeQueueItem "{6D5FA110C3B70302}" {
+       Child "GMSFF_SrcLandKTL"
+       StartExpr "GMSP_FF_Dir == 14"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.3
+       EnqueueMethod OverlapAll
+      }
+      AnimSrcNodeQueueItem "{6D5FA110C3B70303}" {
+       Child "GMSFF_SrcLandKTR"
+       StartExpr "GMSP_FF_Dir == 15"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.3
+       EnqueueMethod OverlapAll
+      }
+      AnimSrcNodeQueueItem "{6D5FA110C3B70304}" {
+       Child "GMSFF_SrcLandBwd"
+       StartExpr "GMSP_FF_Dir == 16"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.3
+       EnqueueMethod OverlapAll
+      }
+      AnimSrcNodeQueueItem "{6D5FA110C3B70200}" {
+       Child "GMSFF_SrcOpen"
+       StartExpr "GMSP_FF_Dir == 11"
+       InterruptExpr ""
+       StartTime ""
+       BlendInTime 0.2
+       BlendOutTime 0.4
+       EnqueueMethod OverlapAll
+      }
+     }
+    }
+AnimSrcNodePose GMSFF_TorsoP {
+     EditorPos -73 15.5
+     Source "ZZ_GMSFF.Default.Canopy_Torso"
+     Time "0"
+    }
+AnimSrcNodeBlend GMSFF_CanTorso {
+     EditorPos -72.5 15.2
+     BlendWeight "1.0"
+     Child0 "GMSFF_CanTurnBN"
+     Child1 "GMSFF_TorsoP"
+     Optimization "Always eval both"
+    }
+AnimSrcNodePose GMSFF_SteerLP {
+     EditorPos -74 15
+     Source "ZZ_GMSFF.Default.Steer_L"
+     Time "clamp(clamp(GMSP_FF_DirX * -1.0, 0, 1) + clamp(GMSP_FF_DirY, 0, 1), 0, 1)"
+    }
+AnimSrcNodePose GMSFF_SteerRP {
+     EditorPos -70 15
+     Source "ZZ_GMSFF.Default.Steer_R"
+     Time "clamp(clamp(GMSP_FF_DirX, 0, 1) + clamp(GMSP_FF_DirY, 0, 1), 0, 1)"
+    }
+AnimSrcNodeBlend GMSFF_CanArmL {
+     EditorPos -72 15
+     BlendWeight "1.0"
+     Child0 "GMSFF_CanTorso"
+     Child1 "GMSFF_SteerLP"
+     Optimization "Always eval both"
+    }
+AnimSrcNodeBlend GMSFF_CanArmR {
+     EditorPos -71 14
+     BlendWeight "1.0"
+     Child0 "GMSFF_CanArmL"
+     Child1 "GMSFF_SteerRP"
+     Optimization "Always eval both"
+    }
+   }
+  }
+ }
+}

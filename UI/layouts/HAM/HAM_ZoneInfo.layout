@@ -1,0 +1,47 @@
+FrameWidgetClass {
+ Name "rootWidget"
+ Slot FrameWidgetSlot "{A11A0001A11A0001}" {
+  OffsetLeft 0
+  OffsetTop 0
+  SizeX 420
+  OffsetRight -420
+  SizeY 64
+  OffsetBottom -64
+ }
+ "Z Order" 30
+ "Ignore Cursor" 1
+ Clipping False
+ components {
+  HAM_MapZoneInfo "{A11A0001A11A0002}" {
+  }
+ }
+ {
+  TextWidgetClass "{A11A0001A11A0003}" {
+   Name "Info"
+   Slot FrameWidgetSlot "{A11A0001A11A0004}" {
+    Anchor 0.5 0.5 0.5 0.5
+    OffsetLeft 0
+    OffsetTop 0
+    SizeX 420
+    OffsetRight -420
+    SizeY 64
+    OffsetBottom -64
+    Alignment 0.5 0.5
+    SizeToContent 1
+   }
+   Color 0.96 0.91 0.72 1
+   Text ""
+   "Font Size" 16
+   "Min Font Size" 12
+   "Horizontal Alignment" Center
+   FontProperties FontProperties "{A11A0001A11A0005}" {
+    Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+    Bold 1
+    OutlineColor 0 0 0 1
+    ShadowSize 6
+    ShadowColor 0 0 0 1
+    ShadowOffset 1 1
+   }
+  }
+ }
+}

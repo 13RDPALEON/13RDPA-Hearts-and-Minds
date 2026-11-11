@@ -1,0 +1,90 @@
+SCR_ChimeraCharacter : "{B3AB6D12D247DDB5}Prefabs/Characters/Factions/CIV/Businessman/Character_CIV_Businessman_Randomized.et" {
+ ID "0000000000000001"
+ components {
+  SCR_EditableCharacterComponent "{520EA1D2F659C85C}" {
+   m_VariantData SCR_EditableEntityVariantData "{6106974AAD84694F}" {
+    m_aVariants {
+     SCR_EditableEntityVariant "{6106974AACA0498F}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106974AAC961171}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106974AACC2F3E7}" {
+      m_bEnabled 0
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{520EA1D2F659CE02}" {
+   ActionContexts + {
+    UserActionContext "{C1A10001A11C0C02}" {
+     ContextName "HAM_Civilian"
+     Position PointInfo "{C1A10001A11C0C12}" {
+      PivotID "spine3"
+      Offset 0 0.2 0
+     }
+     Radius 2
+     Height 2
+     Omnidirectional 1
+     FilterActionsUsingCache 0
+     LineOfSightCheck 0
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions + {
+    HAM_CivilianBananaUserAction "{C1A10001A11C0201}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0211}" {
+      Name "Donner nourriture"
+     }
+     Duration 2
+    }
+    HAM_CivilianInfoUserAction "{C1A10001A11C0202}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0212}" {
+      Name "Demander des informations"
+     }
+     Duration 0
+    }
+    HAM_CivilianInterrogateUserAction "{C1A10001A11C0203}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0213}" {
+      Name "Poser une question"
+     }
+     Duration 0
+    }
+   }
+  }
+ }
+}

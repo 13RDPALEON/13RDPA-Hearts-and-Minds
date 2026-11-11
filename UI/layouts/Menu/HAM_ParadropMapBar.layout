@@ -1,0 +1,63 @@
+FrameWidgetClass {
+ Name "Root"
+ Slot FrameWidgetSlot {
+  Anchor 0.5 1 0.5 1
+  PositionX -450
+  PositionY -88
+  SizeX 900
+  SizeY 72
+ }
+ Color 0.027 0.051 0.094 0.94
+ {
+  TextWidgetClass {
+   Name "PointText"
+   Slot FrameWidgetSlot { OffsetLeft 16 OffsetTop 8 SizeX 430 SizeY 56 }
+   Text "Clique sur la carte, puis Confirmer."
+   Color 0.95 0.96 0.97 1
+   "Font Size" 18
+   "Vertical Alignment" Center
+  }
+  ButtonWidgetClass {
+   Name "TakePoint"
+   Slot FrameWidgetSlot { OffsetLeft 450 OffsetTop 12 SizeX 130 SizeY 48 }
+   {
+    TextWidgetClass {
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+     Text "Point"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 16
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+   }
+  }
+  ButtonWidgetClass {
+   Name "ConfirmDrop"
+   Slot FrameWidgetSlot { OffsetLeft 588 OffsetTop 12 SizeX 140 SizeY 48 }
+   {
+    TextWidgetClass {
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+     Text "Confirmer"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 14
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+   }
+  }
+  ButtonWidgetClass {
+   Name "CancelDrop"
+   Slot FrameWidgetSlot { OffsetLeft 736 OffsetTop 12 SizeX 148 SizeY 48 }
+   {
+    TextWidgetClass {
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 }
+     Text "Annuler"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 16
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+   }
+  }
+ }
+}

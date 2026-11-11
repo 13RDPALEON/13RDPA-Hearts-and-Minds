@@ -1,0 +1,40 @@
+FrameWidgetClass {
+ Name "Row"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 0 0
+  SizeX 520
+  SizeY 96
+ }
+ Color 1 1 1 0
+ {
+  ButtonWidgetClass {
+   Name "Hit"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 1
+   }
+   Color 1 1 1 0
+  }
+  ItemPreviewWidgetClass {
+   Name "Preview"
+   Slot FrameWidgetSlot {
+    PositionX 6
+    PositionY 6
+    SizeX 84
+    SizeY 84
+   }
+  }
+  TextWidgetClass {
+   Name "Label"
+   Slot FrameWidgetSlot {
+    PositionX 106
+    PositionY 8
+    SizeX 420
+    SizeY 80
+   }
+   Text ""
+   Color 1 1 0.85 1
+   "Font Size" 16
+   "Vertical Alignment" Center
+  }
+ }
+}

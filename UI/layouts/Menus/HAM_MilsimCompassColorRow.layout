@@ -1,0 +1,23 @@
+ButtonWidgetClass : "{C9DF0E6590F6C388}UI/layouts/WidgetLibrary/SpinBox/WLib_SpinBox.layout" {
+ Name "HAM_CompassColor"
+ Slot LayoutSlot "{69EEA55AC0000503}" {
+  Padding 4 4 4 4
+ }
+ components {
+  SCR_SpinBoxComponent "{5472C6CBC0640458}" {
+   m_sLabel "Couleur du compas"
+   m_sLabelLayout "{F003823FF141983C}UI/layouts/Menus/SettingsMenu/CustomWidgets/SettingsLabel.layout"
+   m_aElementNames {
+    "Blanc"
+    "Noir"
+    "Rouge"
+    "Vert"
+    "Bleu"
+    "Jaune"
+    "Cyan"
+    "Orange"
+   }
+   m_iSelectedItem 0
+  }
+ }
+}

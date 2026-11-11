@@ -1,0 +1,18 @@
+ButtonWidgetClass : "{4A41296C0E9A889F}UI/layouts/WidgetLibrary/WLib_Slider.layout" {
+ Name "HAM_CompassScale"
+ Slot LayoutSlot "{69EEA55AC0000501}" {
+  Padding 4 4 4 4
+ }
+ components {
+  SCR_SliderComponent "{548294960C7399D9}" {
+   m_sLabel "Taille du compas"
+   m_sLabelLayout "{F003823FF141983C}UI/layouts/Menus/SettingsMenu/CustomWidgets/SettingsLabel.layout"
+   m_fValue 100
+   m_fMinValue 50
+   m_fMaxValue 150
+   m_fStep 5
+   m_sFormatText "%1%"
+   m_bRoundValue 1
+  }
+ }
+}

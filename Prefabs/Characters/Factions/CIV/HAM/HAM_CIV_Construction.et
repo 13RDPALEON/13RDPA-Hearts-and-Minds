@@ -1,0 +1,96 @@
+SCR_ChimeraCharacter : "{D97EAE64721478F3}Prefabs/Characters/Factions/CIV/ConstructionWorker/Character_CIV_ConstructionWorker_Randomized.et" {
+ ID "0000000000000001"
+ components {
+  SCR_EditableCharacterComponent "{520EA1D2F659C85C}" {
+   m_VariantData SCR_EditableEntityVariantData "{6106F456FB3DEB31}" {
+    m_aVariants {
+     SCR_EditableEntityVariant "{6106F456FACE970C}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106F456FA33360D}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106F456FA6743DE}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106F456F8A8C3C6}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106FC6FF952779D}" {
+      m_bEnabled 0
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{520EA1D2F659CE02}" {
+   ActionContexts + {
+    UserActionContext "{C1A10001A11C0C03}" {
+     ContextName "HAM_Civilian"
+     Position PointInfo "{C1A10001A11C0C13}" {
+      PivotID "spine3"
+      Offset 0 0.2 0
+     }
+     Radius 2
+     Height 2
+     Omnidirectional 1
+     FilterActionsUsingCache 0
+     LineOfSightCheck 0
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions + {
+    HAM_CivilianBananaUserAction "{C1A10001A11C0301}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0311}" {
+      Name "Donner nourriture"
+     }
+     Duration 2
+    }
+    HAM_CivilianInfoUserAction "{C1A10001A11C0302}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0312}" {
+      Name "Demander des informations"
+     }
+     Duration 0
+    }
+    HAM_CivilianInterrogateUserAction "{C1A10001A11C0303}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0313}" {
+      Name "Poser une question"
+     }
+     Duration 0
+    }
+   }
+  }
+ }
+}

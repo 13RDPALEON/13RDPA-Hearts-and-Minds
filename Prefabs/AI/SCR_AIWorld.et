@@ -1,0 +1,11 @@
+SCR_AIWorld {
+ ID "50B2B8F35661FB44"
+ components {
+  NavmeshWorldComponent "{5584F30EEFEE1223}" {
+   NavmeshSettings ChimeraNavmeshWorld "{50FC63BEBE3973C5}" {
+    UsePathSmoothing 1
+   }
+  }
+ }
+ "Price of roadnetwork paths" 0
+}

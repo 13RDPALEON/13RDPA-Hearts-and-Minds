@@ -1,0 +1,711 @@
+FrameWidgetClass {
+ Name "Root"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 1 1
+ }
+ Color 0 0 0 0.45
+ {
+  FrameWidgetClass {
+   Name "Panel"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 0 0
+    PositionX 200
+    PositionY 40
+    SizeX 880
+    SizeY 700
+   }
+   Color 0 0 0 0
+   {
+    ImageWidgetClass {
+     Name "PanelFill"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+     }
+     Color 0.027 0.051 0.094 1
+    }
+    ImageWidgetClass {
+     Name "HeaderBar"
+     Slot FrameWidgetSlot {
+      OffsetLeft 12
+      OffsetTop 8
+      OffsetRight 12
+      SizeY 64
+     }
+     Color 0.776 0.631 0.357 1
+    }
+    TextWidgetClass {
+     Name "Title"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 24
+      OffsetTop 16
+      SizeY 32
+     }
+     Text "Arsenal"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 26
+    }
+    TextWidgetClass {
+     Name "Info"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetRight 16
+      OffsetTop 44
+      SizeY 28
+     }
+     Text ""
+     "Font Size" 16
+    }
+    ImageWidgetClass {
+     Name "SearchBg"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 76
+      SizeX 360
+      SizeY 28
+     }
+     Color 0.16 0.22 0.34 1
+    }
+    EditBoxWidgetClass {
+     Name "Search"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 76
+      SizeX 360
+      SizeY 28
+     }
+     Color 0.95 0.96 0.97 1
+     style blank
+     "Font Size" 16
+    }
+    ButtonWidgetClass {
+     Name "SearchBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 384
+      OffsetTop 76
+      SizeX 120
+      SizeY 28
+     }
+     Color 0.12 0.18 0.22 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Chercher"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item0"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 116
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item0Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item1"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 140
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item1Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item2"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 184
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item2Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item3"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 228
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item3Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item4"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 272
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item4Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item5"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 316
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item5Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item6"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 360
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item6Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item7"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 404
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item7Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item8"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 448
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item8Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item9"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 492
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item9Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item10"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 536
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item10Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Item11"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 580
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Item11Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Prev"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.18 0.18 0.2 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Préc."
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Next"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 186
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.18 0.18 0.2 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Suiv."
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "CatPrev"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 516
+      OffsetTop 76
+      SizeX 36
+      SizeY 28
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "<"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "CatValue"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 556
+      OffsetTop 76
+      SizeX 140
+      SizeY 28
+     }
+     Text "Tous"
+     "Font Size" 14
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+    ButtonWidgetClass {
+     Name "CatNext"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 700
+      OffsetTop 76
+      SizeX 36
+      SizeY 28
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text ">"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "DetailName"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 116
+      SizeX 848
+      SizeY 28
+     }
+     Text ""
+     "Font Size" 14
+    }
+    ItemPreviewWidgetClass {
+     Name "ItemPreview"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 700
+      OffsetTop 170
+      SizeX 360
+      SizeY 260
+     }
+    }
+    TextWidgetClass {
+     Name "CostLabel"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 164
+      SizeX 200
+      SizeY 28
+     }
+     Text "Cout"
+     "Font Size" 16
+    }
+    EditBoxWidgetClass {
+     Name "CostEdit"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 220
+      OffsetTop 164
+      SizeX 200
+      SizeY 28
+     }
+    }
+    TextWidgetClass {
+     Name "RankLabel"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 208
+      SizeX 200
+      SizeY 28
+     }
+     Text "Rank mini"
+     "Font Size" 16
+    }
+    ButtonWidgetClass {
+     Name "RankPrev"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 220
+      OffsetTop 208
+      SizeX 48
+      SizeY 28
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "<"
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "RankValue"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 276
+      OffsetTop 208
+      SizeX 220
+      SizeY 28
+     }
+     Text "PRIVATE"
+     "Font Size" 16
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+    ButtonWidgetClass {
+     Name "RankNext"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 504
+      OffsetTop 208
+      SizeX 48
+      SizeY 28
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text ">"
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "BagLabel"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 252
+      SizeX 200
+      SizeY 28
+     }
+     Text "Volume max"
+     "Font Size" 16
+    }
+    EditBoxWidgetClass {
+     Name "BagEdit"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 220
+      OffsetTop 252
+      SizeX 200
+      SizeY 28
+     }
+    }
+    ButtonWidgetClass {
+     Name "SaveBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 308
+      SizeX 160
+      SizeY 36
+     }
+     Color 0.05 0.28 0.14 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Valider"
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "ResetBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 192
+      OffsetTop 308
+      SizeX 160
+      SizeY 36
+     }
+     Color 0.28 0.16 0.08 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Reinitialiser"
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "BackBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 368
+      OffsetTop 308
+      SizeX 160
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Retour"
+       "Font Size" 16
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Close"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 354
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.35 0.16 0.14 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Fermer"
+       "Font Size" 14
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

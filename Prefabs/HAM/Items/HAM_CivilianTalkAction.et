@@ -1,0 +1,51 @@
+GenericEntity {
+ ID "69F1B89B0BC59001"
+ components {
+  RplComponent "{B743A08CC6DADC63}" {
+  }
+  Hierarchy "{4E0250E5E65B4B66}" {
+  }
+  ActionsManagerComponent "{9C771286EE18DE25}" {
+   ActionContexts {
+    UserActionContext "{AB59C5B5F34A86DB}" {
+     ContextName "HAM_Civilian"
+     Position PointInfo "{F399F765BEA465AB}" {
+      Offset 0 0 0
+     }
+     Radius 3
+     Height 2.2
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions {
+    HAM_CivilianBananaUserAction "{95A66663836EDDB1}" {
+     ParentContextList {
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{5E6DB25DF9B5DB21}" {
+      Name "Donner nourriture"
+     }
+     Duration 2
+    }
+    HAM_CivilianInfoUserAction "{95A66663836EDDAC}" {
+     ParentContextList {
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{5E6DB25DF9B5DB1E}" {
+      Name "Demander des informations"
+     }
+     Duration 0
+    }
+    HAM_CivilianInterrogateUserAction "{95A66663836EDDC3}" {
+     ParentContextList {
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{5E6DB25DF9B5DB33}" {
+      Name "Poser une question"
+     }
+     Duration 0
+    }
+   }
+  }
+ }
+}

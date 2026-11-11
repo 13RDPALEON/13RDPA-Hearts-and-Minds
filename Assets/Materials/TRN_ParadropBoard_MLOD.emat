@@ -1,0 +1,5 @@
+MatPBRBasic {
+ Color 0.745 0.745 0.745 1
+ BCRMap "{31561C0DE386DF71}Assets/Textures/TRN_ParadropBoard.edds"
+ NMOMap "{1305B8BB10D15538}Assets/Structures/Signs/Large/Data/SignLarge_01_MLOD_NMO.edds"
+}

@@ -1,0 +1,8 @@
+SCR_AIGroup : "{727C134094032B1F}Prefabs/Groups/BLUFOR/Group_US_Transport.et" {
+ ID "0000000000000001"
+ components {
+  SCR_AIConfigComponent "{E1B2C3D4E5F60718}" {
+   m_Skill 1
+  }
+ }
+}

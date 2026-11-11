@@ -1,0 +1,99 @@
+SCR_ChimeraCharacter : "{5882AE7A4543AFB4}Prefabs/Characters/Factions/CIV/Dockworker/Character_CIV_Dockworker_Randomized.et" {
+ ID "0000000000000001"
+ components {
+  SCR_EditableCharacterComponent "{520EA1D2F659C85C}" {
+   m_VariantData SCR_EditableEntityVariantData "{6106974AA180825D}" {
+    m_aVariants {
+     SCR_EditableEntityVariant "{6106974AA0F867CF}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106974AA0956792}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6106974AA02AB73D}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6108A91C90DD9064}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6108A91C9075BA7A}" {
+      m_bEnabled 0
+     }
+     SCR_EditableEntityVariant "{6108A91C97AD1A50}" {
+      m_bEnabled 0
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{520EA1D2F659CE02}" {
+   ActionContexts + {
+    UserActionContext "{C1A10001A11C0C04}" {
+     ContextName "HAM_Civilian"
+     Position PointInfo "{C1A10001A11C0C14}" {
+      PivotID "spine3"
+      Offset 0 0.2 0
+     }
+     Radius 2
+     Height 2
+     Omnidirectional 1
+     FilterActionsUsingCache 0
+     LineOfSightCheck 0
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions + {
+    HAM_CivilianBananaUserAction "{C1A10001A11C0401}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0411}" {
+      Name "Donner nourriture"
+     }
+     Duration 2
+    }
+    HAM_CivilianInfoUserAction "{C1A10001A11C0402}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0412}" {
+      Name "Demander des informations"
+     }
+     Duration 0
+    }
+    HAM_CivilianInterrogateUserAction "{C1A10001A11C0403}" {
+     ParentContextList {
+      "default"
+      "Head"
+      "Chest"
+      "LowerTorso"
+      "LeftArm"
+      "RightArm"
+      "LeftLeg"
+      "RightLeg"
+      "HAM_Civilian"
+     }
+     UIInfo SCR_ActionUIInfo "{C1A10001A11C0413}" {
+      Name "Poser une question"
+     }
+     Duration 0
+    }
+   }
+  }
+ }
+}

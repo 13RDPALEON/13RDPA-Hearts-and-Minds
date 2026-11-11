@@ -1,0 +1,41 @@
+GenericEntity : "{41A9C55B61F375F0}Prefabs/Items/Equipment/Backpacks/Backpack_Kolobok.et" {
+ ID "511E9C6ADE70F798"
+ components {
+  HAM_Para_ParachuteBagComponent "{6A8554F8BE65914F}" {
+  }
+  MeshObject "{511E9C6ADE70F7BD}" {
+   Object "{15C66418787B5FF8}Models/6TP_Parachute/6TP_Parachute.xob"
+  }
+  SCR_UniversalInventoryStorageComponent "{5222CB03A40528FA}" {
+   Attributes SCR_ItemAttributeCollection "{5222CB039E9715D1}" {
+    ItemDisplayName UIInfo "{5222CB03904B414C}" {
+     Name "SOV3 (HH-396)"
+     Description "Military Freefall Skydiving Rig"
+    }
+    CustomAttributes {
+     PreviewRenderAttributes "{52BCBDD2B54658EC}" {
+      PreviewWornModel 1
+     }
+    }
+    m_Size SLOT_1x1
+   }
+   MaxCumulativeVolume 0
+   MaxItemSize 5 5 5
+   m_fMaxWeight 10
+  }
+  BaseLoadoutClothComponent "{511E9C6ADE70F7BB}" {
+   WornModel "{15C66418787B5FF8}Models/6TP_Parachute/6TP_Parachute.xob"
+   ItemModel "{618B5D6EB97E7FC8}Models/6TP_Parachute_Ground/6TP_Parachute_2026_Ground_Item.xob"
+   DeflatedModel "{15C66418787B5FF8}Models/6TP_Parachute/6TP_Parachute.xob"
+  }
+  ActionsManagerComponent "{511E9C6ADE70F786}" {
+   ActionContexts {
+    UserActionContext "{511E9C6ADE70F788}" {
+     Position PointInfo "{511E9C6ADE70F78D}" {
+      Offset 0 0 0
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{6DAF92DEAEEB97E5}Assets/Parachutes/GMS_Parachute/GMS_Parachute.xob"
+ Configurations {
+  XOBResourceClass PC {
+  }
+  XOBResourceClass XBOX_ONE : PC {
+  }
+  XOBResourceClass XBOX_SERIES : PC {
+  }
+  XOBResourceClass PS4 : PC {
+  }
+  XOBResourceClass PS5 : PC {
+  }
+  XOBResourceClass HEADLESS : PC {
+  }
+ }
+}

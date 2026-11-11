@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{8FDCB4B7499E4F85}Assets/Parachutes/GMS_ParachuteV2/GMS_PRisers.xob"
+ Configurations {
+  XOBResourceClass PC {
+  }
+  XOBResourceClass XBOX_ONE : PC {
+  }
+  XOBResourceClass XBOX_SERIES : PC {
+  }
+  XOBResourceClass PS4 : PC {
+  }
+  XOBResourceClass PS5 : PC {
+  }
+  XOBResourceClass HEADLESS : PC {
+  }
+ }
+}

@@ -1,0 +1,8 @@
+GenericEntity : "{8937AFC38700A6BA}Prefabs/Props/Construction/BrickPile/BrickPileOld_01_Medium.et" {
+ ID "7B80CB088E603918"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

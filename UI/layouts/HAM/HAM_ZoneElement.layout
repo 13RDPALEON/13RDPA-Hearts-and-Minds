@@ -1,0 +1,624 @@
+FrameWidgetClass {
+ Name "rootWidget"
+ Slot FrameWidgetSlot "{5E9888C3791AC614}" {
+  OffsetLeft 0
+  OffsetTop 0
+  SizeX 400
+  OffsetRight -400
+  SizeY 400
+  OffsetBottom -400
+ }
+ "Z Order" 1
+ Clipping False
+ components {
+  HAM_MapZoneUI "{54C8DB0C4A830792}" {
+   m_UnknownFactionColor 0.945 0.643 0.137 1
+  }
+  SCR_ModularButtonComponent "{6648D1CFA42FA870}" {
+   m_aEffects {
+    SCR_ButtonEffectSound "{6648D1CFA140EE30}" {
+     m_eEvents EVENT_CLICKED
+     m_sSound "SOUND_MAP_CLICK_POINT_ON"
+    }
+   }
+  }
+ }
+ {
+  OverlayWidgetClass "{6920760A82A24906}" {
+   Name "Overlay0"
+   Slot FrameWidgetSlot "{6920760A82A256CE}" {
+    Anchor 0.5 0.5 0.5 0.5
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+    Alignment 0.5 0.5
+    SizeToContent 1
+   }
+   {
+    OverlayWidgetClass "{691E77AC5FBFF96B}" {
+     Name "CaptureWarning"
+     Slot OverlayWidgetSlot "{691E77AC5FBFF907}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     "Is Visible" 0
+     {
+      ImageWidgetClass "{691E77AC61AA5AA8}" {
+       Name "CaptureOutlineImg"
+       Slot OverlayWidgetSlot "{691E77AC61AA5A52}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Opacity 0.5
+       Tooltip TextWidgetTooltip "{6920762882E11A4E}" {
+        Text "Base is being Contested"
+       }
+       Color 0.9473 0.0561 0.0561 1
+       Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
+       Image "radial-shadow"
+       Size 156 156
+      }
+     }
+    }
+    SizeLayoutWidgetClass "{5E8683A8458B3FC0}" {
+     Name "SizeLayout0"
+     Slot OverlayWidgetSlot "{69207609BDD0DB48}" {
+     }
+     HeightOverride 200
+     AllowMinDesiredWidth 1
+     MinDesiredWidth 200
+     AllowMinDesiredHeight 1
+     MinDesiredHeight 200
+     AllowMaxDesiredWidth 1
+     MaxDesiredWidth 600
+     AllowMaxDesiredHeight 1
+     MaxDesiredHeight 600
+     {
+      VerticalLayoutWidgetClass "{5E848303D0D9D76B}" {
+       Name "SlotOverlay"
+       Slot AlignableSlot "{5E8683A8459BA105}" {
+       }
+       {
+        OverlayWidgetClass "{5E8683A55F5C7487}" {
+         Name "BaseNameSizeLayout"
+         Slot LayoutSlot "{5E8683A55F5C74D1}" {
+         }
+         {
+          FrameWidgetClass "{56B4D98D29C26639}" {
+           Name "BaseNameFrame"
+           Slot OverlayWidgetSlot "{6636783FA3D25392}" {
+           }
+           {
+            VerticalLayoutWidgetClass "{56B4A50D958E24CA}" {
+             Name "NameLayout"
+             Slot FrameWidgetSlot "{56B4D98D8AE90D19}" {
+              Anchor 0.5 0 0.5 0
+              OffsetLeft 0
+              PositionY 0
+              OffsetTop 0
+              SizeX 0
+              OffsetRight 0
+              SizeY 0
+              OffsetBottom 0
+              Alignment 0.5 0
+              SizeToContent 1
+             }
+             {
+              TextWidgetClass "{54C8838024B49F61}" {
+               Name "Name"
+               Slot LayoutSlot "{56B4A50D95815018}" {
+                VerticalAlign 2
+               }
+               "Z Order" 10
+               Color 0 0 0 1
+               Text "Base Name"
+               "Font Size" 20
+               "Min Font Size" 10
+               "Horizontal Alignment" Center
+               FontProperties FontProperties "{54C883806AE51B80}" {
+                Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+                Bold 1
+                OutlineColor 0 0 0 1
+                ShadowSize 6
+                ShadowColor 1 1 1 1
+                ShadowOffset 7 5
+               }
+              }
+              HorizontalLayoutWidgetClass "{663678390D306814}" {
+               Name "HorizontalLayout0"
+               Slot LayoutSlot "{66365A2F8EEBA342}" {
+               }
+               "Z Order" 11
+               "Fill Origin" Center
+               {
+                SizeLayoutWidgetClass "{663678396DB8FA27}" {
+                 Name "RallyPointIconBalancer"
+                 Slot LayoutSlot "{6636783B203D1EDA}" {
+                  VerticalAlign 1
+                  Padding 0 0 4 0
+                 }
+                 AllowWidthOverride 1
+                 WidthOverride 32
+                 AllowHeightOverride 1
+                 HeightOverride 32
+                 AllowMinDesiredWidth 1
+                }
+                SizeLayoutWidgetClass "{6636783FE8622A44}" {
+                 Name "CallsignWrap"
+                 Slot LayoutSlot "{6636783FE8622B94}" {
+                  VerticalAlign 0
+                 }
+                 AllowHeightOverride 1
+                 HeightOverride 32
+                 {
+                  TextWidgetClass "{56B4A50D8CEDC700}" {
+                   Name "Callsign"
+                   Slot AlignableSlot "{6636783FC05963CA}" {
+                    VerticalAlign 1
+                   }
+                   Color 0 0 0 1
+                   Text "AVRORA"
+                   "Min Font Size" 12
+                   "Horizontal Alignment" Center
+                   FontProperties FontProperties "{54C883806AE51B80}" {
+                    Font "{EABA4FE9D014CCEF}UI/Fonts/RobotoCondensed/RobotoCondensed_Bold.fnt"
+                    Bold 1
+                    OutlineColor 0 0 0 1
+                    ShadowSize 6
+                    ShadowColor 1 1 1 1
+                    ShadowOffset 4 4
+                   }
+                  }
+                 }
+                }
+                SizeLayoutWidgetClass "{66367839692190FD}" {
+                 Name "RallyPointIconTop"
+                 Slot LayoutSlot "{6636783B203D1EDA}" {
+                  VerticalAlign 1
+                  Padding 4 0 0 0
+                 }
+                 AllowWidthOverride 1
+                 WidthOverride 32
+                 AllowHeightOverride 1
+                 HeightOverride 32
+                 AllowMinDesiredWidth 1
+                 {
+                  OverlayWidgetClass "{66367839692190F8}" {
+                   Name "Frame0"
+                   Slot AlignableSlot "{6636783B21C5F92C}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   {
+                    ImageWidgetClass "{66367839692190E6}" {
+                     Name "IconBG"
+                     Slot OverlayWidgetSlot "{6636783B7D82EA33}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Color 0.0611 0.0401 0.0105 1
+                     Texture "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset"
+                     Image "RallyPoint_BG"
+                     Size 32 32
+                    }
+                    ImageWidgetClass "{66367839692190E2}" {
+                     Name "IconFront"
+                     Slot OverlayWidgetSlot "{6636783B7D82EA23}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Color 0.7605 0.3865 0.0802 1
+                     Texture "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset"
+                     Image "AR_SquadLeader"
+                     Size 32 32
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        OverlayWidgetClass "{5712D788F1DFB2ED}" {
+         Name "Overlay0"
+         Slot LayoutSlot "{5E868399165694EF}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          SizeLayoutWidgetClass "{5712D78E58499512}" {
+           Name "SizeBaseIcon"
+           Slot OverlayWidgetSlot "{5712D788F02EA7EE}" {
+           }
+           "Ignore Cursor" 0
+           AllowWidthOverride 1
+           WidthOverride 40
+           AllowHeightOverride 1
+           HeightOverride 40
+           MaxDesiredHeight 200
+           AllowAspectRatioForce 1
+           {
+            OverlayWidgetClass "{55EAFD1162A2F2C4}" {
+             Name "ImageOverlay"
+             Slot AlignableSlot "{5712D78E585B4C60}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             {
+              SizeLayoutWidgetClass "{59E86C6E02D00909}" : "{219E3277681C6A42}UI/layouts/Campaign/BaseElementAntennaSymbol.layout" {
+               Name "AntenaOff"
+               Slot OverlayWidgetSlot "{59E86C6E02D00920}" {
+                HorizontalAlign 2
+                VerticalAlign 0
+                Padding 0 2 2 0
+               }
+               "Z Order" 5
+               WidthOverride 16
+               HeightOverride 16
+               {
+                OverlayWidgetClass "{59E86C6D24A1AEDC}" {
+                 Prefab "{59E86C6D24A1AEDC}"
+                 {
+                  ImageWidgetClass "{59E86C6D369DF637}" {
+                   Prefab "{59E86C6D369DF637}"
+                   Color 0.761 0.386 0.08 1
+                   Size 32 32
+                  }
+                  ImageWidgetClass "{59E86C6D343710E7}" {
+                   Prefab "{59E86C6D343710E7}"
+                   Color 0.1022 0 0 1
+                   Size 32 32
+                  }
+                 }
+                }
+               }
+              }
+              ImageWidgetClass "{56FCCDAAB9707A39}" {
+               Name "Highlight"
+               Slot OverlayWidgetSlot "{56FAD15D251881C8}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+                Padding 0 0 0 0
+               }
+               "Z Order" 3
+               "Is Visible" 0
+              }
+              ImageWidgetClass "{570E98AD58CD0592}" {
+               Name "Special"
+               Slot OverlayWidgetSlot "{570E98AD58CD05BD}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+                Padding 0 0 0 0
+               }
+               "Is Visible" 0
+              }
+              OverlayWidgetClass "{5646BAA78B50FE40}" {
+               Name "SideSymbol"
+               Slot OverlayWidgetSlot "{5646BAA78B50FE6C}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+                Padding 0 0 0 0
+               }
+               "Z Order" 1
+               Color 0.471 0 0 1
+               components {
+                SCR_MilitarySymbolUIComponent "{56F4CE75B4245547}" {
+                 m_MilitarySymbol SCR_MilitarySymbol "{56F4CE75B761BCC4}" {
+                  m_Identity OPFOR
+                  m_Dimension INSTALLATION
+                  m_Icons RESPAWN
+                 }
+                }
+               }
+              }
+              ImageWidgetClass "{56FAD15D251881AD}" {
+               Name "Corners"
+               Slot OverlayWidgetSlot "{56FAD15D251881C8}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+                Padding 0 0 0 0
+               }
+               "Z Order" 4
+               "Is Visible" 0
+               Color 0.896 0.539 0.184 1
+              }
+              ButtonWidgetClass "{54C8629DD37C0B98}" {
+               Name "BaseFrame"
+               Slot OverlayWidgetSlot "{55EAFD1162B82B7E}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Ignore Cursor" 0
+               Color 1 1 1 0
+               {
+                ImageWidgetClass "{55EC5148911872DB}" {
+                 Name "Image0"
+                 Slot ButtonWidgetSlot "{5A74C103AACB7005}" {
+                 }
+                 "Is Visible" 0
+                 Color 0.561 0.071 0.439 0.404
+                }
+               }
+              }
+              OverlayWidgetClass "{54C86C31FE6E093E}" {
+               Name "Overlay"
+               Slot OverlayWidgetSlot "{55EAFD115F186CC9}" {
+                Padding 0 0 -60 0
+               }
+               "Z Order" 2
+               "Is Enabled" 0
+               "Is Visible" 0
+               {
+                ImageWidgetClass "{563E91AFA4775F29}" {
+                 Name "LocalTask"
+                 Slot OverlayWidgetSlot "{563E91AFA4775F78}" {
+                  HorizontalAlign 3
+                  Padding 0 0 -10 0
+                 }
+                 "Is Enabled" 0
+                 "Is Visible" 0
+                }
+               }
+              }
+              ImageWidgetClass "{5A74C101F01FAFA9}" {
+               Name "BackgroundGradient"
+               Slot OverlayWidgetSlot "{56FAD15D251881C8}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Is Visible" 0
+               Opacity 0.766
+               Color 0 0 0 0.745
+               Saturation 0.555
+               Mask "{0BFC9F2798DAD87D}system/textures/PP/HDRCircleWeight_A.edds"
+               "Transition width" 0.498
+               Progress 0.461
+               "Mask Mode" "Exclude Range"
+               Range 0.672
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{5E8683A55A436425}" {
+         Name "BaseFrame"
+         Slot LayoutSlot "{5E8683A55A43647C}" {
+         }
+         AllowHeightOverride 1
+         HeightOverride 44
+         {
+          VerticalLayoutWidgetClass "{5E8683B156A453AB}" {
+           Name "ServicesFrame"
+           Slot AlignableSlot "{5E8683A55A537E09}" {
+            HorizontalAlign 3
+           }
+           {
+            OverlayWidgetClass "{66BC867DE826B595}" : "{14E86B20D0ED993F}UI/layouts/Campaign/ServiceContainer.layout" {
+             Name "m_wNameDialogFrame"
+             Slot LayoutSlot "{66BC867DE826B5B4}" {
+             }
+             "Z Order" 0
+             components {
+              HoverButtonComponent "{66BC8673B5C8F8E8}" {
+              }
+             }
+             {
+              SizeLayoutWidgetClass "{5E38FD6590F18370}" {
+               Prefab "{5E38FD6590F18370}"
+               AllowHeightOverride 0
+               HeightOverride 0
+               MinDesiredWidth 80
+               AllowMinDesiredHeight 1
+               MinDesiredHeight 20
+               AllowMaxDesiredWidth 1
+               {
+                OverlayWidgetClass "{55E4B0FD2C478188}" {
+                 Prefab "{55E4B0FD2C478188}"
+                 {
+                  SmartPanelWidgetClass "{5E486A94045E377E}" {
+                   Prefab "{5E486A94045E377E}"
+                   style rounded_2px
+                  }
+                  VerticalLayoutWidgetClass "{5E688DED31547DC7}" {
+                   Prefab "{5E688DED31547DC7}"
+                   Slot OverlayWidgetSlot "{5E688DED31547D16}" {
+                    Padding 10 8 10 8
+                   }
+                   {
+                    FrameWidgetClass "{5E38FD6777FE6E41}" {
+                     Prefab "{5E38FD6777FE6E41}"
+                     {
+                      HorizontalLayoutWidgetClass "{5E3EAB571CC90C28}" {
+                       Prefab "{5E3EAB571CC90C28}"
+                       Slot FrameWidgetSlot "{5E3EAB571CC90C7A}" {
+                        SizeX 140
+                        OffsetRight -140
+                        SizeToContent 1
+                       }
+                       {
+                        TextWidgetClass "{66365A2F1BE8158C}" {
+                         Name "RallyPointText"
+                         Slot LayoutSlot "{66365A2F1BE815AE}" {
+                          VerticalAlign 1
+                          Padding 4 0 0 0
+                         }
+                         "Z Order" 11
+                         Text "(Rally Point)"
+                         "Font Size" 16
+                         "Min Font Size" 16
+                         "Vertical Alignment" Center
+                        }
+                        SizeLayoutWidgetClass "{6636783B203D1EB0}" {
+                         Name "RallyPointIconBottom"
+                         Slot LayoutSlot "{6636783B203D1EDA}" {
+                          VerticalAlign 1
+                          Padding 4 0 0 0
+                         }
+                         "Z Order" 12
+                         AllowWidthOverride 1
+                         WidthOverride 24
+                         AllowHeightOverride 1
+                         HeightOverride 24
+                         AllowMinDesiredWidth 1
+                         {
+                          OverlayWidgetClass "{6636783BD62A1CE6}" {
+                           Name "Frame0"
+                           Slot AlignableSlot "{6636783B21C5F92C}" {
+                            HorizontalAlign 3
+                            VerticalAlign 3
+                           }
+                           {
+                            ImageWidgetClass "{6636783BC8174E9C}" {
+                             Name "IconBG"
+                             Slot OverlayWidgetSlot "{6636783B7D82EA33}" {
+                              HorizontalAlign 3
+                              VerticalAlign 3
+                             }
+                             Color 0.0611 0.0401 0.0105 1
+                             Texture "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset"
+                             Image "RallyPoint_BG"
+                             Size 32 32
+                            }
+                            ImageWidgetClass "{6636783BE698AA82}" {
+                             Name "IconFront"
+                             Slot OverlayWidgetSlot "{6636783B7D82EA23}" {
+                              HorizontalAlign 3
+                              VerticalAlign 3
+                             }
+                             Color 0.7605 0.3865 0.0802 1
+                             Texture "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset"
+                             Image "AR_SquadLeader"
+                             Size 32 32
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                    SizeLayoutWidgetClass "{5E3E90E8A0D8312C}" {
+                     Prefab "{5E3E90E8A0D8312C}"
+                     Slot LayoutSlot "{5E68E2DFAB33E1DF}" {
+                      Padding 0 10 0 0
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+            OverlayWidgetClass "{667C5D295A29871F}" {
+             Name "NextShipmentWrapper"
+             Slot LayoutSlot "{667C5D30B63FB54F}" {
+             }
+             {
+              SizeLayoutWidgetClass "{667C5D2503083841}" {
+               Name "SizeLayout0"
+               Slot OverlayWidgetSlot "{667C5D30A3F72E91}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               AllowHeightOverride 1
+               HeightOverride 30
+               AllowMinDesiredWidth 1
+               MinDesiredWidth 50
+               MaxDesiredWidth 600
+               {
+                OverlayWidgetClass "{667C5D251587A303}" {
+                 Name "Overlay0"
+                 Slot AlignableSlot "{667C5D25490C3214}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 0 2 0 0
+                 }
+                 {
+                  SmartPanelWidgetClass "{667C5D2524799993}" {
+                   Name "SmartPanel0"
+                   Slot OverlayWidgetSlot "{667C5D2524799973}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   Opacity 0.95
+                   Color 0.007 0.012 0.014 1
+                   style rounded_2px
+                  }
+                  HorizontalLayoutWidgetClass "{667C5D2381504872}" {
+                   Name "NextShipmentLayout"
+                   Slot OverlayWidgetSlot "{667C5D375CCAF1AD}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                    Padding 10 0 10 0
+                   }
+                   {
+                    TextWidgetClass "{667C5D2381504871}" {
+                     Name "NextShipmentLabel"
+                     Slot LayoutSlot "{62F27A55389A82CB}" {
+                      Padding 0 0 4 0
+                     }
+                     Text "#AR-SuppliesTransportSystem_LogisticBase_NextSupplyShipment"
+                     "Font Size" 14
+                     "Min Font Size" 14
+                     "Vertical Alignment" Center
+                     FontProperties FontProperties "{62F27A50DAB6134E}" {
+                      Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+                     }
+                    }
+                    FrameWidgetClass "{667C5D238150487E}" {
+                     Name "Separator"
+                     Slot LayoutSlot "{62F27A55130ECE2F}" {
+                      SizeMode Fill
+                     }
+                    }
+                    TextWidgetClass "{667C5D238150487F}" {
+                     Name "NextShipmentText"
+                     Slot LayoutSlot "{62F27A55389A82CB}" {
+                      Padding 4 0 0 0
+                     }
+                     Text "ETA 1 min"
+                     "Font Size" 14
+                     "Min Font Size" 14
+                     "Horizontal Alignment" Right
+                     "Vertical Alignment" Center
+                     Wrap 1
+                     FontProperties FontProperties "{62F27A50DAB6134E}" {
+                      Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+                      Bold 1
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

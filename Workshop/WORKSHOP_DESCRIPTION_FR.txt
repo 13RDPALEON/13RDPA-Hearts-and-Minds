@@ -1,0 +1,54 @@
+13RDPA Hearts and Minds
+
+Une campagne Hearts and Minds complète sur Arma Reforger, pensée pour la communauté 13RDPA. Première version : armée russe (joueurs) contre forces US (IA), prefabs du jeu de base uniquement.
+
+Le principe
+
+La carte est découpée en cellules collées les unes aux autres. Chaque cellule a une zone maître (carburant, radio, camp, planque ou ville), des zones esclaves et un dépôt de ressources. On part du QG et on avance cellule par cellule. Seules les cellules ennemies collées au QG ou à une cellule déjà entière aux joueurs forment la ligne de front.
+
+- Prendre le maître débloque ses esclaves. La cellule passe aux joueurs quand le maître et tous ses esclaves sont pris.
+- Une cellule prise stoppe les renforts, patrouilles, CQB, mines et IED ennemis qui en partaient.
+- La base principale ennemie ferme la chaîne. Quand elle tombe, la campagne est gagnée.
+- Passer derrière la ligne de front est sanctionné : retour au QG et perte de réputation.
+
+Logistique
+
+Chaque maître tient grâce à quatre stocks : eau, nourriture, munitions et hommes.
+
+- Le dépôt de chaque cellule contient de l'eau, de la nourriture et des munitions. On le vide dans un camion, on livre au maître, à une base alliée ou au QG.
+- Un maître sous ses seuils entre en délai de grâce, puis tombe s'il n'est pas ravitaillé.
+- Le surplus au-dessus des seuils produit des hommes. Les hommes défendent la zone et partent en convoi vers d'autres bases.
+- Les fournitures du Conflit restent le compte séparé de la construction, de l'achat de véhicules et de l'arsenal.
+
+Le tableau
+
+Le tableau de tri arsenal et véhicules se construit dans les bases. Il sert aussi à échanger une ressource contre une autre, transférer des ressources vers une base alliée, envoyer un convoi d'hommes, lancer les missions secondaires. Un admin peut y désigner la base comme nouveau QG.
+
+Renseignement et réputation
+
+- Les cellules non découvertes n'apparaissent pas sur la carte.
+- On révèle une cellule du front en y entrant, par la réputation locale, en interrogeant un civil, en trouvant un intel dans un bâtiment ou en fouillant un corps ennemi.
+- Tuer des civils ou passer le front fait baisser la réputation.
+
+Missions secondaires
+
+Tour à détruire, checkpoint à vider, gradé à abattre, otage à libérer, cache à détruire.
+
+Outils joueur
+
+Tri arsenal et véhicules, dépôt de véhicules, téléportation, canaux radio, marqueurs et nametags milsim, retenue du souffle, réglages de l'IA.
+
+Réglages
+
+Deux fichiers seulement dans le profil du serveur :
+- 13RDPA_HeartsAndMinds_Settings.json : réglages modifiables sans recompiler (seuils, délais, chances, réputation, milsim, IA, accès admin). Il est écrit au premier lancement avec les valeurs par défaut.
+- 13RDPA_HeartsAndMinds_Save.json : la sauvegarde du front.
+
+Dépendances
+
+Jeu de base et les modules ACE (version Dev).
+
+Mission
+
+13RDPA Hearts and Minds — Kolguyev
+Auteur : 13RDPA

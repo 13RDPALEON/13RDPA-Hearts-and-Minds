@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{5B33F8B6F5F25C31}Models/C130/Data/Dokuz1_diff.edds"
+ OpacityMap "{5B33F8B6F5F25C31}Models/C130/Data/Dokuz1_diff.edds"
+}

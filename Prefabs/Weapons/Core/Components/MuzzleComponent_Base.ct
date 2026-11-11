@@ -1,0 +1,7 @@
+MuzzleComponent {
+ WeaponAimModifiers {
+  HAM_HoldBreathAimModifier "{96B8A546432F271D}" {
+   Name "Retenir le souffle"
+  }
+ }
+}

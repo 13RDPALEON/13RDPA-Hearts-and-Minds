@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{F26ABF7678CC2773}anims/GMS/ParachuteRuntime/Flight.asi"
+ Configurations {
+  ASIResourceClass PC {
+  }
+  ASIResourceClass XBOX_ONE : PC {
+  }
+  ASIResourceClass XBOX_SERIES : PC {
+  }
+  ASIResourceClass PS4 : PC {
+  }
+  ASIResourceClass PS5 : PC {
+  }
+  ASIResourceClass HEADLESS : PC {
+  }
+ }
+}

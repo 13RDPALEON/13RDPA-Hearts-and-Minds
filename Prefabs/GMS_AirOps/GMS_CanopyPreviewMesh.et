@@ -1,0 +1,10 @@
+GenericEntity {
+ ID 69EE3A01C4F2AB10
+ components {
+  MeshObject "{69EE3A01C4F2AB11}" {
+   Object "{6DAF92DEAEEB97E5}Assets/Parachutes/GMS_Parachute/GMS_Parachute.xob"
+  }
+  AnimationPlayerComponent "{69EE3A01C4F2AB12}" {
+  }
+ }
+}

@@ -1,0 +1,60 @@
+FrameWidgetClass {
+ {
+  FrameWidgetClass "{5D6C90D227B94E1A}" {
+   Prefab "{5D6C90D227B94E1A}"
+   {
+    VerticalLayoutWidgetClass "{5E76E084539085D1}" {
+     Prefab "{5E76E084539085D1}"
+     {
+      FrameWidgetClass "{60DF13D5F6C1517B}" {
+       Name "FillerTopNJew"
+       Slot LayoutSlot "{5D44B19A48E6BC77}" {
+        SizeMode Fill
+        FillWeight 0.6
+       }
+      }
+      FrameWidgetClass "{60DF0B8FDB58626C}" {
+       Name "Slot_VON"
+       Slot LayoutSlot "{5D44B19A05C7B70A}" {
+       }
+       components {
+        SCR_HUDSlotUIComponent "{5D44B19A037B2FF4}" {
+         m_iPriority 1
+         m_aHeightSteps {
+          100 200
+         }
+         m_aWidthSteps {
+          600
+         }
+        }
+       }
+      }
+      FrameWidgetClass "{5E76E084539085D0}" {
+       Prefab "{5E76E084539085D0}"
+       Slot LayoutSlot "{5D44B19A48E6BC77}" {
+        SizeMode Fill
+        FillWeight 0.6
+       }
+       "Is Enabled" 0
+       "Is Visible" 0
+      }
+      FrameWidgetClass "{5E76E084539085DE}" {
+       Prefab "{5E76E084539085DE}"
+       components {
+        SCR_HUDSlotUIComponent "{5D44B19A037B2FF4}" {
+        }
+       }
+      }
+      FrameWidgetClass "{5E76E08453907AE2}" {
+       Prefab "{5E76E08453907AE2}"
+       components {
+        SCR_HUDSlotUIComponent "{5D44B19A037B2FF4}" {
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

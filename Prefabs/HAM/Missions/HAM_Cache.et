@@ -1,0 +1,28 @@
+GenericEntity : "{AE0FFC699F429214}Prefabs/Props/Military/Camps/PalletAmmo_01_US.et" {
+ ID "F0DBA538AC2A0552"
+ components {
+  SCR_DestructionMultiPhaseComponent "{5624A88D86EFE8BA}" {
+   Enabled 1
+   "Additional hit zones" {
+    SCR_HitZone Default {
+     "Melee multiplier" 0
+     "Kinetic multiplier" 0
+     "Explosive multiplier" 90
+     "Fragmentation multiplier" 2
+     "Incendiary multiplier" 1
+    }
+   }
+   m_fBaseHealth 2000
+   m_fDamageThresholdMaximum 50000
+   m_DestroySpawnObjects {
+    SCR_ParticleSpawnable "{6A11C0B2D4E5F601}" {
+     m_Particle "{59420DC7DC55F76C}Particles/Props/Dest_Prop_Default_Medium.ptc"
+    }
+   }
+   m_bDeleteAfterFinalPhase 1
+  }
+  RplComponent "{5624A88DC2D9928D}" {
+   Enabled 1
+  }
+ }
+}

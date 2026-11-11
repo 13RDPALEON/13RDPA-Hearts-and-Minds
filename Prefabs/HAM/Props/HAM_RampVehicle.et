@@ -1,0 +1,73 @@
+SCR_DestructibleBuildingEntity : "{74FAABE8512145EF}Prefabs/Structures/Industrial/Repair/RampVehicle_01/RampVehicle_01_metal.et" {
+ ID "674442568438BDA1"
+ components {
+  FactionAffiliationComponent "{6A5F02B1000000C0}" {
+   "faction affiliation" "USSR"
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A5F02B1000000A2}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A5F02B1000000C1}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A5F02B1000000C2}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A5F02B1000000C3}" {
+  }
+  SCR_EditableEntityComponent "{6A5F02B1000000A3}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A5F02B1000000A4}" {
+    Name "Rampe véhicule"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{41D4D216FD6A2FE2}UI/Textures/EditorPreviews/Auto/Structures/Industrial/Repair/E_RampVehicle_01_metal.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE TRAIT_REPAIRING SERVICE_REPAIR THEME_MILITARY SIZE_L CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A5F02B1000000A5}" {
+      m_BudgetType CAMPAIGN
+      m_Value 300
+     }
+     SCR_EntityBudgetValue "{6A5F02B1000000A6}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{6A5F02B1000000C4}" {
+   ActionContexts {
+    UserActionContext "{6A5F02B1000000C5}" {
+     ContextName "Disassembly"
+     Position PointInfo "{6A5F02B1000000C6}" {
+      Offset 0 0.5 0
+     }
+     Radius 8
+     Height 0
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6A5F02B1000000C7}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Disassembly"
+     }
+     UIInfo SCR_ActionUIInfo "{6A5F02B1000000C8}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+   }
+  }
+ }
+ {
+  GenericEntity : "{64454FA087931713}PrefabsEditable/SupportStationSystems/E_SupportStationSystem_Repair.et" {
+   ID "6A5F02B1000000A7"
+   coords 0 0 0
+   angles 0 0 0
+  }
+ }
+}

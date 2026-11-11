@@ -1,0 +1,194 @@
+FrameWidgetClass {
+ Name "Root"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 1 1
+  OffsetLeft 0
+  OffsetTop 0
+  OffsetRight 0
+  OffsetBottom 0
+ }
+ Color 0 0 0 0.55
+ {
+  FrameWidgetClass {
+   Name "Panel"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 0 0
+    PositionX 280
+    PositionY 80
+    SizeX 760
+    SizeY 520
+   }
+   Color 0.05 0.04 0.03 1
+   {
+    ImageWidgetClass {
+     Name "PanelFill"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
+     }
+     Color 0.05 0.04 0.03 1
+    }
+    ImageWidgetClass {
+     Name "HeaderBar"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 0
+      OffsetTop 0
+      SizeX 760
+      SizeY 8
+     }
+     Color 0.72 0.52 0.22 1
+    }
+    TextWidgetClass {
+     Name "Title"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 24
+      SizeX 700
+      SizeY 36
+     }
+     Text "Civil"
+     Color 0.9 0.78 0.48 1
+     "Font Size" 28
+    }
+    TextWidgetClass {
+     Name "Speech"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 72
+      SizeX 700
+      SizeY 120
+     }
+     Text "..."
+     Color 0.93 0.9 0.82 1
+     "Font Size" 20
+    }
+    ButtonWidgetClass {
+     Name "Q1"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 210
+      SizeX 700
+      SizeY 48
+     }
+     Color 0.16 0.12 0.08 1
+     {
+      TextWidgetClass {
+       Name "Q1Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Qu'avez-vous vu ?"
+       Color 0.93 0.86 0.7 1
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Q2"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 268
+      SizeX 700
+      SizeY 48
+     }
+     Color 0.16 0.12 0.08 1
+     {
+      TextWidgetClass {
+       Name "Q2Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "De quoi avez-vous besoin ?"
+       Color 0.93 0.86 0.7 1
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Q3"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 326
+      SizeX 700
+      SizeY 48
+     }
+     Color 0.16 0.12 0.08 1
+     {
+      TextWidgetClass {
+       Name "Q3Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Comment pouvons-nous vous aider ?"
+       Color 0.93 0.86 0.7 1
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Pay"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 28
+      OffsetTop 390
+      SizeX 340
+      SizeY 48
+     }
+     Color 0.28 0.18 0.08 1
+     {
+      TextWidgetClass {
+       Name "PayText"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Payer 100 ressources"
+       Color 0.95 0.86 0.55 1
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Close"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 392
+      OffsetTop 452
+      SizeX 340
+      SizeY 44
+     }
+     Color 0.22 0.16 0.1 1
+     {
+      TextWidgetClass {
+       Name "CloseText"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Partir"
+       Color 0.93 0.9 0.82 1
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

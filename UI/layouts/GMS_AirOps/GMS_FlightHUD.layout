@@ -1,0 +1,59 @@
+FrameWidgetClass {
+ Name "GMS_FlightHUDRoot"
+ {
+  FrameWidgetClass "{69EE3A01C4F3AA01}" {
+   Name "FlightHUDFrame"
+   Slot FrameWidgetSlot "{69EE3A01C4F3AA02}" {
+    Anchor 0.5 1 0.5 1
+    PositionX -80
+    PositionY -175
+    SizeX 160
+    SizeY 80
+   }
+   {
+    ImageWidgetClass "{69EE3A01C4F3AA03}" {
+     Name "GMS_HorizonLine"
+     Slot FrameWidgetSlot "{69EE3A01C4F3AA04}" {
+      Anchor 0.5 0.5 0.5 0.5
+      PositionX -60
+      PositionY -1
+      SizeX 120
+      SizeY 2
+     }
+     Color 1 1 1 0.5
+     Size 1 1
+    }
+    ImageWidgetClass "{69EE3A01C4F3AA05}" {
+     Name "GMS_CenterDot"
+     Slot FrameWidgetSlot "{69EE3A01C4F3AA06}" {
+      Anchor 0.5 0.5 0.5 0.5
+      PositionX -2.5
+      PositionY -2.5
+      SizeX 5
+      SizeY 5
+     }
+     Color 1 0.82 0.3 0.85
+     Size 1 1
+    }
+    TextWidgetClass "{69EE3A01C4F3AA07}" {
+     Name "GMS_PitchBankText"
+     Slot FrameWidgetSlot "{69EE3A01C4F3AA08}" {
+      Anchor 0.5 1 0.5 1
+      PositionX -45
+      PositionY -18
+      SizeX 120
+      SizeY 18
+     }
+     Text ""
+     "Font Size" 14
+     Color 1 1 1 0.6
+     FontProperties FontProperties "{69EE3A01C4F3AA09}" {
+      Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+      ShadowSize 4
+      ShadowColor 0 0 0 0.5
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,8 @@
+GenericEntity : "{3F0D0593590519DA}Prefabs/Props/Garbage/Tires/TirePile_01_medium.et" {
+ ID "63414B269C9588A4"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

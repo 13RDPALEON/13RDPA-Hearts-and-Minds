@@ -1,0 +1,17 @@
+GenericEntity : "{C75F144AD8ED67F5}Prefabs/Props/Military/Compositions/US/FuelService_US.et" {
+ ID "B7E4A1C090B25321"
+ components {
+  SCR_FuelManagerComponent "{B7E4A1C090B25322}" {
+   FuelNodes {
+    SCR_FuelNode "{B7E4A1C090B25323}" {
+     MaxFuel 5000
+     m_fInitialFuelTankState 5000
+     m_MaxFlowCapacityOut FUEL_CARGO
+     m_MaxFlowCapacityIn FUEL_CARGO
+     m_eFuelNodeType 11
+     m_iFuelTankID 1
+    }
+   }
+  }
+ }
+}

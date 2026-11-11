@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{D0BC9896A77E48F9}anims/GMS/ParachuteRuntime/Flight.agf"
+ Configurations {
+  AGFResourceClass PC {
+  }
+  AGFResourceClass XBOX_ONE : PC {
+  }
+  AGFResourceClass XBOX_SERIES : PC {
+  }
+  AGFResourceClass PS4 : PC {
+  }
+  AGFResourceClass PS5 : PC {
+  }
+  AGFResourceClass HEADLESS : PC {
+  }
+ }
+}

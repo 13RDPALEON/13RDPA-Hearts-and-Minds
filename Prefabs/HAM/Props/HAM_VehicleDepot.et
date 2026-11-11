@@ -1,0 +1,151 @@
+GenericEntity {
+ ID "6A4F91100CDB3600"
+ components {
+  RplComponent "{6A4F91100CDB3612}" {
+   Enabled 1
+  }
+  FactionAffiliationComponent "{6A4F91100CDB3613}" {
+   "faction affiliation" "USSR"
+  }
+  HAM_VehicleDepotComponent "{6A4F91100CDB3624}" {
+  }
+  UniversalInventoryStorageComponent "{6A4F91100CDB3625}" {
+  }
+  SCR_ArsenalInventoryStorageManagerComponent "{6A4F91100CDB3626}" {
+  }
+  SCR_ArsenalComponent "{6A4F91100CDB3627}" {
+   m_eSupportedArsenalItemModes -1
+   m_eArsenalSaveType NO_RESTRICTIONS
+  }
+  SCR_ResourceComponent "{6A4F91100CDB3628}" {
+   m_aContainers {
+    SCR_ResourceContainer "{6A4F91100CDB3629}" {
+     m_eResourceRights SELF
+     m_eResourceType SUPPLIES
+     m_eStorageType CARGO_PROP
+     m_fResourceValueCurrent 0
+     m_fResourceValueMax 1000000
+    }
+   }
+   m_aConsumers {
+    SCR_ResourceConsumer "{6A4F91100CDB362A}" {
+     m_sDebugName "Depot"
+     m_eResourceRights SELF
+     m_eGeneratorIdentifier DEFAULT
+     m_fResourceRange 5
+     m_ContainerQueue SCR_ResourceConsumerContainerQueue "{6A4F91100CDB362B}" {
+      m_StoragePolicies {
+       SCR_ResourceConsumerStoragePolicyGeneric "{6A4F91100CDB362C}" {
+        m_StorageQueue SCR_ResourceConsumerContainerStorageQueue "{6A4F91100CDB362D}" {
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A4F91100CDB3614}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A4F91100CDB3615}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A4F91100CDB3616}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A4F91100CDB3617}" {
+  }
+  SCR_EditableEntityComponent "{6A4F91100CDB3618}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A4F91100CDB3619}" {
+    Name "Atelier véhicules"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE THEME_MILITARY SIZE_L CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A4F91100CDB361A}" {
+      m_BudgetType CAMPAIGN
+      m_Value 800
+     }
+     SCR_EntityBudgetValue "{6A4F91100CDB361B}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  SlotManagerComponent "{6A4F91100CDB361C}" {
+   Slots {
+    RegisteringComponentSlotInfo Container {
+     Offset 0 0 0
+     Prefab "{8F07679B86F6B854}PrefabsEditable/Auto/Props/Military/CargoContainers/E_CargoContainer_01_20ft_US_ammo.et"
+    }
+    RegisteringComponentSlotInfo Arsenal {
+     Offset 1.5 0 2.2
+     Prefab "{BE99D77D1155B127}Prefabs/Props/Military/Arsenal/ArsenalBoxes/US/ArsenalBox_US.et"
+    }
+    RegisteringComponentSlotInfo Covered {
+     Offset -2.4 0 0.2
+     Prefab "{2286EDA56A021258}PrefabsEditable/Auto/Props/Military/AmmoBoxes/EquipmentBoxStack/E_EquipmentBoxStack_US_01_V1_covered.et"
+    }
+    RegisteringComponentSlotInfo PileFrontL {
+     Offset -1.3 0 2.2
+     Prefab "{10299000DAFFCDE7}PrefabsEditable/Auto/Props/Military/AmmoBoxes/EquipmentBoxStack/E_EquipmentBoxStack_US_01_V2.et"
+    }
+    RegisteringComponentSlotInfo PileFrontR {
+     Offset 1.3 0 2.2
+     Prefab "{F5B5DCF9D61A5A8C}PrefabsEditable/Auto/Props/Military/AmmoBoxes/EquipmentBoxStack/E_EquipmentBoxStack_US_01_V3.et"
+    }
+   }
+  }
+  ActionsManagerComponent "{6A4F91100CDB361D}" {
+   ActionContexts {
+    UserActionContext "{6A4F91100CDB361E}" {
+     ContextName "Depot"
+     Position PointInfo "{6A4F91100CDB361F}" {
+      Offset 0 1.2 3.8
+     }
+     Radius 4
+     Height 2.5
+     "Display UI At Reference Point" 0
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6A4F91100CDB3620}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Depot"
+     }
+     UIInfo SCR_ActionUIInfo "{6A4F91100CDB3621}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+    HAM_VehicleDepotUserAction "{6A4F91100CDB3622}" {
+     ParentContextList {
+      "Depot"
+     }
+     Duration 2
+     UIInfo SCR_ActionUIInfo "{6A4F91100CDB3623}" {
+      Name "Entretien véhicules"
+     }
+    }
+    HAM_VehicleDepotFilterUserAction "{6A4F91100CDB3630}" {
+     ParentContextList {
+      "Depot"
+     }
+     Duration 2
+     UIInfo SCR_ActionUIInfo "{6A4F91100CDB3631}" {
+      Name "Option de tri"
+     }
+    }
+   }
+  }
+  HAM_SiteMapMarkerComponent "{6AA33470100B2273}" {
+   m_sLabel "Garage"
+  }
+ }
+}

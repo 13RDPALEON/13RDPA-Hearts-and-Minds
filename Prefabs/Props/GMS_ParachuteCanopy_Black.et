@@ -1,0 +1,13 @@
+GenericEntity : "{9A9DF3317DA0DC5F}Prefabs/Props/GMS_ParachuteCanopy.et" {
+ ID EE001B18632D9AC6
+ components {
+  MeshObject "{0B5F000651E9EA28}" {
+   Materials {
+    MaterialAssignClass "{69EEA7C4D1B0C002}" {
+     SourceMaterial "TRN_Para_Parachute_Mat"
+     AssignedMaterial "{0ADC11474D122E2F}Assets/Parachutes/GMS_Parachute/Data/GMS_Parachute_Black_Mat.emat"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,78 @@
+GenericEntity : "{8F8A32D251922DFE}Prefabs/Props/Military/Radios/RadioStation_RF10/RadioStation_RF10_base.et" {
+ ID "EBB83B875AB35EC5"
+ components {
+  RplComponent "{6A5F02B10000005B}" {
+   Enabled 1
+  }
+  FactionAffiliationComponent "{6A5F02B100000049}" {
+   "faction affiliation" "USSR"
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A5F02B10000004D}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A5F02B10000004E}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A5F02B10000004F}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A5F02B10000004C}" {
+  }
+  SCR_EditableEntityComponent "{6A5F02B100000050}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A5F02B100000051}" {
+    Name "Poste de missions"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE THEME_MILITARY SIZE_S CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A5F02B100000052}" {
+      m_BudgetType CAMPAIGN
+      m_Value 0
+     }
+     SCR_EntityBudgetValue "{6A5F02B100000053}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{6A5F02B100000054}" {
+   ActionContexts {
+    UserActionContext "{6A5F02B100000055}" {
+     ContextName "Mission"
+     Position PointInfo "{6A5F02B100000056}" {
+      Offset 0 1.0 0
+     }
+     Radius 3
+     Height 2
+     "Display UI At Reference Point" 0
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6A5F02B100000059}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Mission"
+     }
+     UIInfo SCR_ActionUIInfo "{6A5F02B10000005A}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+    HAM_MissionPostUserAction "{6A5F02B100000057}" {
+     ParentContextList {
+      "Mission"
+     }
+     Duration 2
+     UIInfo SCR_ActionUIInfo "{6A5F02B100000058}" {
+      Name "Missions de front"
+     }
+    }
+   }
+  }
+ }
+}

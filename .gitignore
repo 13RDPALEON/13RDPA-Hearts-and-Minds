@@ -1,0 +1,4 @@
+resourceDatabase.rdb
+*.log
+*.bak
+.vs/

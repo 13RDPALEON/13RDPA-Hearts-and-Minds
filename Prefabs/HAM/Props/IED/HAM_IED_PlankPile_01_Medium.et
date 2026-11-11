@@ -1,0 +1,8 @@
+GenericEntity : "{67B5336A6D63CCA4}Prefabs/Props/Construction/PlankPile/PlankPile_01_Medium.et" {
+ ID "480F940773F580AA"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

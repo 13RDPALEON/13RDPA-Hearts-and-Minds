@@ -1,0 +1,2230 @@
+SCR_AIWorld : "{672531FAC0834C06}Prefabs/AI/SCR_AIWorld_Cain.et" {
+ components {
+  NavmeshWorldComponent "{5584F30E67F617AD}" {
+   NavmeshSettings NavmeshWorld "{50FC63BEBE3973C5}" {
+    NavmeshFilesConfig BaseNavmeshFilesConfig "{5AF8B9A1D80D8DFA}" : "{A8BF06F28121542F}Configs/Navmesh/Navmesh_CTI_Cain_Soldier.conf" {
+    }
+   }
+  }
+  NavmeshWorldComponent "{5584F30EEFEE1223}" {
+   NavmeshSettings NavmeshWorld "{50FC63BEBE3973C5}" {
+    NavmeshFilesConfig BaseNavmeshFilesConfig "{598EDE772036D79B}" : "{5DE5D92BD2231C41}Configs/Navmesh/Navmesh_CTI_Cain_Vehicle.conf" {
+    }
+   }
+  }
+ }
+ coords 20 0 20
+}
+RadioManagerEntity {
+ coords 22 0 20
+}
+ScriptedChatEntity : "{536D80EB494DDC43}Prefabs/MP/Campaign/CampaignMPChatEntity.et" {
+ coords 28 0 20
+}
+SCR_GameModeCampaign GameMode_HeartsAndMinds : "{B161D6A17117F6DB}Prefabs/HAM/GameMode/HAM_GameMode_Campaign.et" {
+ components {
+  HAM_AISettingsComponent "{B3DA3B3187A38F99}" {
+   m_iTRN_AISkill VETERAN
+  }
+  SCR_AdditionalGameModeSettingsComponent "{6170E11C3C452ACC}" {
+   m_bEnableTeamKillPunishment 0
+  }
+  SCR_CampaignBuildingManagerComponent "{60EC2158F48C679A}" {
+   m_fRewardCurveIncrement 1
+  }
+  SCR_GameModeHealthSettings "{5A22E11F9ACBB1DF}" {
+   m_bPermitUnconsciousVON 0
+  }
+ }
+ coords 26 0 20
+ m_bSuppliesAutoRegenerationEnabled 0
+}
+SCR_CampaignFactionManager CampaignFactionManager1 : "{F1AC26310BAE3788}Prefabs/MP/Campaign/CampaignFactionManager.et" {
+ coords 30 0 20
+ Factions {
+  SCR_CampaignFaction "{50B30C3AF4BFD934}" {
+   UIInfo SCR_FactionUIInfo "{528C96127F8B6B08}" {
+    Name "13RDPA"
+    Icon "{7E08F02FFC4B12CE}UI/HAM/Factions/13RDPA_Icon.edds"
+   }
+   m_bIsPlayable 1
+   m_sFactionFlag "{0808F91294202C54}UI/HAM/Factions/13RDPA_Flag_1024.edds"
+   m_eTeamKillKickPenaltyOverride NO_KICKS
+   m_aFriendlyFactionsIds {
+    "USSR"
+    "CIV"
+   }
+   m_aGroupRolePresetConfigs {
+    SCR_GroupRolePresetConfig "{6176E1354DB9EE26}" {
+     m_sGroupName "India"
+     m_eGroupRole ASSAULT
+     m_sGroupFlag "{3F4F623DAF72BA54}UI/HAM/Groups/13RDPA_Group_India.edds"
+     m_iGroupSize 25
+     m_iRadioFrequency 31000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "India"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{61B08891604E86B1}" {
+     m_sGroupName "Bravo"
+     m_eGroupRole RECON
+     m_sGroupFlag "{67B18C209309EE76}UI/HAM/Groups/13RDPA_Group_Bravo.edds"
+     m_iGroupSize 8
+     m_iRadioFrequency 41000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Bravo"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{61B0889162E62027}" {
+     m_sGroupName "Alpha"
+     m_eGroupRole MACHINEGUN
+     m_sGroupFlag "{C720BBBB04F2A31F}UI/HAM/Groups/13RDPA_Group_Alpha.edds"
+     m_iGroupSize 4
+     m_iRadioFrequency 71000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Alpha"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{61B0889160C9218A}" {
+     m_sGroupName "Hotel"
+     m_eGroupRole ENGINEER
+     m_sGroupFlag "{2CA72ABCF1E4C9EF}UI/HAM/Groups/13RDPA_Group_Hotel.edds"
+     m_iGroupSize 6
+     m_iRadioFrequency 61000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Hotel"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{61B0889161340871}" {
+     m_bCanBeCreatedByPlayer 0
+    }
+    SCR_GroupRolePresetConfig "{631F062D4EB2C956}" {
+     m_sGroupName "Sierra"
+     m_eGroupRole TRANSPORT
+     m_sGroupFlag "{9D230D277A04DC44}UI/HAM/Groups/13RDPA_Group_Sierra.edds"
+     m_iGroupSize 5
+     m_iRadioFrequency 56000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Sierra"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{631EECB195B8DA90}" {
+     m_sGroupName "Game Master"
+     m_eGroupRole HELI_TRANSPORT
+     m_sGroupFlag "{73713FC1E99C2A7F}UI/HAM/Groups/13RDPA_Group_GameMaster.edds"
+     m_iGroupSize 2
+     m_iRadioFrequency 85000
+     m_eRequiredRank MAJOR
+     m_sGroupRoleName "Game Master"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{631EECB1EFF9CFB0}" {
+     m_sGroupName "Etat Major"
+     m_eGroupRole MECHANIZED
+     m_sGroupFlag "{5CCDCD64A485FF2E}UI/HAM/Groups/13RDPA_Group_EtatMajor.edds"
+     m_iGroupSize 5
+     m_iRadioFrequency 50000
+     m_eRequiredRank MAJOR
+     m_sGroupRoleName "Etat Major"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{631EECB1D1B29DE3}" {
+     m_sGroupName "Lima"
+     m_eGroupRole ANTITANK
+     m_sGroupFlag "{39120A142EFED4A1}UI/HAM/Groups/13RDPA_Group_Lima.edds"
+     m_iGroupSize 12
+     m_iRadioFrequency 46000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Lima"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{631EECB11AB76AEC}" {
+     m_bCanBeCreatedByPlayer 0
+    }
+    SCR_GroupRolePresetConfig "{65C4E784787FEC22}" {
+     m_bCanBeCreatedByPlayer 0
+    }
+    SCR_GroupRolePresetConfig "{65C4E784641CFB58}" {
+     m_bCanBeCreatedByPlayer 0
+    }
+    SCR_GroupRolePresetConfig "{6576F62B0AD17D73}" {
+     m_sGroupName "PM"
+     m_eGroupRole COMMANDER
+     m_sGroupFlag "{B0D6DB537A234A53}UI/HAM/Groups/13RDPA_Group_PM.edds"
+     m_iGroupSize 6
+     m_iRadioFrequency 52000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "PM"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupRolePresetConfig "{68C882E6F0E1EE90}" {
+     m_sGroupName "Sans Affectation"
+     m_eGroupRole RESERVES
+     m_sGroupFlag "{7375D267DA89ECEB}UI/HAM/Groups/13RDPA_Group_SansAffectation.edds"
+     m_iGroupSize 24
+     m_iRadioFrequency 51000
+     m_eRequiredRank PRIVATE
+     m_sGroupRoleName "Sans Affectation"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+   }
+   m_aPredefinedGroups {
+    SCR_GroupPreset "{6576F62B7055FA8E}" {
+     m_sGroupName "PM"
+     m_eGroupRole COMMANDER
+     m_sGroupFlag "{B0D6DB537A234A53}UI/HAM/Groups/13RDPA_Group_PM.edds"
+     m_iGroupSize 6
+     m_iRadioFrequency 52000
+    }
+    SCR_GroupRolePresetConfig "{68C882E701CAC024}" {
+     m_sGroupName "Sans Affectation"
+     m_eGroupRole RESERVES
+     m_sGroupFlag "{7375D267DA89ECEB}UI/HAM/Groups/13RDPA_Group_SansAffectation.edds"
+     m_iGroupSize 24
+     m_iRadioFrequency 51000
+     m_sGroupRoleName "Sans Affectation"
+     m_aLoadoutResources {
+      "{9BDC3AC0BDB50019}Prefabs/Characters/Campaign/Final/OPFOR/USSR_Army/Regular/Campaign_USSR_Player_Rifleman.et"
+     }
+     m_bCanBeCreatedByPlayer 0
+     m_bCanPlayerJoin 1
+    }
+    SCR_GroupPreset "{648EE6788B650BF2}" {
+     m_sGroupName "India"
+     m_eGroupRole ASSAULT
+     m_sGroupFlag "{3F4F623DAF72BA54}UI/HAM/Groups/13RDPA_Group_India.edds"
+     m_iGroupSize 25
+     m_iRadioFrequency 31000
+    }
+    SCR_GroupPreset "{648EE6788A5B6CDE}" {
+     m_sGroupName "Bravo"
+     m_eGroupRole RECON
+     m_sGroupFlag "{67B18C209309EE76}UI/HAM/Groups/13RDPA_Group_Bravo.edds"
+     m_iGroupSize 8
+     m_iRadioFrequency 41000
+    }
+    SCR_GroupPreset "{648EE678890BE556}" {
+     m_sGroupName "Lima"
+     m_eGroupRole ANTITANK
+     m_sGroupFlag "{39120A142EFED4A1}UI/HAM/Groups/13RDPA_Group_Lima.edds"
+     m_iGroupSize 12
+     m_iRadioFrequency 46000
+    }
+    SCR_GroupPreset "{648EE67888CA5F2C}" {
+     m_sGroupName "Hotel"
+     m_eGroupRole ENGINEER
+     m_sGroupFlag "{2CA72ABCF1E4C9EF}UI/HAM/Groups/13RDPA_Group_Hotel.edds"
+     m_iGroupSize 6
+     m_iRadioFrequency 61000
+    }
+    SCR_GroupPreset "{648EE6788781728F}" {
+     m_sGroupName "Sierra"
+     m_eGroupRole TRANSPORT
+     m_sGroupFlag "{9D230D277A04DC44}UI/HAM/Groups/13RDPA_Group_Sierra.edds"
+     m_iGroupSize 5
+     m_iRadioFrequency 56000
+    }
+    SCR_GroupPreset "{73B0133F00B7306D}" {
+     m_sGroupName "Game Master"
+     m_eGroupRole HELI_TRANSPORT
+     m_sGroupFlag "{73713FC1E99C2A7F}UI/HAM/Groups/13RDPA_Group_GameMaster.edds"
+     m_iGroupSize 2
+     m_iRadioFrequency 85000
+     m_eRequiredRank MAJOR
+    }
+    SCR_GroupPreset "{BD0F2CAFB7119FAD}" {
+     m_sGroupName "Etat Major"
+     m_eGroupRole MECHANIZED
+     m_sGroupFlag "{5CCDCD64A485FF2E}UI/HAM/Groups/13RDPA_Group_EtatMajor.edds"
+     m_iGroupSize 5
+     m_iRadioFrequency 50000
+     m_eRequiredRank MAJOR
+    }
+    SCR_GroupPreset "{0FA8C7427D562BB9}" {
+     m_sGroupName "Alpha"
+     m_eGroupRole MACHINEGUN
+     m_sGroupFlag "{C720BBBB04F2A31F}UI/HAM/Groups/13RDPA_Group_Alpha.edds"
+     m_iGroupSize 4
+     m_iRadioFrequency 71000
+    }
+   }
+   m_bCreateOnlyPredefinedGroups 1
+   m_bEnableAutoGroupCreationWhenFull 0
+   m_iFactionRadioFrequency 52000
+   m_aEntityCatalogs {
+    SCR_EntityCatalogMultiList "{5C68A0E9BD5E5DD9}" {
+     m_aEntityEntryList {
+      SCR_EntityCatalogEntry "{60F6DBABEE28DE89}" {
+       m_sEntityPrefab "{7DE1CBA32A0225EB}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Randomized.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60F6DBABE907D963}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCC649347}" {
+       m_sEntityPrefab "{DCB41B3746FDD1BE}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Rifleman.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4865645F547}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BEAFCA998A}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA7628321805}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA762F5C0F48}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7611A91087}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{6302DC7B40442D64}" {
+         m_fSpawnSupplyCost 20
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA774DAAB994}" {
+       m_sEntityPrefab "{426F7FAAC77A2A6D}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_PL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76B570004B}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76B7AD3B0C}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA774EFD5BC4}" {
+       m_sEntityPrefab "{928DC9882A0AC79D}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Sergeant.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76A6794999}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76A8BB8D27}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCCFA2FF6}" {
+       m_sEntityPrefab "{5436629450D8387A}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4862B2657A7}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5D247326201DB0E7}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5E668368D30E063A}" {
+       m_sEntityPrefab "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4863A2297E1}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5E668368FD6A05D2}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCDA91648}" {
+       m_sEntityPrefab "{8E0FE664CE7D1CA9}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_GL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F48642085CDD}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BEB4248889}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCDDD71F8}" {
+       m_sEntityPrefab "{23ADBBC31B6A3DC6}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_AR.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F486706DE7CC}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE182485DD}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCD8D59E2}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4864DD74588}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BEA6AFAED5}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{6302DC7ECDBCD810}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCDE366EF}" {
+       m_sEntityPrefab "{E9AEEF2D9E41321B}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_AMG.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F486695D989D}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE1330AFFC}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{64D4DE0CAFA169CC}" {
+       m_sEntityPrefab "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{64D4DE0C9C90862F}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{64D4DE0C9D42C193}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCDB51225}" {
+       m_sEntityPrefab "{1C78331E156A3D65}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_AT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4867BA709BA}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE45A989C0}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCD024911}" {
+       m_sEntityPrefab "{631158F6898738A4}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_AAT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F486610A659C}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE36077EE7}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCC029383}" {
+       m_sEntityPrefab "{976AC400219898FA}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Sharpshooter.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4862E820F94}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE8ABB456B}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{6302DC7EF2FA66EE}" {
+         m_fSpawnSupplyCost 139
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCC30D2D6}" {
+       m_sEntityPrefab "{AB9726163EC1BD81}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Medic.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F48626F4D36E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5C9075BE988C7B18}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCC5ABA9B}" {
+       m_sEntityPrefab "{612F43A4D5AE765F}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_RTO.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6052F4865F81C9C9}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{5D24732650C24F72}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{6302DC7E14C68E91}" {
+         m_fSpawnSupplyCost 83
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA76F1A37CB8}" {
+       m_sEntityPrefab "{CBF7A398FE060335}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Sapper.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76D9B0AA4E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76DA966EF3}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA76F15250D6}" {
+       m_sEntityPrefab "{B31D4E408AEC99A4}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Ammo.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76CBBDB48E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76CCE9D33A}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C548ABBCCAFBB7D}" {
+       m_sEntityPrefab "{98EB9CDD85B8C92C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Unarmed.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogSpawnerData "{5D2473262A3B34C1}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogEditorData "{608AAAD345D07501}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6056BD5F01DCA819}" {
+       m_sEntityPrefab "{A62FA97C4EC64F14}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_HeliPilot.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6056BD5F17CF72C0}" {
+        }
+        SCR_EntityCatalogSpawnerData "{6538BEB5B308586E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6056BD5F0E4AB401}" {
+       m_sEntityPrefab "{C8FABF6F093DA775}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_HeliCrew.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6056BD5F15D4A6AA}" {
+        }
+        SCR_EntityCatalogSpawnerData "{6538BEB24D87AF3E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{62BEF704EE232B4F}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{62BEF704DD8393AF}" {
+        }
+        SCR_EntityCatalogSpawnerData "{65C4DE16EA5A478B}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{6498C617EF77FFEC}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{62BEF704EFF1376F}" {
+       m_sEntityPrefab "{BA010C4C82F3DE92}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_CC.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{62BEF704C6933168}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61067EB1F0458154}" {
+       m_sEntityPrefab "{9E9B8952B8EEC771}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Randomized_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61067EB1FAE3AD00}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7D760DE85}" {
+       m_sEntityPrefab "{145DBC42B19FC4D6}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Rifleman_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C733620A30}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C738FBC4EB}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+        SCR_EntityCatalogLoadoutData "{60ECB9C739068DBE}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA760DA4A835}" {
+       m_sEntityPrefab "{E8A05D5E0CEAC836}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_PL_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76797E9A59}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA767A4F8811}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA760E9FDAD9}" {
+       m_sEntityPrefab "{FC13DAA97D49137F}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Sergeant_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76684DAD91}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA766A9F6AD2}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7D8425341}" {
+       m_sEntityPrefab "{A8507C7BBAF64A71}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_SL_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C77C53142F}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C7632F3051}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7D90AC4A3}" {
+       m_sEntityPrefab "{C49ED6AA2EA02B15}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_SR_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C6B475B2FE}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C6B6C51BC8}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DAF348BC}" {
+       m_sEntityPrefab "{6B00D3FC285E0AE0}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_GL_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C686221DFB}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C688AC9DFA}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DBA0AA75}" {
+       m_sEntityPrefab "{862E3B66D0316F0A}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_AR_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C6FA5DF611}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C6FC11ABF0}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DB1AA572}" {
+       m_sEntityPrefab "{8A60AEBD529FEB8B}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_MG_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C6EED3F78B}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C6EF70BC88}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DCF58F77}" {
+       m_sEntityPrefab "{F89D79B340033E32}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_AMG_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C633C65FAF}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C634459C41}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{64D4DE0CF86D4F2F}" {
+       m_sEntityPrefab "{9833B84F57F9F22F}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_LAT_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{64D4DE0CE02ADF5E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{64D4DE0CE2B206AA}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DDB39B3D}" {
+       m_sEntityPrefab "{9A12B3F6ABDF70BE}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_AT_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C61624CB1D}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C617144100}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DD606A73}" {
+       m_sEntityPrefab "{E8EF64F8B943A507}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_AAT_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C609C8B423}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C60A48BF53}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DEC734CE}" {
+       m_sEntityPrefab "{B056E800F6286831}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Sharpshooter_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C67B8C30FF}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C67C07BD47}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7DF849115}" {
+       m_sEntityPrefab "{D66C215D6F03EFFD}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Medic_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C66E04D6D1}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C6502B7009}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{60ECB9C7C0B8AAE9}" {
+       m_sEntityPrefab "{9C16A2371109644D}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_RTO_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60ECB9C65F59BC5E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{60ECB9C641C3A8AD}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71A9C16168}" {
+       m_sEntityPrefab "{A70AD7146D3FBF41}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Sapper_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71905AA5F2}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7192A67828}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71AACE65FB}" {
+       m_sEntityPrefab "{77D7BFD355620806}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Ammo_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA7181B97A34}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7182E41BBA}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{64D690BBC681F618}" {
+       m_sEntityPrefab "{F67A91C100D6C222}Prefabs/Characters/Factions/OPFOR/USSR_Army/KLMK/Character_USSR_Unarmed_KLMK.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{64D690BBCE8C07CB}" {
+        }
+        SCR_EntityCatalogSpawnerData "{64D690BBCFDF13EB}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE9357025FA770}" {
+       m_sEntityPrefab "{6F412F678228D5F7}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Rifleman.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93575B3F5F57}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE935740BA27D9}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570352AF36}" {
+       m_sEntityPrefab "{0BC506AD47804A53}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_PL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9356A4520E41}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9356A6890202}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935704787A67}" {
+       m_sEntityPrefab "{D4B48CB2120CD6E0}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Sergeant.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE935698F9A35A}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE935699D89E91}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935707C52334}" {
+       m_sEntityPrefab "{92DBBF345A677BC3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_SL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93568807F5F3}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93568AF9CCEC}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE9357089DAAF5}" {
+       m_sEntityPrefab "{EFC353CC3FF4475A}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_SR.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE935637321665}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9356381016D2}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935709BD362B}" {
+       m_sEntityPrefab "{F286300A9F54B0FA}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_GL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE935628FC505E}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9356290EA365}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935709620BB1}" {
+       m_sEntityPrefab "{FF534E2B68E3D9D0}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_AR.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE935601E3417B}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE935602D3167C}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570C9BD470}" {
+       m_sEntityPrefab "{AD44903106ACCD33}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_MG.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93560E0194E5}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE935670A9E254}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570DB3759B}" {
+       m_sEntityPrefab "{5869A7B6451961B5}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_AMG.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE935661BD5A93}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93566283D76D}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570BC751D6}" {
+       m_sEntityPrefab "{1F8E131008DE0DD1}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_LAT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93566E670410}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93565066DB91}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570A0D5416}" {
+       m_sEntityPrefab "{27FB27EA116AC78C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_AT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93564127C823}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE935642005849}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570D4DB56C}" {
+       m_sEntityPrefab "{D2D6106D52DF6B0A}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_AAT.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93564EBD86C9}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93564F99C743}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570E02EBE2}" {
+       m_sEntityPrefab "{8CDEE565CB49D126}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Sharpshooter.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355BD1DAD55}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355BE116D1D}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE93570F3E602B}" {
+       m_sEntityPrefab "{34D564602573EDA1}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Medic.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355AA756847}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355AB727BA5}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE9357702824A7}" {
+       m_sEntityPrefab "{0E4D9E3249328533}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_RTO.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93559CD2D55F}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93559D258B73}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935771E65A93}" {
+       m_sEntityPrefab "{8C966363D98C3D2F}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Sapper.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE93558AE3E0DA}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE93558B377FE8}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935772CA385C}" {
+       m_sEntityPrefab "{63B5AEDAB5EDE4B7}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Ammo.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355FF969C31}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355E0F3222C}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935773FB9A06}" {
+       m_sEntityPrefab "{2BC3C5A7294A3289}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Unarmed.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355D09242B5}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355D1EB1D0E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE9357749CE887}" {
+       m_sEntityPrefab "{4F56119D68E63FF8}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_Crew.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355C052D6C8}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355C29F32AA}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{65AE935775B54B39}" {
+       m_sEntityPrefab "{F3AB754B0209BEAC}Prefabs/Characters/Factions/OPFOR/USSR_Army/Naval_Infantry/Character_USSR_NI_CC.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{65AE9355CE9DCE67}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{65AE9355CF96F6E2}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA768ED047EB}" {
+       m_sEntityPrefab "{2C490E2846A1E884}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Scout.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76F857732B}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76FAE5E6ED}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA768F1309A4}" {
+       m_sEntityPrefab "{0DC67B4DFFD7A361}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Scout_RTO.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA76E82C15D2}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA76E934C985}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71F867446F}" {
+       m_sEntityPrefab "{2DB452B3EC386B92}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71E82AF0D0}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA71E9137EF0}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71F90E4893}" {
+       m_sEntityPrefab "{B2A71FE01BA567D6}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_Officer.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71C4F24234}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA71C5309B1F}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FA3AF289}" {
+       m_sEntityPrefab "{5811F02495F6810E}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_SL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71359F1D27}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7136D2F24E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FBE6D19D}" {
+       m_sEntityPrefab "{B823C229EC3981B7}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_GL.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71279B2597}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7128D35AF6}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FCB926E7}" {
+       m_sEntityPrefab "{0B8AC0C3C447F90E}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_LMG.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA7119EBB373}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA711A200F3F}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FC73BF41}" {
+       m_sEntityPrefab "{8CA70597606992EC}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_Medic.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA710A449DFA}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA710CECCF44}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FD3CA40B}" {
+       m_sEntityPrefab "{B6A2736A7201DD23}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_RTO.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA717CE17DFC}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA717D3D3998}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FEEF9743}" {
+       m_sEntityPrefab "{ADB43E67E3766CE7}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_Sharpshooter.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71551CC771}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA7157852274}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{6116BA71FF8932B6}" {
+       m_sEntityPrefab "{730CDEC4168637B6}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Character_USSR_SF_Sapper.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{6116BA71462A64C9}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{6116BA714703ADB8}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C6AD611A95}" {
+       m_sEntityPrefab "{4D20F57C29B6EC1D}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA74A1C046A9}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA74A3A0155E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C690DD3AA0}" {
+       m_sEntityPrefab "{6C1FFF78CD4E4ADA}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_SL_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA74AE086C5C}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA74AF41CDED}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61ECC8454B721C14}" {
+       m_sEntityPrefab "{CF43078FA4830404}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_GL_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61ECC844B4DE5442}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61ECC844B56CF2FB}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C692C7C997}" {
+       m_sEntityPrefab "{029FF8F84148012E}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_Medic_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA748331A55A}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA7485971B73}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C6938F2C53}" {
+       m_sEntityPrefab "{1523C468AAF90312}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_RTO_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA748E07FF4D}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA748F5EDE1C}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C6937CDBA5}" {
+       m_sEntityPrefab "{5EFF3963153BE048}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_Sharpshooter_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA74F9E3C303}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA74FAD0EA5E}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{61A6B5C694193B9C}" {
+       m_sEntityPrefab "{A16C1DE30B6957D9}Prefabs/Characters/Factions/OPFOR/USSR_Army/Spetsnaz/Suppressed/Character_USSR_SF_Sapper_S.et"
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{61A6BA74E420F2C1}" {
+         m_eValidEditorModes 33
+        }
+        SCR_EntityCatalogSpawnerData "{61A6BA74E50BDFA3}" {
+         m_eSlotTypes GROUP_SMALL
+        }
+       }
+      }
+     }
+    }
+    SCR_EntityCatalogMultiList "{5C9E82F285C09E24}" {
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{605697836F02AFD9}" {
+       m_aEntities {
+        SCR_EntityCatalogEntry "{5D2348260FAC0091}" {
+         m_aEntityDataList {
+          SCR_EntityCatalogEditorData "{6052F486BE7B532C}" {
+           m_eValidEditorModes EDIT
+          }
+         }
+        }
+        SCR_EntityCatalogEntry "{69D295B15E3A8EAB}" {
+         m_sEntityPrefab "{B845B8B82C76BA68}Prefabs/Vehicles/Wheeled/Ural4320/Ural4320_transport_filled.et"
+        }
+        SCR_EntityCatalogEntry "{69D295B1520ACAC5}" {
+         m_sEntityPrefab "{B36056D3A35C1DED}Prefabs/Vehicles/Wheeled/Ural4320/Ural4320_engineer_filled.et"
+        }
+        SCR_EntityCatalogEntry "{6064E51CDD8FF121}" {
+         m_sEntityPrefab "{E171C9F443958371}Prefabs/MP/Campaign/Assets/CampaignMobileAssemblyEast.et"
+         m_aEntityDataList {
+          SCR_EntityCatalogEditorData "{6064E51CC8B32FED}" {
+           m_eValidEditorModes 33
+          }
+          SCR_EntityCatalogSpawnerData "{6064E51CF6673D6B}" {
+           m_eSlotTypes VEHICLE_MEDIUM
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    SCR_EntityCatalogMultiList "{5C68A0E9B9AA3C2D}" : "{37D5B75AAC3E72EA}Configs/EntityCatalog/USSR/Groups_EntityCatalog_USSR.conf" {
+    }
+    SCR_EntityCatalog "{5C68A0E9A51460AB}" : "{DDF17C8C140BD1F2}Configs/EntityCatalog/USSR/WeaponTripod_EntityCatalog_USSR.conf" {
+    }
+    SCR_EntityCatalogMultiList "{5C68A0E9AFE1E631}" {
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{5C68AD5F148714C4}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DF55FE15F2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DE875034B8}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF53ED1A87}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DE83B0AB3B}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF51F85BAB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DE8CA9F176}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB89941E8227C34}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB89941DED00526}" {
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF5FE4E0E9}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEB7247E08}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF5E3D0485}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEB6985D2F}" {
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB8994131EF701D}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB899413DA31DAC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615C9756415D96A0}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{615C97564BA2A952}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF594F5F3C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEA31337A1}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF598D6455}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEA28B4362}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{605ECB3AD2FDCC23}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{605ECB3A2A1B5316}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{605ECB3AD425A1DC}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{605ECB3A2C1AB3D9}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8BA85269B012F}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8BA85192BF160}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8BA852EC230A4}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8BA850EDA249C}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF58ED03D0}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEAF6748F3}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62DE9B733C9BA2D5}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62DE9B733C9BA366}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61A481A3C32CFA7E}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61A481A334E78212}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD5F1351A624}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DF47B8BF41}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DEAEC68866}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{658A8B1EC24085AF}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{658A8B1EC2408200}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CB923CC26005F}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CB923D2B479EC}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CB923D0AA0325}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD5F7414CA4A}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DF32FB7626}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DF4DC2857D}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DF3C4A41EC}" {
+         m_sEntityPrefab "{3EBCEFDA93C80BA0}Prefabs/Items/Equipment/Radios/Radio_R148.et"
+        }
+        SCR_EntityCatalogInventoryItem "{5E0304F3AECF0F6E}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5E0304F3C2661223}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B0B87C17ABF7C0}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B0B87C17ABF7AC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{B1190C01A0D4E101}" {
+         m_sEntityPrefab "{1A707AE02D03FD69}Prefabs/Items/Equipment/Radios/Backpack_119MC.et"
+         m_aEntityDataList {
+          SCR_ArsenalItem "{B1190C01A0D4E102}" {
+           m_eItemType RADIO_BACKPACK
+           m_iSupplyCost 40
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{B1198101A0D4E103}" {
+         m_sEntityPrefab "{40C2CF25CC2FED55}Prefabs/Items/Equipment/Radios/Backpack_119M81.et"
+         m_aEntityDataList {
+          SCR_ArsenalItem "{B1198101A0D4E104}" {
+           m_eItemType RADIO_BACKPACK
+           m_iSupplyCost 40
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{B1190D01A0D4E105}" {
+         m_sEntityPrefab "{C9508EC9B12AAABE}Prefabs/Items/Equipment/Radios/Backpack_119OD.et"
+         m_aEntityDataList {
+          SCR_ArsenalItem "{B1190D01A0D4E106}" {
+           m_eItemType RADIO_BACKPACK
+           m_iSupplyCost 40
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD5F13464B23}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DF3CADCB12}" {
+         m_sEntityPrefab "{7BD5ADF564FEA0FA}Prefabs/Items/Equipment/Radios/Radio_R107M.et"
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{61B2A217821CAFC2}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{61B4880C0BAA9695}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A217A4D08975}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B4AA57FE311872}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A217A4D08975}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B2A2178BAE1D4E}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A217A4D08975}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B2A2178A866385}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A376C439919C}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B2A217B5D7D900}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A376C84F2BCE}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{6556A2FDDAA2E551}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{6556A2FFC2BC7500}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61ECC6DC8DB987BC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFDA3E53E5}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFDA3E5050}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FDA32C9627}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FDA32C969D}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFC51E2722}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC51E27EA}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFC438824C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC43882D0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFD34470D2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFD34470B0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556B93BD7B6E148}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556B93BD7B6E13B}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6938CC108F723FE7}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6938CC15A9655400}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    SCR_EntityCatalog "{5C9EDDD378BA3298}" : "{B4CA6761AC935808}Configs/EntityCatalog/USSR/SupplyContainerItems_EntityCatalog_USSR.conf" {
+    }
+   }
+  }
+  SCR_CampaignFaction "{50B30C3ADB052C80}" {
+   m_bIsPlayable 0
+   m_aEntityCatalogs {
+    SCR_EntityCatalogMultiList "{5C68A0EE815FA292}" {
+     m_aEntityEntryList {
+      SCR_EntityCatalogEntry "{6116BA741CF3C099}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogLoadoutData "{6302DC7BF151B585}" {
+         m_fSpawnSupplyCost 20
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C54C23BDBF9A97E}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogLoadoutData "{62FAF96E5778D9D3}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{62BEF704856C6514}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogLoadoutData "{6498C617CBE1E44B}" {
+        }
+       }
+      }
+      SCR_EntityCatalogEntry "{5C54C23BDB8243F5}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogLoadoutData "{62FAF96F9F0F81BD}" {
+        }
+       }
+      }
+     }
+    }
+    SCR_EntityCatalogMultiList "{5C68A0EEB3F124F9}" {
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{5C68AD59AA6FA1B8}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7D8EBC8251B}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7D848E8A152}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D8E8E0BB47}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7D8715AC76A}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D816ADEECB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7D87BE255BC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D813556BD9}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7D8641686D9}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615C8771AF5329F3}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{615C87719BA90BE5}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615C877191E9B5F0}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{615C8771FC1C6053}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615C8771926ED950}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{615C8771E9B1CE4F}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8F15317B6FD3C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8F15350F0068E}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8F1530A6419E6}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8F150BBDC5D4F}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8F1530C9356E4}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8F150AD980E9F}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8F1530D8D9237}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8F15088AC49EB}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8F1530EC09F1C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8F150F8E3D90E}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB8994A0996F564}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB8994A7347CD36}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D81EA1A633}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DF96C89A81}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D81D0E5581}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DF94CA2FF2}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB899478684136C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB899468928129D}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB89946F93DA322}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB89946D3E242B5}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5CB89946C0314ED7}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CB89946CC23827A}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61A481A39AC9DB21}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61A481A3F000EB14}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5CA0A9E60B892D2A}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5CA0A9E6C9E91F72}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5CA0A9E6C9E91F70}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{658A8B1DB31EA629}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{658A8B1DB31EBEE4}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CB540804A3CAB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CBA01E6EA6FBB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CBA01F3FE2E11}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{615CBA01F48CDB31}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD59F0753ABE}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7D8CABBF612}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7D804202944}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7D8F3ED7EFC}" {
+         m_sEntityPrefab "{B9441B4DFD925DAB}Prefabs/Items/Equipment/Radios/Radio_ANPRC68.et"
+        }
+        SCR_EntityCatalogInventoryItem "{5E0304F3B82F416B}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5E0304F3DD6D9806}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B0B87C2165ED5E}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B0B87C2165ED22}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6AC81204AF064D92}" {
+         m_sEntityPrefab "{D69684663E89D6EA}Prefabs/Items/Equipment/Radios/Radio_ANPRC152A_OLD.et"
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD59AA2B2FF4}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7D8F231A82E}" {
+         m_sEntityPrefab "{350C8476C8CC7B32}Prefabs/Items/Equipment/Radios/Radio_ANPRC77.et"
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{61B2A3760BDE41B0}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{61B2A3760ED65DBC}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A3763291B06B}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B4AA57E8494190}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A3763291B06B}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61B4AA57ECD4520A}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61B2A3763291B06B}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61E4E8132A458548}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61E4EA2385634B26}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61E4E813294F6C60}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61E4EA238B1F4658}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62E49625AC9D0374}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62E49625BA68F5B5}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62E49626B37E44CB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62E49625BA68F5B5}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{6556A2FE10697152}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{6556A2FFC2BC7500}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61ECC6DC8DB987BC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFDA3E53E5}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFDA3E5050}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFC51E2722}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC51E27EA}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFC438824C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC43882D0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFD34470D2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFD34470B0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556B93806ADFA5D}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556B93806ADFA2E}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6938CC10FF9C29F5}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6938CC15A9655400}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  SCR_CampaignFaction "{56F0C3A6336375DC}" {
+   m_bIsPlayable 0
+   m_eShowInWelcomeScreenOverride NEVERSHOW
+   m_aEntityCatalogs {
+    SCR_EntityCatalogMultiList "{5C68A0EABE8B7B2A}" {
+     m_aEntityEntryList {
+      SCR_EntityCatalogEntry "{60F6DBAB1F48211E}" {
+       m_aEntityDataList {
+        SCR_EntityCatalogEditorData "{60F6DBAB1A6D15AE}" {
+        }
+       }
+      }
+     }
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{6886F6D8052FB6C6}" {
+       m_sIdentifier "Campaign"
+       m_aEntities {
+        SCR_EntityCatalogEntry "{6886F6D82A1EF5A6}" {
+         m_sEntityPrefab "{B40BFA1A43973320}Prefabs/Characters/Campaign/Final/INDFOR/FIA/Campaign_FIA_Player.et"
+         m_aEntityDataList {
+          SCR_EntityCatalogSpawnerData "{6886F6C4045C5997}" {
+           m_eSlotTypes GROUP_SMALL
+          }
+          SCR_EntityCatalogLoadoutData "{6886F6C4DA99D6D7}" {
+           m_fSpawnSupplyCost 20
+           m_eRequiredRank RENEGADE
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    SCR_EntityCatalogMultiList "{5C68C44CB0CFC935}" {
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{5C630E4538D3163D}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DFBB817028}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DFEEC0E3C7}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DFB84B5DE2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DFE9873F2E}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6062A42C225B8B63}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6062A42C192CB5AA}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6112B10ED427FBD6}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6112B10EC92A9120}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{607EC071EDF38F46}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{607EC071C2F001E3}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{607EC071EE63208F}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{607EC071153C09BB}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{68E49736DDE559D2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{605ECB3A2A1B5316}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{68E49736D26557AF}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{605ECB3A2C1AB3D9}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8BA85AEAE96E5}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8BA85E3B935D0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{607EC071EF4E64B8}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{607EC07163C30A1C}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{62D8BA858A73DC54}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{62D8BA85CA0DF6A5}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{61A481A3444B359F}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61A481A34D52AAA7}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C68AD58703CABF4}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DFA0DB470B}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DF07907D8A}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{658A8B1F625B7107}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{658A8B1F625B71ED}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{64CC8C07E7EC635C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{64CC8C07E4C6F81D}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{64CC8C07E424EEE7}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{60AAE47ADF734B45}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C630E453BCB39DC}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DF8D346873}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{5C62F7DFA91B1485}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{5C62F7DFB75D81FB}" {
+         m_sEntityPrefab "{4DC98AD60AF2FEB5}Prefabs/Items/Equipment/Radios/Radio_R148_FIA.et"
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{5C630E453B60C320}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DFB69708C8}" {
+         m_sEntityPrefab "{73EFD7591F4134D4}Prefabs/Items/Equipment/Radios/Radio_RF10/Radio_RF10.et"
+        }
+       }
+      }
+      SCR_EntityCatalogMultiListEntry "{6556B93BF51CD869}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{6556A2FFC51E2722}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC51E27EA}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFC438824C}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFC43882D0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6556A2FFD34470D2}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFD34470B0}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{68E0A60A01BB4083}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{61ECC6DC8DB987BC}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{68E0A60A1B9F78CB}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FFDA3E5050}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{68E0A60A18077288}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6556A2FDA32C969D}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+        SCR_EntityCatalogInventoryItem "{6938CC15A9655457}" {
+         m_aEntityDataList {
+          SCR_ArsenalItem "{6938CC15A9655400}" {
+           m_bUseMilitarySupplyAllocation 0
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  SCR_Faction "{60DCF47AEF40BD72}" : "{3FA20B01D950D31F}Configs/Factions/CIV.conf" {
+  }
+  SCR_CampaignFaction "{68F2E5C05A1440DC}" : "{4F4E0DD03A3C3E3D}Configs/Factions/RNGD_Campaign.conf" {
+   m_aEntityCatalogs {
+    SCR_EntityCatalogMultiList "{5C68C44CB0CFC935}" {
+     m_aMultiLists {
+      SCR_EntityCatalogMultiListEntry "{5C630E453BCB39DC}" {
+       m_aEntities {
+        SCR_EntityCatalogInventoryItem "{5C62F7DFB75D81FB}" {
+         m_sEntityPrefab "{4DC98AD60AF2FEB5}Prefabs/Items/Equipment/Radios/Radio_R148_FIA.et"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
+ItemPreviewManagerEntity ItemPreviewManagerEntity1 {
+ coords 32 0 20
+ PreviewWorld "{4391FE7994EE6FE2}Prefabs/World/Game/InventoryPreviewWorld.et"
+ DefaultRenderAttributes PreviewRenderAttributes "{52EF3E2AF2E07544}" {
+ }
+}
+SCR_MapLocator {
+ coords 34 0 20
+ m_WorldDirections SCR_MapLocationQuadHint "{5AAA8B37D1168EEB}" : "{D88D1AE761D521FB}Configs/Map/MapLocatorHints/LocationHintsKolguyev.conf" {
+ }
+}
+BasePreloadManager PreloadManager_Campaign1 : "{32BFDCDE99092FCE}Prefabs/World/Game/PreloadManager_Campaign.et" {
+ coords 36 0 20
+}
+SCR_LoadoutManager : "{58FBD035E53D95C1}Prefabs/MP/Campaign/CampaignLoadoutManager.et" {
+ coords 38 0 20
+}
+$grp GenericEntity : "{7E42BC76C7DD77DA}Prefabs/HAM/Bases/HAM_HQBase.et" {
+ QG_Joueurs {
+  components {
+   SCR_CoverageRadioComponent "{5C669673C2A82A2B}" {
+    "Encryption key" "coldBorscht"
+    Transceivers {
+     RelayTransceiver "{5C669673E8C94083}" {
+      "Transmitting Range" 500
+     }
+    }
+   }
+   SCR_FactionAffiliationComponent "{5AFC974A2595F05D}" {
+    "faction affiliation" "USSR"
+   }
+   SCR_CampaignMilitaryBaseComponent "{5AFC974A70234D1C}" {
+    m_sBaseName "QG"
+    m_sBaseNameUpper "QG"
+   }
+  }
+  coords 2602.366 24.219 5384.033
+ }
+ QG_Ennemi {
+  components {
+   SCR_CoverageRadioComponent "{5C669673C2A82A2B}" {
+    "Encryption key" "chickenNuggets"
+   }
+   SCR_FactionAffiliationComponent "{5AFC974A2595F05D}" {
+    "faction affiliation" "US"
+   }
+   SCR_CampaignMilitaryBaseComponent "{5AFC974A70234D1C}" {
+    m_sBaseName "QG ennemi"
+    m_sBaseNameUpper "QG ENNEMI"
+   }
+  }
+  coords 12029.178 2.902 10492.373
+ }
+}

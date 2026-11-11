@@ -1,0 +1,18 @@
+GenericEntity {
+ ID "C3A91E5704B82D21"
+ components {
+  RplComponent "{C3A91E5704B82D22}" {
+   Enabled 1
+  }
+  SCR_CoverageRadioComponent "{C3A91E5704B82D23}" {
+   m_bIsSource 0
+   "Turned on" 1
+   "Encryption key" "coldBorscht"
+   Transceivers {
+    RelayTransceiver "{C3A91E5704B82D24}" {
+     "Transmitting Range" 3000
+    }
+   }
+  }
+ }
+}

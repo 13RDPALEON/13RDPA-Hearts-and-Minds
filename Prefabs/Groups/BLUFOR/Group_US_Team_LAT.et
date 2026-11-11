@@ -1,0 +1,8 @@
+SCR_AIGroup : "{FAEA8B9E1252F56E}Prefabs/Groups/BLUFOR/Group_US_Team_LAT.et" {
+ ID "0000000000000001"
+ components {
+  SCR_AIConfigComponent "{D1B2C3D4E5F60718}" {
+   m_Skill 0.9
+  }
+ }
+}

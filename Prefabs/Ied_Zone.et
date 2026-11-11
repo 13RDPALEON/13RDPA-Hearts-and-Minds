@@ -1,0 +1,103 @@
+GenericEntity {
+ ID "6AC962A77236C4F0"
+ coords 2804.234 24.42 5013.762
+ {
+  GenericEntity : "{0712799E7E8A0D56}Prefabs/Props/Industrial/GasTank_02_rusty.et" {
+   ID "6AC962A772394E0D"
+   coords 1.5 0.043 3.012
+   angles 88.677 0 0
+  }
+  GenericEntity : "{1EDBE01AAD5EE137}Prefabs/Props/Industrial/GasTank_02_blue.et" {
+   ID "6AC962A77236C4FA"
+   coords -3.037 0.192 0.798
+   angles -87.289 0 0
+  }
+  $grp GenericEntity : "{6246B0E4AFAE4559}Prefabs/Structures/Walls/Net/NetFence_01/Dst/NetFence_01_dst_blue_04.et" {
+   {
+    ID "6AC962A77236C4F8"
+    coords 4.533 -0.642 2.854
+    angles 0 -117.57 0
+   }
+   {
+    ID "6AC962A77236C4F9"
+    coords 4.631 -0.608 -0.974
+    angles 0 -58.805 0
+   }
+   {
+    ID "6AC962A772386776"
+    coords -5.198 -0.171 -1.39
+    angles 0 57.529 0
+   }
+   {
+    ID "6AC962A77238911C"
+    coords -0.999 -0.242 4.567
+    angles 0 170.71 0
+   }
+   {
+    ID "6AC962A77238EEAA"
+    coords -4.042 -0.332 -3.104
+    angles 0 57.529 0
+   }
+   {
+    ID "6AC962A772394E0E"
+    coords 1.352 -0.305 5.003
+    angles 0 170.71 0
+   }
+   {
+    ID "6AC962A77239FA67"
+    coords 3.462 -0.474 -3.05
+    angles 0 -58.805 0
+   }
+   {
+    ID "6AC962A7723B0D37"
+    coords 5.712 -0.507 0.793
+    angles 0 -117.57 0
+   }
+   {
+    ID "6AC962A7723B23A1"
+    coords -0.679 -0.306 -5.247
+    angles 0 -25.957 0
+   }
+   {
+    ID "6AC962A7723B23DE"
+    coords 1.332 -0.438 -4.127
+    angles 0 -25.957 0
+   }
+   {
+    ID "6AC962A7723BA85C"
+    coords -5.424 -0.172 3.237
+    angles 0 90.377 0
+   }
+   {
+    ID "6AC962A7723BA85F"
+    coords -5.312 -0.17 0.937
+    angles 0 90.377 0
+   }
+   {
+    ID "6AC962A7723BD694"
+    coords -3.275 -0.183 4.237
+    angles 0 150.353 0
+   }
+  }
+  $grp GenericEntity : "{BAEED925D6275B05}Prefabs/Structures/Walls/Net/NetFence_01/Dst/NetFence_01_dst_blue_02.et" {
+   {
+    ID "6AC962A77238911D"
+    coords -2.766 -0.381 -5.051
+   }
+   {
+    ID "6AC962A7723A4E0B"
+    coords 0.96 -0.398 4.89
+   }
+  }
+  GenericEntity : "{CC8D07933AD0B07E}Prefabs/Props/Industrial/GasTank_01_red.et" {
+   ID "6AC962A772394E08"
+   coords 1.41 -0.024 -0.733
+   angles 0 0 78.815
+  }
+  GenericEntity : "{E5C8E180652682BC}Prefabs/Props/Industrial/GasTank_01_base.et" {
+   ID "6AC962A7723B23DF"
+   coords -2.302 0.092 -2.578
+   angles -81.185 20.597 0
+  }
+ }
+}

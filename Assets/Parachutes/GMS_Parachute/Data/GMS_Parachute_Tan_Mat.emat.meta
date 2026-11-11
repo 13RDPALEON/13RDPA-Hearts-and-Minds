@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{70F1F9F635C8CB57}Assets/Parachutes/GMS_Parachute/Data/GMS_Parachute_Tan_Mat.emat"
+ Configurations {
+  EMATResourceClass PC {
+  }
+  EMATResourceClass XBOX_ONE : PC {
+  }
+  EMATResourceClass XBOX_SERIES : PC {
+  }
+  EMATResourceClass PS4 : PC {
+  }
+  EMATResourceClass PS5 : PC {
+  }
+  EMATResourceClass HEADLESS : PC {
+  }
+ }
+}

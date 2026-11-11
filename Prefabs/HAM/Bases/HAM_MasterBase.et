@@ -1,0 +1,25 @@
+GenericEntity : "{7E42BC76C7DD77DA}Prefabs/HAM/Bases/HAM_HQBase.et" {
+ ID "5AFC9B0D8792F4E2"
+ components {
+  SCR_CampaignSeizingComponent "{5C66967235FBEEA3}" {
+   Enabled 1
+   m_iRadius 200
+   m_fMaximumSeizingTime 300
+   m_fMinimumSeizingTime 300
+  }
+  SCR_CoverageRadioComponent "{5C669673C2A82A2B}" {
+   m_bIsSource 0
+   "Turned on" 1
+  }
+  SCR_CampaignMilitaryBaseComponent "{5AFC974A70234D1C}" {
+   m_bCanBeHQ 0
+   m_sBaseName "Maître"
+   m_sBaseNameUpper "MAITRE"
+  }
+  SCR_FactionAffiliationComponent "{5AFC974A2595F05D}" {
+   "faction affiliation" "US"
+  }
+  HAM_MasterLinkComponent "{D17A6C4E90B25301}" {
+  }
+ }
+}

@@ -1,0 +1,10 @@
+GenericEntity {
+ ID 69EE3A01C4F2AB20
+ components {
+  MeshObject "{69EE3A01C4F2AB21}" {
+   Object "{9F3AF591CD6DFE1A}Assets/Characters/Basebody/Basebody_Male_01.xob"
+  }
+  AnimationPlayerComponent "{69EE3A01C4F2AB22}" {
+  }
+ }
+}

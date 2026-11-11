@@ -1,0 +1,39 @@
+GameProject {
+ ID "RDPAHeartsAndMinds"
+ GUID "8896CB4B7C4A242A"
+ TITLE "13RDPA Hearts and Minds"
+ Dependencies {
+  "58D0FB3206B6F859" "65AD7C139EB4C1A1" "68F77A54920B80AF" "65AD7C249E4ECDFB" "65AD7C379CBD394D" "65AD7BCC9F6B3B4E" "65AD7CF69FAF1FDD" "664AFDC993C9CE1A" "65AD7D0D9941A380" "65AD7D1E9EEAFA53" "68EAA4B96976D557" "65AD7D2E9866FA6E" "65AD7D4099944EBD" "671F73D99978B4F2" "65AD7D4F994EA327" "6586079789278413" "65B343F799FB521B" "65AD7C75826B46C6" "68FC0EDE9F677A3C" "65AD7CB89F219E38" "65AD7CD09CAEC4E2" "65AD7CE59E8DB349" "667B230F9505C8BA" "6A7713B706C3BA2D" "62F0DB18505C7BF6" "606B100247F5C709" "69D0BD2BAA5B26BF"
+ }
+ Configurations {
+  GameProjectConfig PC {
+   WidgetManagerSettings WidgetManagerSettings "{AC4BE58770485E02}" {
+    StringTables {
+     StringTableDefinition "{C7CDB2715C0E52F7}" {
+      StringTableSource "{F784FAC567923F54}Language/HAM_AI_localization.st"
+      Languages {
+       LanguageDefinition "{3F47C082EFDE58B4}" {
+        Code "en_us"
+        StringTableRuntime "{4BA420A59E5E0ECB}Language/HAM_AI_localization.en_us.conf"
+       }
+       LanguageDefinition "{AD71B08C164042C9}" {
+        Code "fr_fr"
+        StringTableRuntime "{FE26B0CCB487999E}Language/HAM_AI_localization.fr_fr.conf"
+       }
+      }
+     }
+    }
+   }
+  }
+  GameProjectConfig XBOX_ONE {
+  }
+  GameProjectConfig XBOX_SERIES {
+  }
+  GameProjectConfig PS4 {
+  }
+  GameProjectConfig PS5 {
+  }
+  GameProjectConfig HEADLESS {
+  }
+ }
+}

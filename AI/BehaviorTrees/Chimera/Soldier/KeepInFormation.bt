@@ -1,0 +1,388 @@
+BehaviorTree "{4FAB7D5D0205749A}AI/BehaviorTrees/Chimera/Soldier/KeepInFormation.bt" {
+ Name "AI/BehaviorTrees/Chimera/Soldier/KeepInFormation.bt"
+ Nodes {
+  RootNode Root {
+   Name "Root"
+   EditorPos 1256.369 -575.345
+   Nodes {
+    Parallel Parallel {
+     Name "Parallel"
+     EditorPos 1239 -427
+     Nodes {
+      Sequence Sequence {
+       Name "Sequence"
+       EditorPos 1019.762 -132.024
+       Nodes {
+        DecoratorEntity Entity {
+         Name "Entity"
+         EditorPos 488.81 140.953
+         Nodes {
+          Selector Selector {
+           Name "Selector"
+           EditorPos 534.921 316.032
+           Nodes {
+            SCR_AIDayNightTest "SCR_AI Day Night Test" {
+             Name "SCR_AI Day Night Test"
+             EditorPos 325.032 443.707
+             Nodes {
+              SCR_AIToggleFlashlightsOnSimulate "SCR_AI Toggle Flashlights On Simulate" {
+               Name "SCR_AI Toggle Flashlights On Simulate"
+               EditorPos 276.714 570.476
+               m_bEnable 0
+              }
+             }
+             AbortType AbortParentNodeFurtherChildren
+            }
+            SCR_AIToggleFlashlightsOnSimulate "SCR_AI Toggle Flashlights On Simulate" {
+             Name "SCR_AI Toggle Flashlights On Simulate"
+             EditorPos 621.81 569.81
+            }
+           }
+          }
+         }
+         ForceNodeResult Success
+         TEST {
+          SCR_AIDecoTestIsLeader SCR_AIDecoTestIsLeader {
+          }
+         }
+        }
+        Selector Selector {
+         Name "Selector"
+         EditorPos 1835.572 79.857
+         Nodes {
+          DecoIsInVehicle "Is In Vehicle" {
+           Name "Is In Vehicle"
+           EditorPos 1010 363.667
+           Nodes {
+            Parallel Parallel {
+             Name "Parallel"
+             EditorPos 1063.472 560.972
+             Nodes {
+              AITaskReturnState "Return State" {
+               Name "Return State"
+               EditorPos 705.223 874.056
+               Result RUNNING
+              }
+              Selector Selector {
+               Name "Selector"
+               EditorPos 1072.765 874.136
+               Nodes {
+                DecoTestVariable "Test Variable" {
+                 Name "It a turret?"
+                 EditorPos 493.841 1127.613
+                 Nodes {
+                  RunBT RunBT {
+                   Name "RunBT"
+                   EditorPos 351.056 1285.499
+                   BehaviorTree "{A39A4C0702473EF5}AI/BehaviorTrees/Chimera/Soldier/Idle_ObserveFromVehicle.bt"
+                  }
+                 }
+                 AbortType None
+                 InVariable 1
+                 TestType EqualsValue
+                 TestValue "1"
+                }
+                DecoTestVariable "Test Variable" {
+                 Name "Is it not a pilot?"
+                 EditorPos 881.785 1124.003
+                 Nodes {
+                  AITaskReturnState "Return  State" {
+                   Name "Return  State"
+                   EditorPos 886.444 1285.111
+                   Result RUNNING
+                  }
+                 }
+                 UseChildResult 1
+                 AbortType None
+                 InVariable 1
+                 TestType EqualsValue
+                 TestValue "2"
+                }
+                Sequence Sequence {
+                 Name "Sequence"
+                 EditorPos 1179.167 1035.667
+                 Nodes {
+                  HAM_AIFormationScaleModifier "Formation" {
+                   Name "Formation"
+                   EditorPos 850.455 1504.931
+                   OutPorts {
+                    SingleOutputPortContainer SingleOutputPortContainer {
+                     Port 7
+                     PortName "FormationScaleOut"
+                    }
+                   }
+                  }
+                  AITaskMoveInFormation "Move In Formation" {
+                   Name "Move In Formation"
+                   EditorPos 1179.167 1101.667
+                   InScale 7
+                  }
+                 }
+                }
+               }
+              }
+             }
+             UseChildResult 0
+            }
+           }
+           UseChildResult 1
+           AbortType AbortChildrenBranchAndParentFurtherChildren
+           CompartmentTypeOut 1
+          }
+          Parallel Parallel {
+           Name "Parallel"
+           EditorPos 2692.476 396.071
+           Nodes {
+            Sequence Sequence {
+             Name "Sequence"
+             EditorPos 2496.047 788.167
+             Nodes {
+              HAM_AIFormationScaleModifier "Formation" {
+               Name "Formation"
+               EditorPos 1230.334 1412.802
+               OutPorts {
+                SingleOutputPortContainer SingleOutputPortContainer {
+                 Port 7
+                 PortName "FormationScaleOut"
+                }
+               }
+              }
+              AITaskGetControlledEntity "Get Controlled Entity" {
+               Name "Get Controlled Entity"
+               EditorPos 1464.75 581.286
+               OutControlledEntity 6
+              }
+              AITaskGetFormationOffset "Get Formation Offset" {
+               Name "Get Formation Offset"
+               EditorPos 1667.976 763.711
+               OutProjectedWorldPos 0
+               InLeader -1
+               InScale 7
+              }
+              AITaskCreatePosition "Create Position" {
+               Name "Create Position"
+               EditorPos 1725 953.333
+               InEntity 6
+               OutPosition 5
+              }
+              SCR_AIDrawDebugVector "SCR_AI Draw Debug Vector" {
+               Name "SCR_AI Draw Debug Vector"
+               EditorPos 1735.238 1134.524
+               InPorts {
+                SingleInputPortContainer SingleInputPortContainer {
+                 Port 5
+                 PortName "StartPosIn"
+                }
+                SingleInputPortContainer SingleInputPortContainer {
+                 Port 0
+                 PortName "EndPosIn"
+                }
+               }
+              }
+              Selector Selector {
+               Name "Selector - TODO: if offset is far away - change movement speed"
+               EditorPos 2246.753 1276.477
+               Nodes {
+                SCR_AIDecoDistanceHysteresis "SCR_AI Deco Distance Hysteresis" {
+                 Name "SCR_AI Deco Distance Hysteresis"
+                 EditorPos 1964.841 1455.894
+                 Nodes {
+                  SCR_AICharacterSetMovementSpeed "SCR_AI Character Set Movement Speed" {
+                   Name "SCR_AI Character Set Movement Speed"
+                   EditorPos 1928.393 1787.5
+                   InPorts {
+                    SingleInputPortContainer SingleInputPortContainer {
+                     Port -1
+                     PortName "Speed"
+                    }
+                   }
+                   m_eSpeed SPRINT
+                  }
+                 }
+                 InPorts {
+                  SingleInputPortContainer SingleInputPortContainer {
+                   Port -1
+                   PortName "EntityIn"
+                  }
+                  SingleInputPortContainer SingleInputPortContainer {
+                   Port 2
+                   PortName "PositionIn"
+                  }
+                 }
+                 NegativeCondition 1
+                 m_lowBoundary 4
+                 m_highBoundary 5
+                }
+                DecoTestDistanceToEntity "Test Distance To Entity" {
+                 Name "Test Distance To Entity"
+                 EditorPos 2435 1449
+                 Nodes {
+                  SCR_AICharacterSetMovementSpeed "SCR_AI Character Set Movement Speed" {
+                   Name "SCR_AI Character Set Movement Speed"
+                   EditorPos 2441.428 1783.214
+                   InPorts {
+                    SingleInputPortContainer SingleInputPortContainer {
+                     Port -1
+                     PortName "Speed"
+                    }
+                   }
+                   m_eSpeed RUN
+                  }
+                 }
+                 NegativeCondition 1
+                 InPosition 3
+                 DistanceThreshold 3
+                 OutDistance -1
+                }
+                SCR_AIDecoDistanceHysteresis "SCR_AI Deco Distance Hysteresis" {
+                 Name "SCR_AI Deco Distance Hysteresis"
+                 EditorPos 2967.5 1446.417
+                 Nodes {
+                  SCR_AICharacterSetMovementSpeed "SCR_AI Character Set Movement Speed" {
+                   Name "SCR_AI Character Set Movement Speed"
+                   EditorPos 3002.5 1794.643
+                   InPorts {
+                    SingleInputPortContainer SingleInputPortContainer {
+                     Port -1
+                     PortName "Speed"
+                    }
+                   }
+                   m_eSpeed WALK
+                  }
+                 }
+                 InPorts {
+                  SingleInputPortContainer SingleInputPortContainer {
+                   Port -1
+                   PortName "EntityIn"
+                  }
+                  SingleInputPortContainer SingleInputPortContainer {
+                   Port 4
+                   PortName "PositionIn"
+                  }
+                 }
+                 UseChildResult 1
+                 m_lowBoundary 2
+                 m_highBoundary 3
+                }
+               }
+              }
+              SCR_AISetStance "SCR_AI Set Stance" {
+               Name "SCR_AI Set Stance"
+               EditorPos 2371.667 1066.667
+               InPorts {
+                SingleInputPortContainer SingleInputPortContainer {
+                 Port -1
+                 PortName "Stance"
+                }
+               }
+              }
+              AITaskIdle Idle {
+               Name "Idle"
+               EditorPos 2855.477 1020.476
+               Period 0.5
+              }
+             }
+            }
+            AITaskMoveInFormation "Move In Formation" {
+             Name "Move In Formation"
+             EditorPos 2983.81 669.524
+             InTargetOrientation -1
+             InPrecisionXZ -1
+             PrecisionXZ 1
+             PrecisionOfOrientation -1
+             OrientationType ToPoint
+             RequestResult -1
+             MaxDistToFormationPosition 5
+             ProjectedDistance 10
+             InScale 7
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      SCR_AIToggleFlashlightsOnAbort "SCR_AI Toggle Flashlights On Abort" {
+       Name "SCR_AI Toggle Flashlights On Abort"
+       EditorPos 1416.667 -140.333
+       m_bEnable 0
+      }
+     }
+     UseChildResult 0
+    }
+   }
+  }
+ }
+ Variables {
+  Variable formationPosition {
+   VariableName "formationPosition"
+   VariableTypeName "vector"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+  Variable CompartmentType {
+   VariableName "CompartmentType"
+   VariableTypeName "int"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+  Variable group {
+   VariableName "group"
+   VariableTypeName "AIGroup"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+  Variable debugPos {
+   VariableName "debugPos"
+   VariableTypeName "vector"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+  Variable contrEnt {
+   VariableName "contrEnt"
+   VariableTypeName "IEntity"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+  Variable formationScale {
+   VariableName "formationScale"
+   VariableTypeName "float"
+   VariableExposedInput 0
+   VariableExposedOutput 0
+  }
+ }
+ VariablesRefs {
+  VariableReference formationPosition {
+   VariableType 0
+   EditorPos 2064.424 1102.413
+  }
+  VariableReference CompartmentType {
+   VariableType 1
+   EditorPos 261.462 1020.152
+  }
+  VariableReference formationPosition {
+   VariableType 0
+   EditorPos 1685.5 1630.167
+  }
+  VariableReference formationPosition {
+   VariableType 0
+   EditorPos 2165.75 1619.667
+  }
+  VariableReference formationPosition {
+   VariableType 0
+   EditorPos 2708.5 1616.167
+  }
+  VariableReference debugPos {
+   VariableType 3
+   EditorPos 2026.667 1226.667
+  }
+  VariableReference contrEnt {
+   VariableType 4
+   EditorPos 1420.357 878.571
+  }
+  VariableReference formationScale {
+   VariableType 5
+   EditorPos 1420.357 1050.000
+  }
+ }
+}

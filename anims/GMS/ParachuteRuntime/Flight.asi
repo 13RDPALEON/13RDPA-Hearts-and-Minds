@@ -1,0 +1,110 @@
+AnimSetInstanceSource {
+ Template "{43A6BDE50B109738}anims/GMS/ParachuteRuntime/Flight.ast"
+ Lines {
+AnimSetInstanceSource_Line "StanceTransitions.PneLow.GoCro" {
+   Resource "{E4BC4F229764C379}anims/anm/player/locomotion/unarmed/transitions/p_una_pne_trans_cro_low.anm"
+  }
+AnimSetInstanceSource_Line "Unconscious.Default.UnconsciousBackTrans" {
+   Resource "{7E4512ADF7F5B7CE}anims/anm/player/injury/p_unconscious_back_to_prone.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Canopy_Idle" {
+   Resource "{169450086EF0009D}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_idle_01_legs.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Canopy_Torso" {
+   Resource "{877EF899ACE6055C}Assets/Characters/GMS_FreeFall/Anims/gms_ff_canopy_torso.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Canopy_TurnL" {
+   Resource "{A61931C59A464130}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_idle_01_turn_left_legs.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Canopy_TurnR" {
+   Resource "{EB6AE7EA0CAD8DF9}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_idle_01_turn_right_legs.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_B" {
+   Resource "{2B1FA5F8B4B4970B}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_F" {
+   Resource "{2B1FA5F8B4B4970B}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_L" {
+   Resource "{A9B4B1E7101293A3}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_left.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_LB" {
+   Resource "{524E7AE57F9AF157}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01_turn_left.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_LF" {
+   Resource "{524E7AE57F9AF157}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01_turn_left.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_Neutral" {
+   Resource "{47CC68F4022BF372}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_01.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoB" {
+   Resource "{DED2D16D1FCCC2E2}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoF" {
+   Resource "{7138CCC0778309D1}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_start.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoL" {
+   Resource "{A9B4B1E7101293A3}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_left.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoLB" {
+   Resource "{A9B4B1E7101293A3}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_left.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoLF" {
+   Resource "{7138CCC0778309D1}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_start.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoR" {
+   Resource "{63DBF1A6D7EF1EAA}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_right.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoRB" {
+   Resource "{63DBF1A6D7EF1EAA}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_right.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_NtoRF" {
+   Resource "{7138CCC0778309D1}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_start.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_R" {
+   Resource "{63DBF1A6D7EF1EAA}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_idle_02_turn_right.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_RB" {
+   Resource "{4ADF73AA9F4AB372}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01_turn_right.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.FF_RF" {
+   Resource "{4ADF73AA9F4AB372}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01_turn_right.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Land02" {
+   Resource "{81C8A5A2AE8569E0}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_land_02.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Land03" {
+   Resource "{F6C2CD2A5A278690}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_land_03.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.LandBwd" {
+   Resource "{6840ACE6ACB21CE4}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_land_05_fall_bwd.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.LandKTL" {
+   Resource "{1188429F03C5FD18}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_land_04_knees_together.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.LandKTR" {
+   Resource "{E5EB869F4788F327}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_canopy_ride_land_04_knees_together_mirror.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Open" {
+   Resource "{0AC4E4D6A8487E3A}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_parachute_open.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Pull" {
+   Resource "{D3EB0FECAF5D5AAE}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_pull_parachute_02.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Steer_L" {
+   Resource "{C5A7AC0E18D9D68D}Assets/Characters/GMS_FreeFall/Anims/gms_ff_steer_l_arm.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSFF.Default.Steer_R" {
+   Resource "{A96906DF8C8FB7E9}Assets/Characters/GMS_FreeFall/Anims/gms_ff_steer_r_arm.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSSL.Default.Exit" {
+   Resource "{A0D121B277C31CE5}Assets/Parachutes/GMS_StaticLine/Anims/gms_sl_exit.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSSL.Default.Fall" {
+   Resource "{46351931DABFDBDB}Assets/Parachutes/GMS_StaticLine/Anims/gms_sl_fall.anm"
+  }
+AnimSetInstanceSource_Line "ZZ_GMSSL.Default.Hang" {
+   Resource "{A0D121B277C31CE5}Assets/Parachutes/GMS_StaticLine/Anims/gms_sl_exit.anm"
+  }
+ }
+}

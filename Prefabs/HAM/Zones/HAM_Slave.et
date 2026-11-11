@@ -1,0 +1,12 @@
+GenericEntity : "{1A8791C2BC2B8B75}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_empty.et" {
+ ID "50C6D20663830070"
+ components {
+  SCR_DestructionMultiPhaseComponent "{51BACBF3C4A56479}" {
+   Enabled 0
+  }
+  RplComponent "{9F586EEA70ACD0CF}" {
+  }
+  HAM_ZoneComponent "{15562CE68BFD98C5}" {
+  }
+ }
+}

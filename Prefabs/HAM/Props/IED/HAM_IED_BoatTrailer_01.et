@@ -1,0 +1,8 @@
+GenericEntity : "{05C216FAF8F7C8D9}Prefabs/Props/Civilian/BoatTrailer_01/BoatTrailer_01.et" {
+ ID "0E21BFAA8A801764"
+ components {
+  RplComponent "{DA50CDF7595BCF70}" {
+   Enabled 1
+  }
+ }
+}

@@ -1,0 +1,5 @@
+MatPBRBasic {
+ BCRMap "{EE76DF638400E586}Models/C130/Data/Glass11_diff.edds"
+ OpacityMap "{EE76DF638400E586}Models/C130/Data/Glass11_diff.edds"
+ NMOMap "{0261CDAEA71C1861}Models/C130/Data/Glass11_nmap.edds"
+}

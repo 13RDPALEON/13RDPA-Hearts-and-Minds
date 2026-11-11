@@ -1,0 +1,25 @@
+GenericEntity : "{94D9E9B690F98756}PrefabsEditable/Auto/Compositions/Slotted/SlotFlatSmall/E_SupplyCache_S_US_01.et" {
+ ID "5282DCB5DFC8538F"
+ {
+  StaticModelEntity : "{095874B519DCF161}Prefabs/Structures/Military/Camps/TentUS_01/TentUS_01_Assembled.et" {
+   ID "6ACD1B6EB47AE9A2"
+   coords -12.24 0.089 -5.441
+  }
+  GenericEntity : "{3AE1A95C1023F894}Prefabs/Compositions/Slotted/SlotFlatSmall/SandbagPosition_S_USSR_04.et" {
+   ID "6ACD1B6EB47AEB1D"
+   coords 1.23 0.71 6.346
+  }
+  $grp SCR_DestructibleBuildingEntity : "{A9195A7D1F744209}Prefabs/Structures/Military/Bunkers/Bunker_01/Bunker_01_Base.et" {
+   {
+    ID "6ACD1B6EB47AEE06"
+    coords 6.887 0.026 -10.034
+    angles 0 145.847 0
+   }
+   {
+    ID "6ACD1B6EB47AEF5E"
+    coords -9.294 0.193 5.867
+    angles 0 -43.803 0
+   }
+  }
+ }
+}

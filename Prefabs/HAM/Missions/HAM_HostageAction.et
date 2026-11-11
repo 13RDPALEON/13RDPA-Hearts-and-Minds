@@ -1,0 +1,36 @@
+GenericEntity {
+ ID "A651D9004CC1D3EB"
+ components {
+  MeshObject "{355816DBBF7905A5}" {
+   Object "{2482E01261AB2FB5}Assets/Weapons/Magazines/PM/Magazine_8rnd_PM.xob"
+  }
+  RplComponent "{3A2B1068E2413ED9}" {
+  }
+  Hierarchy "{785BE8B8BB2BD9DC}" {
+  }
+  ActionsManagerComponent "{27442FA7086B4F99}" {
+   ActionContexts {
+    UserActionContext "{F639461598C7AD65}" {
+     ContextName "HAM_Hostage"
+     Position PointInfo "{AFD53D083F99AE3A}" {
+      Offset 0 0 0
+     }
+     Radius 2
+     Height 2
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions {
+    HAM_HostageFreeUserAction "{5D854938373AC5FC}" {
+     ParentContextList {
+      "HAM_Hostage"
+     }
+     UIInfo SCR_ActionUIInfo "{531A513147352404}" {
+      Name "Libérer l'otage"
+     }
+     Duration 3
+    }
+   }
+  }
+ }
+}

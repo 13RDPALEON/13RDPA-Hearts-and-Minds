@@ -1,0 +1,76 @@
+GenericEntity {
+ ID "75A31AA112BB069C"
+ components {
+  RplComponent "{6A5F02B100000072}" {
+   Enabled 1
+  }
+  FactionAffiliationComponent "{6A5F02B100000073}" {
+   "faction affiliation" "USSR"
+  }
+  SCR_CampaignBuildingCompositionComponent "{6A5F02B100000074}" {
+   m_AudioSourceConfigurationSpawn SCR_AudioSourceConfiguration "{6A5F02B100000075}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_BUILD_SANDBAG"
+   }
+   m_AudioSourceConfigurationDespawn SCR_AudioSourceConfiguration "{6A5F02B100000076}" {
+    m_sSoundProject "{F76981ECA6DC2674}Sounds/Editor/BaseBuilding/Editor_BaseBuilding.acp"
+    m_sSoundEventName "SOUND_DESTROY_SANDBAG"
+    m_eFlags 5
+   }
+  }
+  SCR_SlotCompositionComponent "{6A5F02B100000077}" {
+  }
+  SCR_EditableEntityComponent "{6A5F02B100000078}" {
+   m_Flags PLACEABLE
+   m_UIInfo SCR_EditableEntityUIInfo "{6A5F02B100000079}" {
+    Name "Mannequin de tenue"
+    Icon "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_Image "{03406DAD80009A4F}UI/Textures/Editor/EditableEntities/Systems/EditableEntity_Repairing_Station.edds"
+    m_aAutoLabels {
+     ENTITYTYPE_COMPOSITION FACTION_USSR SLOT_FLAT_SMALL SLOT_FLAT_MEDIUM SLOT_FLAT_LARGE THEME_MILITARY SIZE_S CONTENT_MODDED
+    }
+    m_EntityBudgetCost {
+     SCR_EntityBudgetValue "{6A5F02B10000007A}" {
+      m_BudgetType CAMPAIGN
+      m_Value 0
+     }
+     SCR_EntityBudgetValue "{6A5F02B10000007B}" {
+      m_BudgetType RANK_PRIVATE
+     }
+    }
+   }
+  }
+  ActionsManagerComponent "{6A5F02B10000007C}" {
+   ActionContexts {
+    UserActionContext "{6A5F02B10000007D}" {
+     ContextName "Mannequin"
+     Position PointInfo "{6A5F02B10000007E}" {
+      Offset 0 1 0
+     }
+     Radius 3
+     Height 2
+     "Display UI At Reference Point" 0
+    }
+   }
+   additionalActions {
+    SCR_CampaignBuildingDisassemblyUserAction "{6A5F02B10000007F}" : "{F7AA2A810E22ADC8}Prefabs/Compositions/Slotted/Actions/FreeRoamBuilding_Action_Disassemble.conf" {
+     ParentContextList {
+      "Mannequin"
+     }
+     UIInfo SCR_ActionUIInfo "{6A5F02B100000080}" {
+      Name "#AR-UserAction_Disassemble"
+      Description "#AR-UserAction_DisassembleItem"
+      m_sIconName "repair"
+     }
+    }
+   }
+  }
+ }
+ {
+  SCR_ChimeraCharacter : "{0D1FC5CEE3FD890F}Prefabs/Characters/Core/EGL_LoadoutMannequin.et" {
+   ID "6A5F02B100000081"
+   coords 0 0 0
+   angles 0 0 0
+  }
+ }
+}

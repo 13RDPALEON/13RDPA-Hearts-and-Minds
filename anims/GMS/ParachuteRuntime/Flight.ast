@@ -1,0 +1,24 @@
+AnimSetTemplateSource {
+ Groups {
+ AnimSetTemplateSource_AnimationGroup "{5EAA5E913D457291}" {
+ Name "StanceTransitions"
+ Animations { "GoCro" }
+ Columns { "PneLow" }
+ }
+ AnimSetTemplateSource_AnimationGroup "{DAF064FE39BD9DCD}" {
+ Name "Unconscious"
+ Animations { "UnconsciousBackTrans" }
+ Columns { "Default" }
+ }
+ AnimSetTemplateSource_AnimationGroup "{FA7F30AE5DDB5451}" {
+ Name "ZZ_GMSFF"
+ Animations { "Canopy_Idle" "Canopy_Torso" "Canopy_TurnL" "Canopy_TurnR" "FF_B" "FF_F" "FF_L" "FF_LB" "FF_LF" "FF_Neutral" "FF_NtoB" "FF_NtoF" "FF_NtoL" "FF_NtoLB" "FF_NtoLF" "FF_NtoR" "FF_NtoRB" "FF_NtoRF" "FF_R" "FF_RB" "FF_RF" "Land02" "Land03" "LandBwd" "LandKTL" "LandKTR" "Open" "Pull" "Steer_L" "Steer_R" }
+ Columns { "Default" }
+ }
+ AnimSetTemplateSource_AnimationGroup "{C465E6BBD55C2563}" {
+ Name "ZZ_GMSSL"
+ Animations { "Exit" "Fall" "Hang" }
+ Columns { "Default" }
+ }
+ }
+}

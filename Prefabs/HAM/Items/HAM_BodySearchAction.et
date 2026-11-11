@@ -1,0 +1,36 @@
+GenericEntity {
+ ID "5A78F81E0773ED93"
+ components {
+  MeshObject "{FBB6E46CF64F8476}" {
+   Object "{60ADAC7826430AC5}Assets/Items/Misc/IntelligenceFolder_E_01/IntelligenceFolder_E_01.xob"
+  }
+  RplComponent "{CEDE757292C84BCB}" {
+  }
+  Hierarchy "{FA7B6DCF35B863C2}" {
+  }
+  ActionsManagerComponent "{62FDBD2DEEC4AAC7}" {
+   ActionContexts {
+    UserActionContext "{EAB9E3943CDDE89B}" {
+     ContextName "HAM_Body"
+     Position PointInfo "{E0D88627E02FB6B7}" {
+      Offset 0 0 0
+     }
+     Radius 2
+     Height 1.5
+     "Display UI At Reference Point" 1
+    }
+   }
+   additionalActions {
+    HAM_SearchBodyUserAction "{401CF18458095497}" {
+     ParentContextList {
+      "HAM_Body"
+     }
+     UIInfo SCR_ActionUIInfo "{DCF04065996527ED}" {
+      Name "Fouiller le corps"
+     }
+     Duration 4
+    }
+   }
+  }
+ }
+}

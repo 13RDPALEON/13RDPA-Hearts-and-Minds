@@ -1,0 +1,451 @@
+FrameWidgetClass {
+ Name "Root"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 1 1
+ }
+ Color 0 0 0 0.45
+ {
+  FrameWidgetClass {
+   Name "Panel"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 0 0
+    PositionX 360
+    PositionY 40
+    SizeX 520
+    SizeY 700
+   }
+   Color 0 0 0 0
+   {
+    ImageWidgetClass {
+     Name "PanelFill"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+     }
+     Color 0.027 0.051 0.094 1
+    }
+    ImageWidgetClass {
+     Name "HeaderBar"
+     Slot FrameWidgetSlot {
+      OffsetLeft 12
+      OffsetTop 8
+      OffsetRight 12
+      SizeY 64
+     }
+     Color 0.776 0.631 0.357 1
+    }
+    TextWidgetClass {
+     Name "Title"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 24
+      OffsetTop 16
+      SizeY 32
+     }
+     Text "Déploiement"
+     Color 0.95 0.96 0.97 1
+     "Font Size" 26
+    }
+    TextWidgetClass {
+     Name "Info"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetRight 16
+      OffsetTop 44
+      SizeY 28
+     }
+     Text "Choisis un joueur connecté."
+     "Font Size" 16
+    }
+    ImageWidgetClass {
+     Name "SearchBg"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 76
+      SizeX 360
+      SizeY 28
+     }
+     Color 0.16 0.22 0.34 1
+    }
+    EditBoxWidgetClass {
+     Name "Search"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 76
+      SizeX 360
+      SizeY 28
+     }
+     Color 0.95 0.96 0.97 1
+     style blank
+     "Font Size" 16
+    }
+    ButtonWidgetClass {
+     Name "SearchBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 384
+      OffsetTop 76
+      SizeX 120
+      SizeY 28
+     }
+     Color 0.12 0.18 0.22 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Chercher"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player0"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 116
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player0Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player1"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 140
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player1Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player2"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 184
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player2Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player3"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 228
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player3Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player4"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 272
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player4Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player5"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 316
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player5Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player6"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 360
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player6Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player7"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 404
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player7Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player8"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 448
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player8Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player9"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 492
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player9Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player10"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 536
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player10Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Player11"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 580
+      SizeX 488
+      SizeY 36
+     }
+     Color 0.14 0.2 0.28 1
+     {
+      TextWidgetClass {
+       Name "Player11Text"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "—"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Prev"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.18 0.18 0.2 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Préc."
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Next"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 186
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.18 0.18 0.2 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Suiv."
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
+     Name "Close"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 354
+      OffsetTop 632
+      SizeX 150
+      SizeY 36
+     }
+     Color 0.35 0.16 0.14 1
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Fermer"
+       "Font Size" 18
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

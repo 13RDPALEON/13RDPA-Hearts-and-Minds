@@ -1,0 +1,14 @@
+$grp GenericEntity : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_base.et" {
+ Udarnik_CQB_1_R100 {
+  Flags 0x100000 0
+  coords 4366.721 22.688 2916.182
+ }
+ Udarnik_CQB_2_R80 {
+  Flags 0x100000 0
+  coords 4298.874 40.451 3577.434
+ }
+ Udarnik_CQB_3_R50 {
+  Flags 0x100000 0
+  coords 4722.666 56.698 3678.883
+ }
+}

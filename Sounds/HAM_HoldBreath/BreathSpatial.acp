@@ -1,0 +1,328 @@
+AudioClass {
+ sounds {
+ SoundClass "1033" {
+ id 1033
+ name "HAM_BREATH_IN"
+ version 5
+ ins {
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "5138:65" {
+ id 5138
+ port 65
+}
+ }
+}
+ }
+ outState 15371
+ outStatePort 19463
+ }
+ SoundClass "2057" {
+ id 2057
+ name "HAM_BREATH_OUT"
+ version 5
+ ins {
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "6162:65" {
+ id 6162
+ port 65
+}
+ }
+}
+ }
+ outState 15371
+ outStatePort 19463
+ }
+ SoundClass "3081" {
+ id 3081
+ name "HAM_BREATH_REG_IN"
+ version 5
+ ins {
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "7186:65" {
+ id 7186
+ port 65
+}
+ }
+}
+ }
+ outState 15371
+ outStatePort 19463
+ }
+ SoundClass "4105" {
+ id 4105
+ name "HAM_BREATH_REG_OUT"
+ version 5
+ ins {
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "8210:65" {
+ id 8210
+ port 65
+}
+ }
+}
+ }
+ outState 15371
+ outStatePort 19463
+ }
+ }
+ mixers {
+ MixerClass "15371" {
+ id 15371
+ name "Breath output"
+ version 4
+ res "{B764D803219C775E}Sounds/FinalMix.afm"
+ ins {
+ ConnectionsClass "con:19463" {
+ id 19463
+ links {
+ ConnectionClass "1033:65" {
+ id 1033
+ port 65
+}
+ConnectionClass "2057:65" {
+ id 2057
+ port 65
+}
+ConnectionClass "3081:65" {
+ id 3081
+ port 65
+}
+ConnectionClass "4105:65" {
+ id 4105
+ port 65
+}
+
+ }
+ }
+ }
+ pi { 256 0 }
+ path "{B764D803219C775E}Sounds/FinalMix.afm"
+ inputs {
+ "WPN_Handling" "WPN_Shots" "WPN_Explosions" "WNP_BulletHits" "CHAR" "ENV_AMB_2D" "VEH_Animations" "Impacts" "Dialog" "ENV_Doors" "VEH_Engine" "VEH_Tires" "VON" "SFX" "SFX_Reverb_OBSOLETE" "VON_Reverb" "Dialog_Reverb" "Impacts_EXT" "ENV_AMB_3D" "WPN_SonicCracks" "CHAR_Gear" "PA" "SFX_Reverb_Exterior" "ENV_AMB_3D_Reverb_Exterior" "SFX_Direct" "SFX_Reverb_Small" "SFX_Reverb_Medium" "SFX_Reverb_Large" "WPN_Shots_Player" "Dialog_Reverb_Small" "Dialog_Reverb_Medium" "Dialog_Reverb_Large" "WPN_TravelingProjectile" "Dialog_Delay_Exterior" "SFX_Reverb_InCabin"
+ }
+ }
+ }
+ shaders {
+ ShaderClass "5138" {
+ id 5138
+ name "HAM_BREATH_IN shader"
+ version 5
+ ins {
+ ConnectionsClass "con:0" {
+ id 0
+ links {
+ ConnectionClass "14364:65" {
+ id 14364
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:1" {
+ id 1
+ links {
+ ConnectionClass "13331:65" {
+ id 13331
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "9220:65" {
+ id 9220
+ port 65
+}
+ }
+}
+
+ }
+ pi { 3 0 }
+ }
+ ShaderClass "6162" {
+ id 6162
+ name "HAM_BREATH_OUT shader"
+ version 5
+ ins {
+ ConnectionsClass "con:0" {
+ id 0
+ links {
+ ConnectionClass "14364:65" {
+ id 14364
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:1" {
+ id 1
+ links {
+ ConnectionClass "13331:65" {
+ id 13331
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "10244:65" {
+ id 10244
+ port 65
+}
+ }
+}
+
+ }
+ pi { 3 0 }
+ }
+ ShaderClass "7186" {
+ id 7186
+ name "HAM_BREATH_REG_IN shader"
+ version 5
+ ins {
+ ConnectionsClass "con:0" {
+ id 0
+ links {
+ ConnectionClass "14364:65" {
+ id 14364
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:1" {
+ id 1
+ links {
+ ConnectionClass "13331:65" {
+ id 13331
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "11268:65" {
+ id 11268
+ port 65
+}
+ }
+}
+
+ }
+ pi { 3 0 }
+ }
+ ShaderClass "8210" {
+ id 8210
+ name "HAM_BREATH_REG_OUT shader"
+ version 5
+ ins {
+ ConnectionsClass "con:0" {
+ id 0
+ links {
+ ConnectionClass "14364:65" {
+ id 14364
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:1" {
+ id 1
+ links {
+ ConnectionClass "13331:65" {
+ id 13331
+ port 65
+}
+ }
+}
+
+ ConnectionsClass "con:64" {
+ id 64
+ links {
+ ConnectionClass "12292:65" {
+ id 12292
+ port 65
+}
+ }
+}
+
+ }
+ pi { 3 0 }
+ }
+ }
+ amplitudes {
+ AmplitudeClass "13331" {
+ id 13331
+ name "Near breath"
+ version 5
+ curve Linear
+ innerRange 1
+ outerRange 8
+ }
+ }
+ spatialities {
+ SpatialityClass "14364" {
+ id 14364
+ name "Positional breath"
+ version 5
+ spatialFactor 1
+ }
+ }
+ banks_local {
+ BankLocalClass "9220" {
+ id 9220
+ name "HAM_BREATH_IN sample"
+ version 7
+ Samples {
+ AudioBankSampleClass Sample {
+ Filename "{16F184F777D08F2C}Sounds/Character/Voice/Samples/Eng/Male1/Breath/Character_Voice_Breath_In_500_01.wav"
+ }
+ }
+ }
+ BankLocalClass "10244" {
+ id 10244
+ name "HAM_BREATH_OUT sample"
+ version 7
+ Samples {
+ AudioBankSampleClass Sample {
+ Filename "{E0BD3430CD7E6505}Sounds/Character/Voice/Samples/Eng/Male1/Breath/Character_Voice_Breath_Out_500_01.wav"
+ }
+ }
+ }
+ BankLocalClass "11268" {
+ id 11268
+ name "HAM_BREATH_REG_IN sample"
+ version 7
+ Samples {
+ AudioBankSampleClass Sample {
+ Filename "{D1D62BCA5A59C67B}Sounds/Character/Voice/Samples/Eng/Male1/Breath/Character_Voice_Breath_Regenerate_In_500_01.wav"
+ }
+ }
+ }
+ BankLocalClass "12292" {
+ id 12292
+ name "HAM_BREATH_REG_OUT sample"
+ version 7
+ Samples {
+ AudioBankSampleClass Sample {
+ Filename "{65CFAAB12715D68D}Sounds/Character/Voice/Samples/Eng/Male1/Breath/Character_Voice_Breath_Regenerate_Out_500_01.wav"
+ }
+ }
+ }
+ }
+ version 1
+}

@@ -1,0 +1,33 @@
+GenericEntity {
+ ID "BF2618D0E196028F"
+ components {
+  MeshObject "{EA135C4F9A64523E}" {
+   Object "{60ADAC7826430AC5}Assets/Items/Misc/IntelligenceFolder_E_01/IntelligenceFolder_E_01.xob"
+  }
+  RplComponent "{36C02563813F6005}" {
+  }
+  ActionsManagerComponent "{3B7C967703B4118B}" {
+   ActionContexts {
+    UserActionContext "{4020695A6E5FFCB7}" {
+     ContextName "HAM_Intel"
+     Position PointInfo "{F308B4F76ADF5A9E}" {
+      Offset 0 0.05 0
+     }
+     Radius 1.5
+     Height 1
+    }
+   }
+   additionalActions {
+    HAM_IntelPickupUserAction "{125DED17ADF4753C}" {
+     ParentContextList {
+      "HAM_Intel"
+     }
+     UIInfo SCR_ActionUIInfo "{113900A684DA3E04}" {
+      Name "Ramasser le renseignement"
+     }
+     Duration 2
+    }
+   }
+  }
+ }
+}

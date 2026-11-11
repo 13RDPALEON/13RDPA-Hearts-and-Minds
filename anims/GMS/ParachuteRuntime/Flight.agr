@@ -1,0 +1,46 @@
+AnimSrcGraph {
+ AnimSetTemplate "{43A6BDE50B109738}anims/GMS/ParachuteRuntime/Flight.ast"
+ ControlTemplate AnimSrcGCT {
+ Commands { AnimSrcGCTCmd CMD_Gesture_NPC {} }
+ Variables {
+ AnimSrcGCTVarBool GMSP_HoldActive { Synchronized 0 }
+AnimSrcGCTVarFloat GMSP_SL_HoldLeft { DefaultValue 0 MinValue 0 MaxValue 1 Synchronized 0 }
+AnimSrcGCTVarFloat GMSP_SL_HoldRight { DefaultValue 0 MinValue 0 MaxValue 1 Synchronized 0 }
+AnimSrcGCTVarBool GMSP_HALO_Enabled {
+   }
+AnimSrcGCTVarBool GMSP_SL_ObserverRoot {
+    Synchronized 0
+   }
+AnimSrcGCTVarBool GMSP_SL_Enabled {
+   }
+AnimSrcGCTVarFloat GMSP_SL_RecoveryOffsetX {
+    DefaultValue 0
+    MinValue -3
+    MaxValue 3
+   }
+AnimSrcGCTVarFloat GMSP_SL_RecoveryOffsetZ {
+    DefaultValue 0
+    MinValue -3
+    MaxValue 3
+   }
+AnimSrcGCTVarInt GMSP_SL_Phase {
+    MaxValue 3
+   }
+AnimSrcGCTVarBool GMSP_FF_Active {
+   }
+AnimSrcGCTVarInt GMSP_FF_Dir {
+    MaxValue 16
+   }
+AnimSrcGCTVarFloat GMSP_FF_DirX {
+    MinValue -1
+    MaxValue 1
+   }
+AnimSrcGCTVarFloat GMSP_FF_DirY {
+    MinValue -1
+    MaxValue 1
+   }
+ }
+ }
+ GraphFilesResourceNames { "{D0BC9896A77E48F9}anims/GMS/ParachuteRuntime/Flight.agf" }
+ DefaultRunNode "MasterControl"
+}

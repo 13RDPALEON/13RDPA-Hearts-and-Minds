@@ -1,0 +1,296 @@
+FrameWidgetClass "{69EEA55AC0000100}" {
+ Name "HAM_MilsimCompass"
+ Slot FrameWidgetSlot "{69EEA55AC0000200}" {
+  Anchor 0 0 1 1
+ }
+ "Is Visible" 0
+ {
+  FrameWidgetClass "{69EEA55AC0000101}" {
+   Name "HAM_CompassClip"
+   Slot FrameWidgetSlot "{69EEA55AC0000201}" {
+    Anchor 0.5 0 0.5 0
+    PositionX -280
+    OffsetLeft -280
+    PositionY 16
+    OffsetTop 16
+    SizeX 560
+    OffsetRight -280
+    SizeY 39
+    OffsetBottom -55
+   }
+   Clipping True
+   {
+    TextWidgetClass "{69EEA55AC0000110}" {
+     Name "HAM_CompassGrad0"
+     Slot FrameWidgetSlot "{69EEA55AC0000210}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000111}" {
+     Name "HAM_CompassGrad1"
+     Slot FrameWidgetSlot "{69EEA55AC0000211}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000112}" {
+     Name "HAM_CompassGrad2"
+     Slot FrameWidgetSlot "{69EEA55AC0000212}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000113}" {
+     Name "HAM_CompassGrad3"
+     Slot FrameWidgetSlot "{69EEA55AC0000213}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000114}" {
+     Name "HAM_CompassGrad4"
+     Slot FrameWidgetSlot "{69EEA55AC0000214}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000115}" {
+     Name "HAM_CompassGrad5"
+     Slot FrameWidgetSlot "{69EEA55AC0000215}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000116}" {
+     Name "HAM_CompassGrad6"
+     Slot FrameWidgetSlot "{69EEA55AC0000216}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000117}" {
+     Name "HAM_CompassGrad7"
+     Slot FrameWidgetSlot "{69EEA55AC0000217}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000118}" {
+     Name "HAM_CompassGrad8"
+     Slot FrameWidgetSlot "{69EEA55AC0000218}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000119}" {
+     Name "HAM_CompassGrad9"
+     Slot FrameWidgetSlot "{69EEA55AC0000219}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000120}" {
+     Name "HAM_CompassGrad10"
+     Slot FrameWidgetSlot "{69EEA55AC0000220}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000121}" {
+     Name "HAM_CompassGrad11"
+     Slot FrameWidgetSlot "{69EEA55AC0000221}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000122}" {
+     Name "HAM_CompassGrad12"
+     Slot FrameWidgetSlot "{69EEA55AC0000222}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -21
+      OffsetLeft -21
+      PositionY 11
+      OffsetTop 11
+      SizeX 42
+      OffsetRight -21
+      SizeY 17
+      OffsetBottom -28
+     }
+     Text ""
+     "Font Size" 13
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000140}" {
+     Name "HAM_CompassCursor"
+     Slot FrameWidgetSlot "{69EEA55AC0000240}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -14
+      OffsetLeft -14
+      PositionY 0
+      OffsetTop 0
+      SizeX 28
+      OffsetRight -14
+      SizeY 13
+      OffsetBottom -13
+     }
+     Text "|"
+     "Font Size" 11
+     "Min Font Size" 11
+     "Horizontal Alignment" Center
+    }
+    TextWidgetClass "{69EEA55AC0000141}" {
+     Name "HAM_CompassBearing"
+     Slot FrameWidgetSlot "{69EEA55AC0000241}" {
+      Anchor 0.5 0 0.5 0
+      PositionX -35
+      OffsetLeft -35
+      PositionY 25
+      OffsetTop 25
+      SizeX 70
+      OffsetRight -35
+      SizeY 14
+      OffsetBottom -39
+     }
+     Text ""
+     "Font Size" 14
+     "Min Font Size" 14
+     "Horizontal Alignment" Center
+    }
+   }
+  }
+ }
+}

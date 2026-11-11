@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{68480EA1B8CE5AC2}Models/C130/Data/Meshes6011_diff.edds"
+ OpacityMap "{68480EA1B8CE5AC2}Models/C130/Data/Meshes6011_diff.edds"
+}

@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{2B1FA5F8B4B4970B}Assets/Characters/GMS_FreeFall/Anims/gms_ff_skydive_belly_fly_fast_01.anm"
+ Configurations {
+  ANMResourceClass PC {
+  }
+  ANMResourceClass XBOX_ONE : PC {
+  }
+  ANMResourceClass XBOX_SERIES : PC {
+  }
+  ANMResourceClass PS4 : PC {
+  }
+  ANMResourceClass PS5 : PC {
+  }
+  ANMResourceClass HEADLESS : PC {
+  }
+ }
+}
