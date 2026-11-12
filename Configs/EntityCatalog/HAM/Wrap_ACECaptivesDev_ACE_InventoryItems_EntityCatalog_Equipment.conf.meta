@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{880572D0AEB4F212}Configs/EntityCatalog/HAM/Wrap_ACECaptivesDev_ACE_InventoryItems_EntityCatalog_Equipment.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

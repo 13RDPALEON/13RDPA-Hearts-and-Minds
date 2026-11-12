@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{876FFABB1B1BACB9}Configs/EntityCatalog/HAM/Wrap_ACETacticalPeriscopeDev_ACE_InventoryItems_EntityCatalog_Equipment.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

@@ -8,16 +8,16 @@ enum HAM_EParadropState
 	PLANE,
 	WAIT_JUMP,
 	FALLING,
-	ON_GROUND
+	ON_GROUND,
+	RESTORING
 }
 
 class HAM_ParadropSession
 {
 	int m_iPlayerId;
-	IEntity m_Backpack;
-	string m_sBackpackPrefab;
 	IEntity m_Chute;
 	int m_iState;
+	int m_iEpoch;
 	float m_fX;
 	float m_fZ;
 	float m_fGroundAt;
@@ -29,14 +29,19 @@ class HAM_ParadropSession
 	}
 }
 
-void HAM_ParadropRelease(int playerId)
+void HAM_ParadropRelease(int playerId, int epoch)
 {
-	HAM_ParadropComponent.Release(playerId);
+	HAM_ParadropComponent.Release(playerId, epoch);
 }
 
-void HAM_ParadropMoveToPlane(int playerId)
+void HAM_ParadropMoveToPlane(int playerId, int epoch)
 {
-	HAM_ParadropComponent.MoveToPlane(playerId);
+	HAM_ParadropComponent.MoveToPlane(playerId, epoch);
+}
+
+void HAM_ParadropCompleteFinish(int playerId, int epoch)
+{
+	HAM_ParadropComponent.CompleteFinish(playerId, epoch);
 }
 
 class HAM_ParadropComponentClass : ScriptComponentClass
@@ -78,6 +83,7 @@ class HAM_ParadropComponent : ScriptComponent
 			return;
 		}
 
+		HAM_ParadropBagStore.WipeOnBoot();
 		GetGame().GetCallqueue().CallLater(SpawnPlane, 2000, false);
 		GetGame().GetCallqueue().CallLater(Tick, 500, true);
 	}
@@ -148,7 +154,29 @@ class HAM_ParadropComponent : ScriptComponent
 		return session.m_iState == HAM_EParadropState.PLANE;
 	}
 
-	static void Abandon(int playerId)
+	//! Freefall / TP sortie : bloque les dégâts de chute natifs (coma).
+	static bool IsDropProtected(IEntity user)
+	{
+		if (!user)
+			return false;
+
+		PlayerManager manager = GetGame().GetPlayerManager();
+		if (!manager)
+			return false;
+
+		int playerId = manager.GetPlayerIdFromControlledEntity(user);
+		HAM_ParadropSession session = FindSession(playerId);
+		if (!session)
+			return false;
+
+		return session.m_iState == HAM_EParadropState.WAIT_JUMP
+			|| session.m_iState == HAM_EParadropState.FALLING
+			|| session.m_iState == HAM_EParadropState.ON_GROUND
+			|| session.m_iState == HAM_EParadropState.RESTORING;
+	}
+
+	//! victim : corps du kill (GetVictimEntity) si GetPlayerControlledEntity est déjà null.
+	static void Abandon(int playerId, IEntity victim = null)
 	{
 		if (!Replication.IsServer())
 			return;
@@ -157,12 +185,54 @@ class HAM_ParadropComponent : ScriptComponent
 		if (!session)
 			return;
 
+		// Invalide Release/MoveToPlane/CompleteFinish encore en queue (epoch).
+		CancelPending(playerId);
 		Engine(playerId, false);
-		DropBackpack(session);
-		if (session.m_Chute)
-			SCR_EntityHelper.DeleteEntityAndChildren(session.m_Chute);
 
+		// Corps vivant OU cadavre : EndFreeFall coupe FX (écran / vent) + graph
+		// même si m_bFreeFalling est déjà false (ACT_END partiel).
+		IEntity body = BodyOf(playerId);
+		if (!body)
+			body = victim;
+
+		if (body)
+		{
+			HAM_Para_FreeFallComponent freefall = HAM_Para_FreeFallComponent.Cast(body.FindComponent(HAM_Para_FreeFallComponent));
+			if (freefall)
+				freefall.EndFreeFall();
+		}
+
+		IEntity living = LivingBody(playerId);
+		if (living)
+			HAM_ParadropBagStore.RestoreToCharacter(playerId, living);
+		else
+			HAM_ParadropBagStore.Delete(playerId);
+
+		if (session.m_Chute)
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(session.m_Chute);
+			session.m_Chute = null;
+		}
+
+		session.m_iState = HAM_EParadropState.NONE;
 		s_aSessions.RemoveItem(session);
+
+		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (player)
+			player.HAM_ParadropClearPick();
+	}
+
+	protected static int Stamp(HAM_ParadropSession session)
+	{
+		session.m_iEpoch = session.m_iEpoch + 1;
+		return session.m_iEpoch;
+	}
+
+	protected static void CancelPending(int playerId)
+	{
+		HAM_ParadropSession session = FindSession(playerId);
+		if (session)
+			session.m_iEpoch = session.m_iEpoch + 1;
 	}
 
 	static void Request(int playerId, float x, float z)
@@ -174,9 +244,9 @@ class HAM_ParadropComponent : ScriptComponent
 		if (!SCR_Global.IsPositionWithinTerrainBounds(Vector(x, ground + 0.2, z)))
 			return;
 
-		HAM_ParadropSession existing = FindSession(playerId);
-		if (existing && existing.m_iState != HAM_EParadropState.NONE)
-			return;
+		// Nouvelle demande : toujours repartir propre (mort, saut coincé, 2e tentative).
+		if (FindSession(playerId))
+			Abandon(playerId);
 
 		if (!s_Plane)
 			s_Instance.SpawnPlane();
@@ -184,31 +254,33 @@ class HAM_ParadropComponent : ScriptComponent
 		if (!s_Plane)
 			return;
 
-		IEntity body = BodyOf(playerId);
+		IEntity body = LivingBody(playerId);
 		if (!body)
 			return;
 
 		if (!body.FindComponent(HAM_Para_FreeFallComponent))
 			return;
 
-		HAM_ParadropSession session = existing;
-		if (!session)
-		{
-			session = new HAM_ParadropSession(playerId);
-			s_aSessions.Insert(session);
-		}
-
+		HAM_ParadropSession session = new HAM_ParadropSession(playerId);
+		s_aSessions.Insert(session);
 		session.m_fX = x;
 		session.m_fZ = z;
-		if (!ParkBackpack(body, session))
+		if (!ParkBackpack(body, playerId))
 		{
 			s_aSessions.RemoveItem(session);
 			return;
 		}
 
 		session.m_Chute = EquipChute(body);
+		if (!session.m_Chute)
+		{
+			HAM_ParadropBagStore.RestoreToCharacter(playerId, body);
+			s_aSessions.RemoveItem(session);
+			return;
+		}
+
 		session.m_iState = HAM_EParadropState.PLANE;
-		GetGame().GetCallqueue().CallLater(HAM_ParadropMoveToPlane, 400, false, playerId);
+		GetGame().GetCallqueue().CallLater(HAM_ParadropMoveToPlane, 400, false, playerId, Stamp(session));
 	}
 
 	static void Jump(int playerId)
@@ -222,28 +294,39 @@ class HAM_ParadropComponent : ScriptComponent
 
 		session.m_iState = HAM_EParadropState.WAIT_JUMP;
 		Engine(playerId, false);
-		GetGame().GetCallqueue().CallLater(HAM_ParadropRelease, JUMP_DELAY_MS, false, playerId);
+		GetGame().GetCallqueue().CallLater(HAM_ParadropRelease, JUMP_DELAY_MS, false, playerId, Stamp(session));
 	}
 
-	static void Release(int playerId)
+	static void Release(int playerId, int epoch)
 	{
 		if (!Replication.IsServer())
 			return;
 
 		HAM_ParadropSession session = FindSession(playerId);
-		if (!session || session.m_iState != HAM_EParadropState.WAIT_JUMP)
+		if (!session || session.m_iEpoch != epoch || session.m_iState != HAM_EParadropState.WAIT_JUMP)
 			return;
 
 		float ground = GroundAt(session.m_fX, session.m_fZ);
 		session.m_iState = HAM_EParadropState.FALLING;
-		MovePlayer(playerId, Vector(session.m_fX, ground + DROP_HEIGHT, session.m_fZ));
 		IEntity body = BodyOf(playerId);
 		if (!body)
+		{
+			Abandon(playerId);
 			return;
+		}
 
+		// Engager le freefall AVANT le TP : sinon le moteur inflige le coma à l'arrivée.
 		HAM_Para_FreeFallComponent chute = HAM_Para_FreeFallComponent.Cast(body.FindComponent(HAM_Para_FreeFallComponent));
 		if (chute)
 			chute.HAM_Para_BeginDrop();
+
+		MovePlayer(playerId, Vector(session.m_fX, ground + DROP_HEIGHT, session.m_fZ));
+		Physics phys = body.GetPhysics();
+		if (phys)
+		{
+			phys.SetVelocity(Vector(0, -2, 0));
+			phys.SetAngularVelocity(vector.Zero);
+		}
 	}
 
 	protected static void Tick()
@@ -258,9 +341,18 @@ class HAM_ParadropComponent : ScriptComponent
 			if (!session)
 				continue;
 
-			IEntity body = BodyOf(session.m_iPlayerId);
-			if (!body)
+			if (session.m_iState == HAM_EParadropState.NONE)
+			{
+				s_aSessions.Remove(i);
 				continue;
+			}
+
+			IEntity body = LivingBody(session.m_iPlayerId);
+			if (!body)
+			{
+				Abandon(session.m_iPlayerId);
+				continue;
+			}
 
 			if (session.m_iState == HAM_EParadropState.FALLING && HasLanded(body))
 			{
@@ -269,30 +361,33 @@ class HAM_ParadropComponent : ScriptComponent
 			}
 
 			if (session.m_iState == HAM_EParadropState.ON_GROUND && now >= session.m_fGroundAt + GROUND_DELAY_MS)
-			{
-				if (!LivingBody(session.m_iPlayerId))
-					continue;
-
-				Finish(session);
-			}
+				BeginFinish(session);
 		}
 	}
 
 	protected static IEntity LivingBody(int playerId)
 	{
 		IEntity body = BodyOf(playerId);
-		if (!body || HAM_Util.IsDead(body))
+		if (!body)
+			return null;
+
+		CharacterControllerComponent controller = CharacterControllerComponent.Cast(body.FindComponent(CharacterControllerComponent));
+		if (controller && controller.IsDead())
 			return null;
 
 		return body;
 	}
 
-	protected static void Finish(HAM_ParadropSession session)
+	protected static void BeginFinish(HAM_ParadropSession session)
 	{
 		IEntity body = LivingBody(session.m_iPlayerId);
 		if (!body)
+		{
+			Abandon(session.m_iPlayerId);
 			return;
+		}
 
+		session.m_iState = HAM_EParadropState.RESTORING;
 		if (session.m_Chute)
 		{
 			SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(body.FindComponent(SCR_InventoryStorageManagerComponent));
@@ -303,14 +398,31 @@ class HAM_ParadropComponent : ScriptComponent
 			session.m_Chute = null;
 		}
 
-		ReturnBackpack(body, session);
-		session.m_Backpack = null;
-		session.m_sBackpackPrefab = string.Empty;
-		session.m_iState = HAM_EParadropState.NONE;
-		s_aSessions.RemoveItem(session);
+		GetGame().GetCallqueue().CallLater(HAM_ParadropCompleteFinish, 500, false, session.m_iPlayerId, Stamp(session));
 	}
 
-	protected static bool ParkBackpack(IEntity body, HAM_ParadropSession session)
+	static void CompleteFinish(int playerId, int epoch)
+	{
+		if (!Replication.IsServer())
+			return;
+
+		HAM_ParadropSession session = FindSession(playerId);
+		if (!session || session.m_iEpoch != epoch || session.m_iState != HAM_EParadropState.RESTORING)
+			return;
+
+		CancelPending(playerId);
+		IEntity body = LivingBody(playerId);
+		if (body)
+			HAM_ParadropBagStore.RestoreToCharacter(playerId, body);
+		else
+			HAM_ParadropBagStore.Delete(playerId);
+
+		session.m_iState = HAM_EParadropState.NONE;
+		s_aSessions.RemoveItem(session);
+		Engine(playerId, false);
+	}
+
+	protected static bool ParkBackpack(IEntity body, int playerId)
 	{
 		EquipedLoadoutStorageComponent loadout = EquipedLoadoutStorageComponent.Cast(body.FindComponent(EquipedLoadoutStorageComponent));
 		if (!loadout)
@@ -318,91 +430,23 @@ class HAM_ParadropComponent : ScriptComponent
 
 		IEntity backpack = loadout.GetClothFromArea(LoadoutBackpackArea);
 		if (!backpack)
+		{
+			HAM_ParadropBagStore.Delete(playerId);
 			return true;
+		}
+
+		if (!HAM_ParadropBagStore.SaveFromCharacter(playerId, body, backpack))
+			return false;
 
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(body.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || !manager.TryRemoveItemFromInventory(backpack))
+		{
+			HAM_ParadropBagStore.Delete(playerId);
 			return false;
+		}
 
-		if (backpack.GetPrefabData())
-			session.m_sBackpackPrefab = backpack.GetPrefabData().GetPrefabName();
-
-		HoldBackpack(backpack);
-		session.m_Backpack = backpack;
+		SCR_EntityHelper.DeleteEntityAndChildren(backpack);
 		return true;
-	}
-
-	protected static void HoldBackpack(IEntity backpack)
-	{
-		if (!backpack)
-			return;
-
-		Physics phys = backpack.GetPhysics();
-		if (phys)
-			phys.SetActive(ActiveState.INACTIVE);
-
-		if (s_Plane)
-		{
-			s_Plane.AddChild(backpack, -1);
-			vector mat[4];
-			Math3D.MatrixIdentity4(mat);
-			backpack.SetLocalTransform(mat);
-			return;
-		}
-
-		backpack.SetOrigin(Vector(0, PLANE_Y, 0));
-	}
-
-	protected static void ReleaseBackpack(IEntity backpack)
-	{
-		if (!backpack)
-			return;
-
-		IEntity parent = backpack.GetParent();
-		if (parent)
-			parent.RemoveChild(backpack);
-	}
-
-	protected static void ReturnBackpack(IEntity body, HAM_ParadropSession session)
-	{
-		if (!session)
-			return;
-
-		IEntity bag = session.m_Backpack;
-		if (!bag || !bag.GetPrefabData())
-			bag = SpawnStoredBackpack(session, body.GetOrigin());
-
-		if (!bag)
-			return;
-
-		ReleaseBackpack(bag);
-		if (Wear(body, bag))
-			return;
-
-		vector feet = body.GetOrigin();
-		feet[1] = feet[1] + 0.2;
-		bag.SetOrigin(feet);
-		Physics phys = bag.GetPhysics();
-		if (phys)
-		{
-			phys.SetActive(ActiveState.ACTIVE);
-			phys.EnableGravity(true);
-		}
-	}
-
-	protected static IEntity SpawnStoredBackpack(HAM_ParadropSession session, vector pos)
-	{
-		if (!session || session.m_sBackpackPrefab.IsEmpty())
-			return null;
-
-		Resource resource = Resource.Load(session.m_sBackpackPrefab);
-		if (!resource || !resource.IsValid())
-			return null;
-
-		EntitySpawnParams params = new EntitySpawnParams();
-		params.TransformMode = ETransformMode.WORLD;
-		params.Transform[3] = pos;
-		return GetGame().SpawnEntityPrefab(resource, GetGame().GetWorld(), params);
 	}
 
 	protected static IEntity EquipChute(IEntity body)
@@ -440,24 +484,6 @@ class HAM_ParadropComponent : ScriptComponent
 		return manager.EquipAny(loadout, item);
 	}
 
-	protected static void DropBackpack(HAM_ParadropSession session)
-	{
-		if (!session || !session.m_Backpack)
-			return;
-
-		ReleaseBackpack(session.m_Backpack);
-		float ground = GroundAt(session.m_fX, session.m_fZ);
-		session.m_Backpack.SetOrigin(Vector(session.m_fX, ground + 0.2, session.m_fZ));
-		Physics phys = session.m_Backpack.GetPhysics();
-		if (phys)
-		{
-			phys.SetActive(ActiveState.ACTIVE);
-			phys.EnableGravity(true);
-		}
-
-		session.m_Backpack = null;
-	}
-
 	protected static float GroundAt(float x, float z)
 	{
 		BaseWorld world = GetGame().GetWorld();
@@ -490,13 +516,13 @@ class HAM_ParadropComponent : ScriptComponent
 		return manager.GetPlayerControlledEntity(playerId);
 	}
 
-	static void MoveToPlane(int playerId)
+	static void MoveToPlane(int playerId, int epoch)
 	{
 		if (!s_Plane)
 			return;
 
 		HAM_ParadropSession session = FindSession(playerId);
-		if (!session || session.m_iState != HAM_EParadropState.PLANE)
+		if (!session || session.m_iEpoch != epoch || session.m_iState != HAM_EParadropState.PLANE)
 			return;
 
 		MovePlayer(playerId, PlaneCenter());
@@ -525,14 +551,15 @@ class HAM_ParadropPick
 	protected static bool s_bPicking;
 	protected static bool s_bHasPoint;
 	protected static bool s_bConfirmOpen;
+	protected static float s_fBeganAt;
 	protected static float s_fX;
 	protected static float s_fZ;
 
 	static void Begin()
 	{
+		Cancel();
 		s_bPicking = true;
-		s_bHasPoint = false;
-		s_bConfirmOpen = false;
+		s_fBeganAt = GetGame().GetWorld().GetWorldTime();
 		MenuManager menus = GetGame().GetMenuManager();
 		if (menus)
 			menus.OpenMenu(ChimeraMenuPreset.MapMenu);
@@ -548,6 +575,15 @@ class HAM_ParadropPick
 		s_bPicking = false;
 		s_bHasPoint = false;
 		s_bConfirmOpen = false;
+	}
+
+	//! Ignore un ClearPick serveur retardé après un nouveau Begin (mort puis re-saut).
+	static void CancelStale()
+	{
+		if (s_bPicking && GetGame().GetWorld().GetWorldTime() - s_fBeganAt < 2500)
+			return;
+
+		Cancel();
 	}
 
 	static bool IsConfirmOpen()
@@ -598,10 +634,14 @@ class HAM_ParadropPick
 		if (!s_bPicking || !s_bHasPoint)
 			return;
 
+		float x = s_fX;
+		float z = s_fZ;
 		s_bPicking = false;
+		s_bConfirmOpen = false;
+		s_bHasPoint = false;
 		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
 		if (player)
-			player.HAM_ParadropAsk(s_fX, s_fZ);
+			player.HAM_ParadropAsk(x, z);
 
 		MenuManager menus = GetGame().GetMenuManager();
 		if (menus)
@@ -656,10 +696,23 @@ modded class SCR_PlayerController
 			HAM_ParadropAudio.Set(on);
 	}
 
+	void HAM_ParadropClearPick()
+	{
+		Rpc(HAM_RpcParadropClearPick);
+		if (SCR_PlayerController.GetLocalPlayerId() == GetPlayerId())
+			HAM_ParadropPick.CancelStale();
+	}
+
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void HAM_RpcParadropAsk(float x, float z)
 	{
 		HAM_ParadropComponent.Request(GetPlayerId(), x, z);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void HAM_RpcParadropClearPick()
+	{
+		HAM_ParadropPick.CancelStale();
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]

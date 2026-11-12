@@ -1,0 +1,106 @@
+RHS_Tank : "{B744E85A9CE90F7D}Prefabs/Vehicles/Tracked/T14/Tank_T14_base.et" {
+ ID "5CDE8068D49AAEBB"
+ components {
+  SCR_BaseCompartmentManagerComponent "{20FB66C5DCB8DF72}" {
+   CompartmentSlots {
+    PilotCompartmentSlot PilotCompartment {
+     GetOutAction RHS_GetOutUserAction "{509D56667AFC4BD5}" {
+      ParentContextList + {
+       "DriverHatch"
+      }
+     }
+    }
+   }
+  }
+  SCR_VehicleDamageManagerComponent "{141326E9FD94FE40}" {
+   "Additional hit zones" {
+    SCR_GearboxHitZone GearBox {
+     IgnoreExplosions 1
+    }
+    SCR_EngineHitZone Engine {
+     ColliderNames +{
+     }
+    }
+    SCR_FuelHitZone FuelTank_01 {
+     ColliderNames +{
+     }
+     m_SecondaryExplosionPoint PointInfo "{5E70BAEDE2572E70}" {
+      Offset 0 1.5 -3.7
+     }
+    }
+    SCR_FuelHitZone FuelTank_02 {
+     ColliderNames +{
+     }
+     m_SecondaryExplosionPoint PointInfo "{5E70BAEDE2572E70}" {
+      Offset -1.6 1.6 -3.7
+     }
+     m_iFuelTankID 2
+    }
+    SCR_FuelHitZone FuelTank_03 {
+     ColliderNames +{
+     }
+     m_SecondaryExplosionPoint PointInfo "{5E70BAEDE2572E70}" {
+      Offset -1.6 1.6 0
+     }
+     m_iFuelTankID 3
+    }
+    SCR_FuelHitZone FuelTank_04 {
+     ColliderNames +{
+     }
+     m_SecondaryExplosionPoint PointInfo "{5E70BAEDE2572E70}" {
+      Offset 1.6 1.6 -3.7
+     }
+     m_iFuelTankID 4
+    }
+   }
+  }
+  ActionsManagerComponent "{C97BE5489221AE18}" {
+   ActionContexts {
+    UserActionContext "{5CDE8068D486B2A9}" {
+     Position PointInfo "{5CDE8068D4870F99}" {
+      Offset -0.3629 0.0257 0.2929
+     }
+    }
+    UserActionContext "{61B485451E5B99E4}" {
+     Position PointInfo "{5CDE8068D4870F99}" {
+      Offset -0.6429 1.7601 2.2162
+     }
+    }
+    UserActionContext "{65C523717C2C76CB}" {
+     Position PointInfo "{65C523716E31A41B}" {
+      Offset -0.8388 2.5667 1.0766
+     }
+    }
+   }
+   additionalActions {
+    SCR_RepairAtSupportStationAction "{65C52376F3D5757A}" {
+     Duration -5
+     "Sort Priority" -80
+     m_DamageIntensityHolder SCR_DamageIntensityHolder "{6AD6633200C382DD}" {
+      m_aDamageIntensityEntries {
+       SCR_DamageIntensityEntry "{6AD6633200C382E9}" {
+       }
+       SCR_DamageIntensityEntry "{6AD6633200C382EB}" {
+       }
+       SCR_DamageIntensityEntry "{6AD6633200C382EA}" {
+       }
+       SCR_DamageIntensityEntry "{6AD6633200C382ED}" {
+       }
+       SCR_DamageIntensityEntry "{6AD6633200C382EC}" {
+       }
+      }
+     }
+     m_HitZoneGroupNames SCR_HitZoneGroupNameHolder "{6AD6633200C382EE}" {
+      m_aHitZoneGroupNames {
+       SCR_VehicleHitZoneGroupName "{6AD6633200C382F0}" {
+        m_sHitZoneGroupName "Brains"
+        m_eVehicleHitZoneGroup CONTROLS
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ coords 139.446 1 93.974
+}

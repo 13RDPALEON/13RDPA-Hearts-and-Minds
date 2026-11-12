@@ -95,6 +95,7 @@ class HAM_ArsenalBoardStore
 
 	static void RefreshAllArsenals()
 	{
+		HAM_ArsenalPreview.ForgetList();
 		if (s_bRefreshQueued)
 			return;
 

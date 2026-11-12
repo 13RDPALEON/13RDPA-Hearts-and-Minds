@@ -17,7 +17,87 @@ modded class SCR_EntityCatalogManagerComponent
 		s_bTRNEntrySearch = true;
 		entry = GetEntryWithPrefabFromAnyCatalog(catalogType, prefabToFind, faction, false);
 		s_bTRNEntrySearch = false;
-		return entry;
+		if (entry)
+			return entry;
+
+		return HAM_EntryByPath(prefabToFind);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! La caisse d'un camion n'a souvent pas de faction. L'achat vanilla ne regarde alors que le
+	//! catalogue commun et refuse Stinger, M249, tenues ACE, etc. On cherche toutes les factions.
+	override SCR_EntityCatalogEntry GetEntryWithPrefabFromCatalog(EEntityCatalogType catalogType, ResourceName prefabToFind)
+	{
+		SCR_EntityCatalogEntry entry = super.GetEntryWithPrefabFromCatalog(catalogType, prefabToFind);
+		if (entry || s_bTRNEntrySearch || catalogType != EEntityCatalogType.ITEM)
+			return entry;
+
+		s_bTRNEntrySearch = true;
+		entry = GetEntryWithPrefabFromAnyCatalog(catalogType, prefabToFind, null, true);
+		s_bTRNEntrySearch = false;
+		if (entry)
+			return entry;
+
+		return HAM_EntryByPath(prefabToFind);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected SCR_EntityCatalogEntry HAM_EntryByPath(ResourceName prefab)
+	{
+		string path = prefab;
+		int brace = path.IndexOf("}");
+		if (brace >= 0 && brace + 1 < path.Length())
+			path = path.Substring(brace + 1, path.Length() - brace - 1);
+
+		if (path.IsEmpty())
+			return null;
+
+		SCR_EntityCatalogEntry found = HAM_EntryInCatalog(GetEntityCatalogOfType(EEntityCatalogType.ITEM, false), path);
+		if (found)
+			return found;
+
+		if (!m_FactionManager)
+			return null;
+
+		array<Faction> factions = {};
+		m_FactionManager.GetFactionsList(factions);
+		foreach (Faction faction : factions)
+		{
+			SCR_Faction scrFaction = SCR_Faction.Cast(faction);
+			if (!scrFaction)
+				continue;
+
+			found = HAM_EntryInCatalog(scrFaction.GetFactionEntityCatalogOfType(EEntityCatalogType.ITEM, false), path);
+			if (found)
+				return found;
+		}
+
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected SCR_EntityCatalogEntry HAM_EntryInCatalog(SCR_EntityCatalog catalog, string path)
+	{
+		if (!catalog || path.IsEmpty())
+			return null;
+
+		array<SCR_EntityCatalogEntry> entries = {};
+		catalog.GetEntityList(entries);
+		foreach (SCR_EntityCatalogEntry entry : entries)
+		{
+			if (!entry)
+				continue;
+
+			string entryPath = entry.GetPrefab();
+			int brace = entryPath.IndexOf("}");
+			if (brace >= 0 && brace + 1 < entryPath.Length())
+				entryPath = entryPath.Substring(brace + 1, entryPath.Length() - brace - 1);
+
+			if (entryPath == path)
+				return entry;
+		}
+
+		return null;
 	}
 
 	override int GetAllArsenalItems(out array<SCR_ArsenalItem> allArsenalItems, SCR_EArsenalItemType typeFilter = -1, SCR_EArsenalItemMode modeFilter = -1, SCR_EArsenalGameModeType arsenalGameModeType = -1, EArsenalItemDisplayType requiresDisplayType = -1)
@@ -49,9 +129,9 @@ modded class SCR_EntityCatalogManagerComponent
 				continue;
 
 			string prefab = item.GetItemResourceName();
-			int prefabLength = prefab.Length();
-			if (prefabLength > 0)
-				prefab = prefab.Substring(0, prefabLength);
+			int brace = prefab.IndexOf("}");
+			if (brace >= 0 && brace + 1 < prefab.Length())
+				prefab = prefab.Substring(brace + 1, prefab.Length() - brace - 1);
 
 			// Un nom vide n'identifie pas l'objet : les fusionner n'en laisserait qu'un.
 			if (!prefab.IsEmpty())
@@ -281,6 +361,9 @@ modded class SCR_InventoryStorageManagerComponent
 {
 	override bool CanInsertItemInActualStorage(IEntity item, BaseInventoryStorageComponent storage, int slotID = -1)
 	{
+		if (!item || !storage)
+			return false;
+
 		SCR_UniversalInventoryStorageComponent bag = SCR_UniversalInventoryStorageComponent.Cast(storage);
 		if (bag)
 		{

@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{D6E51FC6F6C8B77E}Configs/EntityCatalog/HAM/ACERadioDev_ACE_InventoryItems_EntityCatalog_Equipment.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

@@ -243,6 +243,9 @@ class HAM_Settings
 		if (def.m_eRole == HAM_ERole.ENEMY_HQ)
 			return m_EnemyHqZone;
 
+		if (def.m_eRole == HAM_ERole.MASTER && def.m_eType == HAM_EMasterType.CITY)
+			return m_City;
+
 		if (def.m_eRole == HAM_ERole.MASTER)
 			return m_Master;
 

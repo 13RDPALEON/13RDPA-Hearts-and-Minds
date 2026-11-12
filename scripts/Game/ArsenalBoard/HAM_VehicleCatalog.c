@@ -224,11 +224,11 @@ class HAM_VehicleCatalog
 		return data.HAM_VanillaRank();
 	}
 
-	// 1 léger, 2 lourd, 3 aérien, 4 autre.
+	// 1 léger, 2 char, 3 lourd, 4 aérien, 5 autre.
 	static int Category(string prefab)
 	{
 		if (prefab.IsEmpty())
-			return 4;
+			return 5;
 
 		if (!s_mCategory)
 			s_mCategory = new map<string, int>();
@@ -237,15 +237,17 @@ class HAM_VehicleCatalog
 		if (s_mCategory.Find(prefab, cached))
 			return cached;
 
-		int category = 4;
+		int category = 5;
 		if (LooksAir(prefab))
-			category = 3;
+			category = 4;
 		else
 		{
 			string low = prefab;
 			low.ToLower();
-			if (low.Contains("/tracked/") || low.Contains("apc") || low.Contains("tank") || low.Contains("truck") || low.Contains("ural") || low.Contains("m923") || low.Contains("heavy"))
+			if (low.Contains("/tracked/") || low.Contains("/tank") || low.Contains("tank_"))
 				category = 2;
+			else if (low.Contains("apc") || low.Contains("truck") || low.Contains("ural") || low.Contains("m923") || low.Contains("heavy") || low.Contains("stryker") || low.Contains("lav25") || low.Contains("btr"))
+				category = 3;
 			else if (low.Contains("/wheeled/") || low.Contains("/car") || low.Contains("vehicle") || low.Contains("/boat"))
 				category = 1;
 		}
@@ -256,7 +258,7 @@ class HAM_VehicleCatalog
 
 	static bool IsAir(string prefab)
 	{
-		return Category(prefab) == 3;
+		return Category(prefab) == 4;
 	}
 
 	protected static bool LooksAir(string prefab)

@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{214D0A9F6455129D}Configs/EntityCatalog/HAM/BonActionAnimations_InventoryItems_EntityCatalog_FIA.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

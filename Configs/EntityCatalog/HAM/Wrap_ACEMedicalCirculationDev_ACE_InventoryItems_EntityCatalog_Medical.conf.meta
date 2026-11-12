@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{B1239FEB47B8D56C}Configs/EntityCatalog/HAM/Wrap_ACEMedicalCirculationDev_ACE_InventoryItems_EntityCatalog_Medical.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{D5F716ABA505FDE5}Configs/EntityCatalog/HAM/Wrap_ACETrenchesDev_ACE_InventoryItems_EntityCatalog_Equipment_UK.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

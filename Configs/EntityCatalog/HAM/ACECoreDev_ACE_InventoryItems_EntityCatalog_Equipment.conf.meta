@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{3A03785E24DEAF0B}Configs/EntityCatalog/HAM/ACECoreDev_ACE_InventoryItems_EntityCatalog_Equipment.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

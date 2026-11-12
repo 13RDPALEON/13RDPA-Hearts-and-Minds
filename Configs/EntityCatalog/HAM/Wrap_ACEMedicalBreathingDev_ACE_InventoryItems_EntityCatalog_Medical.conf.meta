@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{721FE08EEEC1DEB5}Configs/EntityCatalog/HAM/Wrap_ACEMedicalBreathingDev_ACE_InventoryItems_EntityCatalog_Medical.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

@@ -1,0 +1,19 @@
+MetaFileClass {
+ Name "{CA79426EC00EDD2E}Configs/EntityCatalog/HAM/ACEFacepaintDev_ACE_InventoryItems_EntityCatalog_Equipment_US.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass PS5 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+  CONFResourceClass Xbox : PC {
+  }
+ }
+}

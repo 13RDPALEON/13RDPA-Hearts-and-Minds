@@ -406,6 +406,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			m_aCatNames.Clear();
 			m_aCatNames.Insert("Tous");
 			m_aCatNames.Insert("Léger");
+			m_aCatNames.Insert("Char");
 			m_aCatNames.Insert("Lourd");
 			m_aCatNames.Insert("Aérien");
 			m_aCatNames.Insert("Autre");

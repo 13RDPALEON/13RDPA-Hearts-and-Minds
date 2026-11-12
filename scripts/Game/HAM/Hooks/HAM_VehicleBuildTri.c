@@ -38,6 +38,14 @@ class HAM_VehicleBuildTri
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! La fusion des catalogues arrive après le premier index : le garage doit le refaire.
+	static void ForgetIndex()
+	{
+		s_mPrefabsByName = null;
+		s_mNameByPrefab = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static void Ensure()
 	{
 		if (s_mPrefabsByName)
@@ -197,6 +205,49 @@ class HAM_VehicleBuildTri
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! 1 camion, 2 APC, 3 char lourd, 0 : on ne déplace pas (voiture, hélico, inconnu).
+	//! Le garage moyen a trois onglets. Un T-14 porte à la fois camion, APC et blindage,
+	//! un K-17 porte camion et APC : sans ce tri, le même véhicule est dans deux onglets.
+	static int GarageKind(string prefab)
+	{
+		if (prefab.IsEmpty())
+			return 0;
+
+		string low = prefab;
+		low.ToLower();
+		int brace = low.IndexOf("}");
+		if (brace >= 0 && brace + 1 < low.Length())
+			low = low.Substring(brace + 1, low.Length() - brace - 1);
+
+		if (low.Contains("helicopter") || low.Contains("/heli") || low.Contains("aircraft") || low.Contains("/plane") || low.Contains("/air/") || low.Contains("/boat"))
+			return 0;
+
+		bool apc = low.Contains("k17") || low.Contains("k4386") || low.Contains("k-4386") || low.Contains("lav25") || low.Contains("lav-25") || low.Contains("/lav") || low.Contains("vpk") || low.Contains("btr") || low.Contains("stryker") || low.Contains("typhoon") || low.Contains("brdm") || low.Contains("bmp") || low.Contains("/bmd") || low.Contains("bmd_") || low.Contains("m113") || low.Contains("bradley") || low.Contains("kurganets");
+		if (apc)
+			return 2;
+
+		bool truck = low.Contains("ural") || low.Contains("m923") || low.Contains("m939") || low.Contains("kamaz") || low.Contains("/zil") || low.Contains("zil_") || low.Contains("gaz66") || low.Contains("gaz-66") || low.Contains("hemtt") || low.Contains("kraz") || low.Contains("/truck") || low.Contains("truck_");
+		if (truck)
+			return 1;
+
+		if (low.Contains("/tracked/") || low.Contains("/t14") || low.Contains("t-14") || low.Contains("2s1") || low.Contains("2s3") || low.Contains("2s19") || low.Contains("m1a1") || low.Contains("m1a2") || low.Contains("abrams"))
+			return 3;
+
+		return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool LooksLikeVehicle(string prefab)
+	{
+		if (prefab.IsEmpty())
+			return false;
+
+		string low = prefab;
+		low.ToLower();
+		return low.Contains("/vehicles/") || low.Contains("/vehicle/") || low.Contains("helicopter");
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Le fournisseur du mode construction est-il un garage ou un hélipad ?
 	static bool IsVehicleProvider(IEntity provider)
 	{
@@ -274,7 +325,18 @@ modded class SCR_CampaignBuildingPlacingEditorComponent
 //------------------------------------------------------------------------------------------------
 modded class SCR_ContentBrowserEditorComponent
 {
-	//! En mode construction, un véhicule masqué au tableau de tri disparaît du navigateur.
+	//------------------------------------------------------------------------------------------------
+	//! Chargement vanilla pour le GM. Le tri garage reste uniquement dans FilterEntries.
+	protected bool HAM_OpeningVehicleDepot()
+	{
+		SCR_CampaignBuildingEditorComponent building = SCR_CampaignBuildingEditorComponent.Cast(FindEditorComponent(SCR_CampaignBuildingEditorComponent, false, true));
+		if (!building)
+			return false;
+
+		return HAM_VehicleBuildTri.IsVehicleProvider(building.GetProviderEntity());
+	}
+
+	//! Au garage seulement : masquage tri + onglets camion / APC / char.
 	override void FilterEntries()
 	{
 		super.FilterEntries();
@@ -283,21 +345,154 @@ modded class SCR_ContentBrowserEditorComponent
 		if (!editorManager || editorManager.GetCurrentMode() != EEditorMode.BUILDING || !HAM_Mission.IsActive())
 			return;
 
-		bool removed = false;
+		if (!HAM_OpeningVehicleDepot())
+			return;
+
+		bool changed = false;
 		for (int i = m_aFilteredPrefabIDs.Count() - 1; i >= 0; i--)
 		{
+			string prefab = GetResourceNamePrefabID(m_aFilteredPrefabIDs[i]);
 			SCR_EditableEntityUIInfo info = GetInfo(m_aFilteredPrefabIDs[i]);
-			if (!info || !HAM_VehicleBuildTri.IsHiddenName(info.GetName()))
+			if (!info)
+			{
+				m_aFilteredPrefabIDs.RemoveOrdered(i);
+				changed = true;
 				continue;
+			}
 
-			m_aFilteredPrefabIDs.RemoveOrdered(i);
-			removed = true;
+			if (HAM_VehicleBuildTri.IsHiddenName(info.GetName()) || !HAM_VehicleBuildTri.LooksLikeVehicle(prefab))
+			{
+				m_aFilteredPrefabIDs.RemoveOrdered(i);
+				changed = true;
+			}
 		}
 
-		if (!removed)
+		int tab = HAM_ActiveGarageTab();
+		if (tab != 0)
+		{
+			for (int j = m_aFilteredPrefabIDs.Count() - 1; j >= 0; j--)
+			{
+				string prefab = GetResourceNamePrefabID(m_aFilteredPrefabIDs[j]);
+				int kind = HAM_VehicleBuildTri.GarageKind(prefab);
+				if (kind == 0 || kind == tab)
+					continue;
+
+				m_aFilteredPrefabIDs.RemoveOrdered(j);
+				changed = true;
+			}
+
+			if (tab == 3 && HAM_AddGarageKind(3))
+				changed = true;
+		}
+
+		if (!changed)
 			return;
 
 		m_iFilteredPrefabIDsCount = m_aFilteredPrefabIDs.Count();
 		Event_OnBrowserEntriesFiltered.Invoke();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! 1 camion, 2 APC, 3 char. 0 si l'onglet actif n'est pas l'un de ces trois.
+	protected int HAM_ActiveGarageTab()
+	{
+		bool truck = IsLabelActive(EEditableEntityLabel.VEHICLE_TRUCK);
+		bool apc = IsLabelActive(EEditableEntityLabel.VEHICLE_APC);
+		EEditableEntityLabel tankLabel = typename.StringToEnum(EEditableEntityLabel, "VEHICLE_TANK");
+		string tankName = typename.EnumToString(EEditableEntityLabel, tankLabel);
+		bool tank = false;
+		if (tankName == "VEHICLE_TANK")
+			tank = IsLabelActive(tankLabel);
+
+		int tabs = 0;
+		if (truck)
+			tabs++;
+		if (apc)
+			tabs++;
+		if (tank)
+			tabs++;
+
+		if (tabs != 1)
+			return 0;
+
+		if (truck)
+			return 1;
+
+		if (apc)
+			return 2;
+
+		return 3;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Les chars RHS n'ont pas l'étiquette VEHICLE_TANK : l'onglet char les laisse de côté.
+	protected bool HAM_AddGarageKind(int kind)
+	{
+		bool added = false;
+		int count = GetInfoCount();
+		for (int i = 0; i < count; i++)
+		{
+			if (m_aFilteredPrefabIDs.Contains(i))
+				continue;
+
+			SCR_EditableEntityUIInfo info = GetInfo(i);
+			if (!info || HAM_VehicleBuildTri.IsHiddenName(info.GetName()))
+				continue;
+
+			string prefab = GetResourceNamePrefabID(i);
+			if (HAM_VehicleBuildTri.GarageKind(prefab) != kind)
+				continue;
+
+			if (!HAM_HasGroundVehicleLabel(info) || HAM_IsBlackListed(info) || !HAM_MatchesSearch(info.GetName()))
+				continue;
+
+			m_aFilteredPrefabIDs.Insert(i);
+			added = true;
+		}
+
+		return added;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HAM_HasGroundVehicleLabel(notnull SCR_EditableEntityUIInfo info)
+	{
+		array<EEditableEntityLabel> labels = {};
+		info.GetEntityLabels(labels);
+		if (labels.Contains(EEditableEntityLabel.VEHICLE_TRUCK) || labels.Contains(EEditableEntityLabel.VEHICLE_APC) || labels.Contains(EEditableEntityLabel.VEHICLE_CAR))
+			return true;
+
+		EEditableEntityLabel tankLabel = typename.StringToEnum(EEditableEntityLabel, "VEHICLE_TANK");
+		string tankName = typename.EnumToString(EEditableEntityLabel, tankLabel);
+		return tankName == "VEHICLE_TANK" && labels.Contains(tankLabel);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HAM_IsBlackListed(notnull SCR_EditableEntityUIInfo info)
+	{
+		array<EEditableEntityLabel> labels = {};
+		info.GetEntityLabels(labels);
+		array<EEditableEntityLabel> black = {};
+		GetValidBlackListedLabels(black);
+		foreach (EEditableEntityLabel label : black)
+		{
+			if (labels.Contains(label))
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HAM_MatchesSearch(string name)
+	{
+		string search = GetCurrentSearch();
+		if (search.IsEmpty())
+			return true;
+
+		array<string> keys = {};
+		keys.Insert(name);
+		array<int> hits = {};
+		WidgetManager.SearchLocalized(search, keys, hits);
+		return !hits.IsEmpty();
 	}
 }

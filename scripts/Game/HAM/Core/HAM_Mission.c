@@ -32,7 +32,10 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 		super.OnGameModeStart();
 		HAM_Mission.RegisterComponent(this);
 		if (Replication.IsServer())
+		{
 			GetGame().GetCallqueue().CallLater(HAM_Mission.Boot, 3000, false);
+			HAM_MapMarkerPersist.Start();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -47,8 +50,14 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 	override void OnControllableDestroyed(notnull SCR_InstigatorContextData instigatorContextData)
 	{
 		super.OnControllableDestroyed(instigatorContextData);
-		if (Replication.IsServer())
-			HAM_Mission.OnKill(instigatorContextData);
+		if (!Replication.IsServer())
+			return;
+
+		HAM_Mission.OnKill(instigatorContextData);
+
+		int playerId = instigatorContextData.GetVictimPlayerID();
+		if (playerId > 0)
+			HAM_ParadropComponent.Abandon(playerId, instigatorContextData.GetVictimEntity());
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -1,8 +1,7 @@
 //------------------------------------------------------------------------------------------------
 //! GMS FreeFall - character-side controller component.
 //!
-//! Attach to the H&M player loadout Campaign_USSR_Player_Rifleman.
-//! Do not override Character_Base: reusing its vanilla GUID replaces the game prefab and Workbench cannot load it.
+//! Attach to the player character prefab (modded SCR_ChimeraCharacter base).
 //! Responsibilities:
 //!  - detect freefall entry (aircraft exit at altitude / scripted trigger)
 //!  - own the flight model on the machine that owns the character's motion
@@ -77,7 +76,6 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 
 	[Attribute(defvalue: "0", desc: "DEV: SPACE under canopy toggles slot tuning (A/D W/S Q/E), printing the offset to bake - RE-DISABLE (0) for release")]
 	protected bool m_bCanopyTuneMode;
-	protected bool m_bHAMBackupTick;
 
 	[Attribute(defvalue: "6.5", desc: "Landing tumble: forward ground speed (m/s) above which touchdown ragdolls")]
 	protected float m_fTumbleLandSpeedMs;
@@ -595,12 +593,16 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 	override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
-		owner.SetFlags(EntityFlags.ACTIVE, false);
+		SetEventMask(owner, EntityEvent.FRAME | EntityEvent.POSTFRAME);
+		owner.SetFlags(EntityFlags.ACTIVE, true);
 		// seed the position sampler, or the first measurement is the whole
 		// distance from the world origin over one tick - a spawn-frame
 		// "velocity" of several hundred m/s
 		m_vLastPos = owner.GetOrigin();
 		m_bCanopyTuneMode = false;
+		// backup tick independent of entity frame events (EOnFrame on
+		// character-attached script components proved unreliable)
+		GetGame().GetCallqueue().CallLater(BackupTick, 200, true);
 		m_AnimComponent = CharacterAnimationComponent.Cast(owner.FindComponent(CharacterAnimationComponent));
 		m_Controller = CharacterControllerComponent.Cast(owner.FindComponent(CharacterControllerComponent));
 		m_CompartmentAccess = CompartmentAccessComponent.Cast(owner.FindComponent(CompartmentAccessComponent));
@@ -834,11 +836,6 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 			SetEventMask(remoteOwner, EntityEvent.FRAME | EntityEvent.POSTFRAME);
 			Activate(remoteOwner);
 			remoteOwner.SetFlags(EntityFlags.ACTIVE, true);
-			if (!m_bHAMBackupTick && GetGame() && GetGame().GetCallqueue())
-			{
-				m_bHAMBackupTick = true;
-				GetGame().GetCallqueue().CallLater(BackupTick, 200, true);
-			}
 		}
 		if (m_bFreeFalling)
 			return;
@@ -967,11 +964,6 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 		{
 			SetEventMask(ffOwner, EntityEvent.FRAME | EntityEvent.POSTFRAME);
 			ffOwner.SetFlags(EntityFlags.ACTIVE, true);
-			if (!m_bHAMBackupTick && GetGame() && GetGame().GetCallqueue())
-			{
-				m_bHAMBackupTick = true;
-				GetGame().GetCallqueue().CallLater(BackupTick, 200, true);
-			}
 		}
 		if (m_bFreeFalling || !m_AnimComponent || !m_Controller)
 			return;
@@ -1479,10 +1471,6 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 		if ((!m_bCanopy && grounded) || eff >= m_fLandDmgFatalMs)
 		{
 			Print(string.Format("[HAM_Para_FreeFall] fatal impact (%1 m/s effective)", eff), LogLevel.NORMAL);
-			// Drop the vignette and the blur BEFORE the death. ForceDeath can
-			// stop EOnFrame in this same frame, and the respawn menu then opens
-			// under a fullscreen black widget nobody is left to remove.
-			HAM_Para_LocalAction(HAM_Para_ACT_END);
 			if (m_Controller)
 				m_Controller.ForceDeath();
 			return; // death brings its own ragdoll; skip tumble timers
@@ -2257,6 +2245,9 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 	//! source; used by both the freefall and canopy paths (local player only)
 	protected void UpdateVignetteShake(float speed, float timeSlice)
 	{
+		// Vignette, horizon artificiel, aberration et flou : retirés.
+		return;
+
 		// earlier onset and a fuller ramp: canopy dives and surges show
 		// meaningfully, freefall saturates hard
 		float targetIntensity = Math.Clamp((speed - 14.0) / 50.0, 0.0, 1.0);
@@ -2453,9 +2444,9 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 			m_wPitchBankText = null;
 		}
 
-		// Clear the camera the effect was set on, and also the camera that is
-		// current now. Death switches the view before this runs; clearing only
-		// one of the two left the blur on the respawn screen.
+		// clear against the camera the effect was SET on, never the current
+		// one: a camera change in between (death cam, spectator, vehicle)
+		// meant the clear landed on the wrong id and the effect stuck
 		if (m_bChromAber || m_bSpeedDoF)
 		{
 			IEntity efOwner = GetOwner();
@@ -2464,15 +2455,10 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 				efWorld = efOwner.GetWorld();
 			if (efWorld)
 			{
-				int currentCam = efWorld.GetCurrentCameraId();
 				if (m_bChromAber && m_iChromAberCamId != -1)
 					efWorld.SetCameraPostProcessEffect(m_iChromAberCamId, CHROMABER_PRIORITY, PostProcessEffectType.ChromAber, "");
-				if (m_bChromAber && currentCam != -1 && currentCam != m_iChromAberCamId)
-					efWorld.SetCameraPostProcessEffect(currentCam, CHROMABER_PRIORITY, PostProcessEffectType.ChromAber, "");
 				if (m_bSpeedDoF && m_iSpeedDoFCamId != -1)
 					efWorld.SetCameraPostProcessEffect(m_iSpeedDoFCamId, SPEEDDOF_PRIORITY, PostProcessEffectType.DepthOfField, "");
-				if (m_bSpeedDoF && currentCam != -1 && currentCam != m_iSpeedDoFCamId)
-					efWorld.SetCameraPostProcessEffect(currentCam, SPEEDDOF_PRIORITY, PostProcessEffectType.DepthOfField, "");
 			}
 			m_bChromAber = false;
 			m_bSpeedDoF = false;
@@ -3610,13 +3596,16 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 
 	bool HAM_Para_HandlesParachuteFallDamage()
 	{
-		return m_bFreeFalling && m_bCanopy;
+		// Toute la chute GMS (freefall + voile) : le moteur ne doit pas mettre K.O. au TP.
+		return m_bFreeFalling;
 	}
 
 	void HAM_Para_BeginDrop()
 	{
+		m_bBypassHeightGate = true;
 		vector down = "0 -2 0";
 		StartFreeFall(down);
+		m_bBypassHeightGate = false;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -3689,13 +3678,7 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 		}
 
 		if (m_bFreeFalling)
-		{
-			// The frame loop often dies with the character. This tick is the
-			// one that still runs, so it has to take the black overlay down.
-			if (m_Controller && m_Controller.IsDead())
-				EndFreeFall();
 			return;
-		}
 
 		vector pos = owner.GetOrigin();
 		vector tickMeasured = (pos - m_vLastPos) * 5.0; // 1 / 0.2 s tick
@@ -3802,18 +3785,21 @@ class HAM_Para_FreeFallComponent : ScriptComponent
 		if (!character)
 			return;
 
-		PlayerManager paraPlayers = GetGame().GetPlayerManager();
-		if (!paraPlayers || paraPlayers.GetPlayerIdFromControlledEntity(owner) == 0)
-			return;
-
-		// TEMP heartbeat: unconditional, every ~3 s, only on the player's char.
+		// Heartbeat only while airborne under GMS (avoids log spam on ground).
 		// Reads only the position-derived velocity - never the physics body.
-		m_fDebugTimer += timeSlice;
-		if (m_fDebugTimer > 3.0 && HAM_Para_IsLocalPlayer())
+		if (m_bFreeFalling && HAM_Para_IsLocalPlayer())
+		{
+			m_fDebugTimer += timeSlice;
+			if (m_fDebugTimer > 3.0)
+			{
+				m_fDebugTimer = 0;
+				Print(string.Format("[HAM_Para_FreeFall] hb: measuredVel=%1 measuredDown=%2 inVeh=%3 dead=%4 agl=%5",
+					m_vMeasuredVel, m_fMeasuredDown, character.IsInVehicle(), m_Controller.IsDead(), GetHeightAGL(owner)), LogLevel.NORMAL);
+			}
+		}
+		else
 		{
 			m_fDebugTimer = 0;
-			Print(string.Format("[HAM_Para_FreeFall] hb: measuredVel=%1 measuredDown=%2 inVeh=%3 dead=%4 agl=%5",
-				m_vMeasuredVel, m_fMeasuredDown, character.IsInVehicle(), m_Controller.IsDead(), GetHeightAGL(owner)), LogLevel.NORMAL);
 		}
 
 		// --- DISQUALIFIERS ---------------------------------------------------

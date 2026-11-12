@@ -51,6 +51,7 @@ class HAM_ParadropConfirmDialog : SCR_ConfigurableDialogUi
 
 	override void OnCancel()
 	{
+		// Annuler = abandonner le pick, pas seulement fermer le dialog.
 		HAM_ParadropPick.Cancel();
 		super.OnCancel();
 		MenuManager menus = GetGame().GetMenuManager();
@@ -87,7 +88,7 @@ class HAM_ParadropMapHandler : ScriptedWidgetEventHandler
 		{
 			if (!HAM_ParadropPick.HasPoint())
 			{
-				SCR_HintManagerComponent.ShowCustomHint("Clique d'abord sur la carte.", "13RDPA Training", 5);
+				SCR_HintManagerComponent.ShowCustomHint("Clique d'abord sur la carte.", "13RDPA Hearts and Minds", 5);
 				return true;
 			}
 
@@ -111,8 +112,8 @@ class HAM_ParadropMapHandler : ScriptedWidgetEventHandler
 
 modded class SCR_MapMenuUI
 {
-	protected Widget m_wTRNParadropBar;
-	protected ref HAM_ParadropMapHandler m_TRNParadropHandler;
+	protected Widget m_wHAMParadropBar;
+	protected ref HAM_ParadropMapHandler m_HAMParadropHandler;
 
 	override void OnMenuOpen()
 	{
@@ -125,23 +126,23 @@ modded class SCR_MapMenuUI
 			return;
 
 		GetGame().GetInputManager().AddActionListener("MapSelect", EActionTrigger.UP, HAM_ParadropOnMapSelect);
-		m_wTRNParadropBar = workspace.CreateWidgets("{6AA33470EE000010}UI/layouts/Menu/HAM_ParadropMapBar.layout", GetRootWidget());
-		if (!m_wTRNParadropBar)
+		m_wHAMParadropBar = workspace.CreateWidgets("{6AA33470EE000010}UI/layouts/Menu/HAM_ParadropMapBar.layout", GetRootWidget());
+		if (!m_wHAMParadropBar)
 			return;
 
-		m_wTRNParadropBar.SetZOrder(200);
-		m_TRNParadropHandler = new HAM_ParadropMapHandler();
-		Widget take = m_wTRNParadropBar.FindAnyWidget("TakePoint");
-		Widget confirm = m_wTRNParadropBar.FindAnyWidget("ConfirmDrop");
-		Widget cancel = m_wTRNParadropBar.FindAnyWidget("CancelDrop");
+		m_wHAMParadropBar.SetZOrder(200);
+		m_HAMParadropHandler = new HAM_ParadropMapHandler();
+		Widget take = m_wHAMParadropBar.FindAnyWidget("TakePoint");
+		Widget confirm = m_wHAMParadropBar.FindAnyWidget("ConfirmDrop");
+		Widget cancel = m_wHAMParadropBar.FindAnyWidget("CancelDrop");
 		if (take)
-			take.AddHandler(m_TRNParadropHandler);
+			take.AddHandler(m_HAMParadropHandler);
 		if (confirm)
-			confirm.AddHandler(m_TRNParadropHandler);
+			confirm.AddHandler(m_HAMParadropHandler);
 		if (cancel)
-			cancel.AddHandler(m_TRNParadropHandler);
+			cancel.AddHandler(m_HAMParadropHandler);
 
-		TextWidget label = TextWidget.Cast(m_wTRNParadropBar.FindAnyWidget("PointText"));
+		TextWidget label = TextWidget.Cast(m_wHAMParadropBar.FindAnyWidget("PointText"));
 		if (label)
 			label.SetText(HAM_ParadropPick.PointText());
 	}
@@ -152,9 +153,9 @@ modded class SCR_MapMenuUI
 		if (HAM_ParadropPick.IsPicking())
 		{
 			HAM_ParadropAudio.Tick();
-			if (m_wTRNParadropBar)
+			if (m_wHAMParadropBar)
 			{
-				TextWidget label = TextWidget.Cast(m_wTRNParadropBar.FindAnyWidget("PointText"));
+				TextWidget label = TextWidget.Cast(m_wHAMParadropBar.FindAnyWidget("PointText"));
 				if (label)
 					label.SetText(HAM_ParadropPick.PointText());
 			}
@@ -163,14 +164,16 @@ modded class SCR_MapMenuUI
 
 	override void OnMenuClose()
 	{
-		if (m_wTRNParadropBar)
+		if (m_wHAMParadropBar)
 		{
-			m_wTRNParadropBar.RemoveFromHierarchy();
-			m_wTRNParadropBar = null;
+			m_wHAMParadropBar.RemoveFromHierarchy();
+			m_wHAMParadropBar = null;
 		}
 
 		GetGame().GetInputManager().RemoveActionListener("MapSelect", EActionTrigger.UP, HAM_ParadropOnMapSelect);
-		if (HAM_ParadropPick.IsPicking() && !HAM_ParadropPick.IsConfirmOpen())
+		// Fermer la carte = annuler le pick. Si le dialog Confirmer est ouvert,
+		// on clear aussi (Annuler / Esc ne doivent jamais forcer le saut).
+		if (HAM_ParadropPick.IsPicking())
 			HAM_ParadropPick.Cancel();
 
 		super.OnMenuClose();

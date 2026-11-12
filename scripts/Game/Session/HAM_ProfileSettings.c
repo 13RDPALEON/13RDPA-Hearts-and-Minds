@@ -761,6 +761,7 @@ modded class SCR_BaseGameMode
 	{
 		if (Replication.IsServer() && HAM_Mission.IsActive())
 		{
+			HAM_MapMarkerPersist.OnDisconnect(playerId);
 			HAM_RadioChannels.Flush(playerId);
 			HAM_ParadropComponent.Abandon(playerId);
 		}
@@ -777,6 +778,8 @@ modded class SCR_BaseGameMode
 
 		HAM_ArsenalBoardStore.SyncToPlayer(playerId);
 		HAM_VehicleBoardStore.SyncToPlayer(playerId);
+		GetGame().GetCallqueue().CallLater(HAM_MapMarkerRestorePlayer, 3000, false, playerId);
+		GetGame().GetCallqueue().CallLater(HAM_MapMarkerRestorePlayer, 10000, false, playerId);
 		GetGame().GetCallqueue().CallLater(HAM_ProfileSettingsApplier.SyncToPlayer, 5000, false, playerId);
 	}
 }

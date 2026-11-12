@@ -179,6 +179,13 @@ modded class SCR_CatalogEntitySpawnerComponent
             if (entry)
                 prefab = entry.GetPrefab();
 
+            if (!prefab.IsEmpty())
+            {
+                int brace = prefab.IndexOf("}");
+                if (brace >= 0 && brace + 1 < prefab.Length())
+                    prefab = prefab.Substring(brace + 1, prefab.Length() - brace - 1);
+            }
+
             if (!entry || seen.Contains(prefab) || HAM_VehicleBoardStore.IsHidden(prefab))
             {
                 m_aAssetList.RemoveOrdered(i);

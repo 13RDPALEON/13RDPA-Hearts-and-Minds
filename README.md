@@ -1,6 +1,6 @@
 # 13RDPA Hearts and Minds
 
-Version **1.1.0**.
+Version **1.1.2**.
 
 Campagne Hearts and Minds pour Arma Reforger, jouée sur Kolguyev. Les joueurs sont l'armée rouge du 13e RDPA. En face, les forces US tiennent l'île par cellules : un maître, ses points autour, et tout ce qui vit entre les deux.
 
