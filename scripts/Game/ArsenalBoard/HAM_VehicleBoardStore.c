@@ -23,6 +23,9 @@ class HAM_VehicleBoardStore
 	protected static ref array<SCR_CatalogEntitySpawnerComponent> s_aSpawners;
 	protected static ref map<string, string> s_mFile;
 	protected static ref map<string, int> s_mDepot;
+	protected static ref map<string, int> s_mDirty;
+	protected static bool s_bFlushArmed;
+	protected static float s_fFlushArmedAt;
 	protected static int s_iNextFile;
 	protected static bool s_bRefreshQueued;
 
@@ -47,9 +50,11 @@ class HAM_VehicleBoardStore
 
 		s_mFile = new map<string, string>();
 		s_mDepot = new map<string, int>();
+		s_mDirty = new map<string, int>();
 		s_iNextFile = 1;
 		Load();
-		GetGame().GetCallqueue().CallLater(EnsureCatalogFiles, 4000, false);
+		EnsureCatalogFiles();
+		GetGame().GetCallqueue().CallLater(FlushWatch, 1000, true);
 		GetGame().GetCallqueue().CallLater(SelfTest, 6000, false);
 		Print(string.Format("%1 chargé — exclus: %2, coûts: %3, ranks: %4, coffres: %5", LOG_PREFIX, s_aHidden.Count(), s_aCostPrefab.Count(), s_aRankPrefab.Count(), s_aCargoPrefab.Count()), LogLevel.NORMAL);
 	}
@@ -348,7 +353,7 @@ class HAM_VehicleBoardStore
 		if (!player)
 			return;
 
-		player.HAM_VehicleBoardSyncHidden(PackHidden());
+		SendHidden(player);
 		string costs;
 		string ranks;
 		string cargos;
@@ -359,7 +364,26 @@ class HAM_VehicleBoardStore
 	static void ApplyHiddenPack(string pack)
 	{
 		s_bLoaded = true;
-		s_aHidden = {};
+		bool reset = true;
+		if (pack.IndexOf("*|") == 0)
+		{
+			reset = false;
+			if (pack.Length() > 2)
+				pack = pack.Substring(2, pack.Length() - 2);
+			else
+				pack = string.Empty;
+		}
+		else if (pack.IndexOf("!|") == 0)
+		{
+			if (pack.Length() > 2)
+				pack = pack.Substring(2, pack.Length() - 2);
+			else
+				pack = string.Empty;
+		}
+
+		if (reset || !s_aHidden)
+			s_aHidden = {};
+
 		string rest = pack;
 		while (!rest.IsEmpty())
 		{
@@ -456,6 +480,39 @@ class HAM_VehicleBoardStore
 			CollectCargo(child, vehicleEnt, best, bestVol);
 			child = child.GetSibling();
 		}
+	}
+
+	protected static void SendHidden(SCR_PlayerController player)
+	{
+		if (!player)
+			return;
+
+		if (!s_aHidden || s_aHidden.IsEmpty())
+		{
+			player.HAM_VehicleBoardSyncHidden("!|");
+			return;
+		}
+
+		string chunk = "!|";
+		int count = 0;
+		foreach (string prefab : s_aHidden)
+		{
+			if (prefab.IsEmpty())
+				continue;
+
+			if (count >= 20)
+			{
+				player.HAM_VehicleBoardSyncHidden(chunk);
+				chunk = "*|";
+				count = 0;
+			}
+
+			chunk = chunk + prefab + "|";
+			count = count + 1;
+		}
+
+		if (count > 0)
+			player.HAM_VehicleBoardSyncHidden(chunk);
 	}
 
 	protected static void BroadcastShown(string prefab, bool shown)
@@ -660,6 +717,10 @@ class HAM_VehicleBoardStore
 
 	protected static void ReadVehicleFile(string path)
 	{
+		int nameIndex = HAM_ProfileFiles.IndexInName(path, "Vehicule_");
+		if (nameIndex >= s_iNextFile)
+			s_iNextFile = nameIndex + 1;
+
 		JsonLoadContext ctx = new JsonLoadContext();
 		if (!HAM_ProfileFiles.ReadJson(ctx, path))
 			return;
@@ -754,23 +815,31 @@ class HAM_VehicleBoardStore
 		}
 	}
 
+	// Un fichier par véhicule du catalogue (shown=1) remplissait la file JSON (1 écriture / 1,5 s).
+	// Absent du disque = inclus. Les fichiers déjà écrits restent lus.
 	protected static void EnsureCatalogFiles()
 	{
 		if (!Replication.IsServer())
 			return;
 
-		array<string> prefabs = {};
-		HAM_VehicleCatalog.Collect(prefabs);
-		foreach (string prefab : prefabs)
+		HAM_ProfileFiles.EnsureDir(HAM_ProfileFiles.ProfilePath("13RDPA_HeartsAndMinds/Trie/"));
+		HAM_ProfileFiles.EnsureDir(Dir());
+	}
+
+	static void FlushPending()
+	{
+		if (!Replication.IsServer())
+			return;
+
+		int guard = 0;
+		while (s_mDirty && !s_mDirty.IsEmpty() && guard < 4)
 		{
-			if (prefab.IsEmpty())
-				continue;
-
-			if (s_mFile && s_mFile.Contains(prefab))
-				continue;
-
-			WriteVehicle(prefab);
+			WriteDirtyBatch(20);
+			guard = guard + 1;
 		}
+
+		if (s_mDirty && !s_mDirty.IsEmpty())
+			ArmFlush();
 	}
 
 	protected static void WriteVehicle(string prefab)
@@ -778,16 +847,83 @@ class HAM_VehicleBoardStore
 		if (!Replication.IsServer() || prefab.IsEmpty())
 			return;
 
+		if (!s_mDirty)
+			s_mDirty = new map<string, int>();
+
+		s_mDirty.Set(prefab, 1);
+		ArmFlush();
+	}
+
+	protected static void ArmFlush()
+	{
+		if (!Replication.IsServer() || s_bFlushArmed)
+			return;
+
+		if (!GetGame() || !GetGame().GetCallqueue())
+			return;
+
+		s_bFlushArmed = true;
+		if (GetGame().GetWorld())
+			s_fFlushArmedAt = GetGame().GetWorld().GetWorldTime();
+
+		GetGame().GetCallqueue().CallLater(FlushDirty, 50, false);
+	}
+
+	protected static void FlushWatch()
+	{
+		if (!Replication.IsServer() || !s_mDirty || s_mDirty.IsEmpty())
+			return;
+
+		float now = 0;
+		if (GetGame() && GetGame().GetWorld())
+			now = GetGame().GetWorld().GetWorldTime();
+
+		if (s_bFlushArmed && now - s_fFlushArmedAt < 2000)
+			return;
+
+		s_bFlushArmed = false;
+		ArmFlush();
+	}
+
+	protected static void FlushDirty()
+	{
+		s_bFlushArmed = false;
+		WriteDirtyBatch(20);
+		if (s_mDirty && !s_mDirty.IsEmpty())
+			ArmFlush();
+	}
+
+	protected static void WriteDirtyBatch(int limit)
+	{
+		if (!s_mDirty || s_mDirty.IsEmpty())
+			return;
+
+		array<string> keys = {};
+		foreach (string prefab, int flag : s_mDirty)
+		{
+			if (flag >= 0)
+				keys.Insert(prefab);
+		}
+
+		int wrote = 0;
+		foreach (string prefab : keys)
+		{
+			if (wrote >= limit)
+				break;
+
+			s_mDirty.Remove(prefab);
+			WriteVehicleNow(prefab);
+			wrote = wrote + 1;
+		}
+	}
+
+	protected static void WriteVehicleNow(string prefab)
+	{
+		if (!Replication.IsServer() || prefab.IsEmpty())
+			return;
+
 		if (!s_mFile)
 			s_mFile = new map<string, string>();
-
-		string path;
-		if (!s_mFile.Find(prefab, path))
-		{
-			path = HAM_ProfileFiles.ItemPath(Dir(), "Vehicule_", s_iNextFile, prefab);
-			s_iNextFile = s_iNextFile + 1;
-			s_mFile.Set(prefab, path);
-		}
 
 		int shown = 1;
 		if (IsHidden(prefab))
@@ -809,6 +945,32 @@ class HAM_VehicleBoardStore
 			cargo = s_aCargoValue[cargoIdx];
 
 		int depot = DepotFlag(prefab);
+		string path;
+		if (!s_mFile.Find(prefab, path))
+		{
+			if (shown == 1 && cost < 0 && rank < 0 && cargo < 0 && depot < 0)
+				return;
+
+			bool free = false;
+			int guard = 0;
+			while (guard < 5000)
+			{
+				path = HAM_ProfileFiles.ItemPath(Dir(), "Vehicule_", s_iNextFile, prefab);
+				s_iNextFile = s_iNextFile + 1;
+				guard = guard + 1;
+				if (!FileIO.FileExists(path))
+				{
+					free = true;
+					break;
+				}
+			}
+
+			if (!free)
+				return;
+
+			s_mFile.Set(prefab, path);
+		}
+
 		JsonSaveContext ctx = new JsonSaveContext();
 		ctx.WriteValue("prefab", prefab);
 		ctx.WriteValue("shown", shown);
@@ -816,7 +978,7 @@ class HAM_VehicleBoardStore
 		ctx.WriteValue("rank", rank);
 		ctx.WriteValue("cargo", cargo);
 		ctx.WriteValue("depot", depot);
-		HAM_JsonQueue.Add(ctx, path);
+		ctx.SaveToFile(path);
 	}
 
 	protected static string PathOf(string prefab)

@@ -177,6 +177,13 @@ class HAM_ArsenalBoardMenu : ChimeraMenuBase
 
 	override void OnMenuClose()
 	{
+		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (player)
+		{
+			player.HAM_ArsenalBoardAskFlush();
+			player.HAM_VehicleBoardAskFlush();
+		}
+
 		super.OnMenuClose();
 		m_Handler = null;
 		s_Board = null;

@@ -14,6 +14,17 @@ modded class SCR_PlayerController
 		Rpc(HAM_RpcArsenalBoardShown, prefab, shown);
 	}
 
+	void HAM_ArsenalBoardAskFlush()
+	{
+		if (Replication.IsServer())
+		{
+			HAM_ArsenalBoardStore.FlushPending();
+			return;
+		}
+
+		Rpc(HAM_ArsenalBoardFlushServer);
+	}
+
 	void HAM_ArsenalBoardSyncParams(string costs, string ranks, string bags)
 	{
 		Rpc(HAM_RpcArsenalBoardParams, costs, ranks, bags);
@@ -73,6 +84,15 @@ modded class SCR_PlayerController
 	protected void HAM_RpcArsenalBoardShown(string prefab, bool shown)
 	{
 		HAM_ArsenalBoardStore.ApplyShown(prefab, shown);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void HAM_ArsenalBoardFlushServer()
+	{
+		if (!HAM_ArsenalBoardStore.IsStaff(GetPlayerId()))
+			return;
+
+		HAM_ArsenalBoardStore.FlushPending();
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]

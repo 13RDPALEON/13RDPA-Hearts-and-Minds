@@ -172,6 +172,9 @@ class HAM_JsonQueue
 	protected static ref array<string> s_aBody;
 	protected static ref array<int> s_aFrontSave;
 	protected static bool s_bBusy;
+	protected static bool s_bWatch;
+	protected static int s_iEpoch;
+	protected static int s_iEpochSeen;
 
 	static void Add(JsonSaveContext ctx, string path)
 	{
@@ -211,6 +214,12 @@ class HAM_JsonQueue
 		if (frontSave)
 			flag = 1;
 
+		if (!s_bWatch && GetGame() && GetGame().GetCallqueue())
+		{
+			s_bWatch = true;
+			GetGame().GetCallqueue().CallLater(WatchQueue, 5000, true);
+		}
+
 		int at = s_aPath.Find(path);
 		if (at >= 0)
 		{
@@ -248,8 +257,26 @@ class HAM_JsonQueue
 			WriteNext();
 	}
 
+	// Si le CallLater de la file est perdu, s_bBusy reste vrai et plus rien ne s'écrit.
+	protected static void WatchQueue()
+	{
+		if (!s_aPath || s_aPath.IsEmpty())
+			return;
+
+		if (s_iEpoch != s_iEpochSeen)
+		{
+			s_iEpochSeen = s_iEpoch;
+			return;
+		}
+
+		s_bBusy = false;
+		WriteNext();
+		s_iEpochSeen = s_iEpoch;
+	}
+
 	protected static void WriteNext()
 	{
+		s_iEpoch = s_iEpoch + 1;
 		if (!s_aPath || s_aPath.IsEmpty())
 		{
 			s_bBusy = false;

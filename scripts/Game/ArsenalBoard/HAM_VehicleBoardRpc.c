@@ -14,6 +14,17 @@ modded class SCR_PlayerController
 		Rpc(HAM_RpcVehicleBoardShown, prefab, shown);
 	}
 
+	void HAM_VehicleBoardAskFlush()
+	{
+		if (Replication.IsServer())
+		{
+			HAM_VehicleBoardStore.FlushPending();
+			return;
+		}
+
+		Rpc(HAM_VehicleBoardFlushServer);
+	}
+
 	void HAM_VehicleBoardSyncParams(string costs, string ranks, string cargos)
 	{
 		Rpc(HAM_RpcVehicleBoardParams, costs, ranks, cargos);
@@ -78,6 +89,15 @@ modded class SCR_PlayerController
 	protected void HAM_RpcVehicleBoardHidden(string pack)
 	{
 		HAM_VehicleBoardStore.ApplyHiddenPack(pack);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void HAM_VehicleBoardFlushServer()
+	{
+		if (!HAM_ArsenalBoardStore.IsStaff(GetPlayerId()))
+			return;
+
+		HAM_VehicleBoardStore.FlushPending();
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
