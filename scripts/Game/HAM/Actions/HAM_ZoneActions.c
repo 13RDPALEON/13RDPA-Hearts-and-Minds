@@ -268,7 +268,7 @@ class HAM_SearchBodyUserAction : ScriptedUserAction
 }
 
 //------------------------------------------------------------------------------------------------
-//! Une fois par civil. Une chance sur cinq de révéler un maître de la ligne de front.
+//! Une fois par civil. Trois chances sur dix de révéler un maître de la ligne de front.
 class HAM_CivilianInfoUserAction : ScriptedUserAction
 {
 	override bool CanBeShownScript(IEntity user)

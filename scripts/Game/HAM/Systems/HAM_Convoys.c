@@ -11,13 +11,18 @@ class HAM_Convoys
 	protected static ref array<ref HAM_Convoy> s_aConvoys;
 	protected static ref map<Vehicle, int> s_mMenByVehicle;
 	protected static int s_iNextId = 1;
+	protected static int s_iPendingMen;
 
 	//------------------------------------------------------------------------------------------------
 	static void ResetSession()
 	{
+		if (GetGame() && GetGame().GetCallqueue())
+			GetGame().GetCallqueue().Remove(CreditPending);
+
 		s_aConvoys = null;
 		s_mMenByVehicle = null;
 		s_iNextId = 1;
+		s_iPendingMen = 0;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -35,6 +40,29 @@ class HAM_Convoys
 	{
 		Ensure();
 		return s_aConvoys;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void NotePending(int men)
+	{
+		if (men > 0)
+			s_iPendingMen += men;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static int MenInTransit()
+	{
+		int total = s_iPendingMen;
+		if (!s_aConvoys)
+			return total;
+
+		foreach (HAM_Convoy convoy : s_aConvoys)
+		{
+			if (convoy && convoy.m_iMen > 0)
+				total += convoy.m_iMen;
+		}
+
+		return total;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -182,8 +210,12 @@ class HAM_Convoys
 			{
 				Finish(convoy, false, "convoi détruit");
 				s_aConvoys.Remove(i);
+				HAM_Credit.CheckDefeat();
 				continue;
 			}
+
+			if (lostMen > 0)
+				HAM_Credit.CheckDefeat();
 
 			bool arrived = false;
 			foreach (Vehicle moving : convoy.m_aVehicles)
@@ -257,7 +289,13 @@ class HAM_Convoys
 	//! Au redémarrage, un convoi encore en route est crédité à sa cible.
 	static void CreditPending(string toBase, int men)
 	{
-		if (men > 0)
-			Credit(toBase, men, "convoi repris après redémarrage");
+		if (men <= 0)
+			return;
+
+		s_iPendingMen -= men;
+		if (s_iPendingMen < 0)
+			s_iPendingMen = 0;
+
+		Credit(toBase, men, "convoi repris après redémarrage");
 	}
 }

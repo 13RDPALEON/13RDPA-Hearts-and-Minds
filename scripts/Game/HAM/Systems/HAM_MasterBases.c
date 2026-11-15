@@ -85,6 +85,27 @@ class HAM_MasterLinkComponent : ScriptComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Remplit le dépôt sans relever son plafond. Rend la quantité réellement posée.
+	int PourCappedSupplies(int amount)
+	{
+		if (amount <= 0)
+			return 0;
+
+		int left = amount - HAM_Credit.PourStorage(GetOwner(), amount);
+		if (left <= 0 || !m_aProps)
+			return amount - left;
+
+		foreach (IEntity prop : m_aProps)
+		{
+			left -= HAM_Credit.PourStorage(prop, left);
+			if (left <= 0)
+				break;
+		}
+
+		return amount - left;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	IEntity BarracksProp()
 	{
 		if (!m_aProps)
@@ -378,10 +399,14 @@ class HAM_MasterBases
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Les 8 hommes d'un camp, versés à la prise du maître.
+	//! Hommes d'un camp, versés à la prise. Le réglage remplace l'ancien compte fixe.
 	static int CampMen()
 	{
-		return CAMP_MEN;
+		int men = HAM_Settings.Get().m_iCampMen;
+		if (men < 0)
+			return CAMP_MEN;
+
+		return men;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1041,37 +1066,28 @@ class HAM_MasterBases
 		if (!barracks)
 			return;
 
+		int amount = HAM_Settings.Get().m_iCampSupplies;
+		if (amount < 0)
+			amount = 0;
+
 		SCR_ResourceContainer container = SuppliesContainer(barracks);
 		if (!container)
 		{
 			if (tries < 10)
+			{
 				GetGame().GetCallqueue().CallLater(PourBarracksLater, 1000, false, barracks, tries + 1);
-			else
-				Print("[13RDPA H&M] Caserne sans conteneur de fournitures", LogLevel.WARNING);
+				return;
+			}
 
+			Print("[13RDPA H&M] Caserne sans conteneur de fournitures", LogLevel.WARNING);
+			HAM_Credit.CreditBarracks(barracks, amount, "prise de caserne");
 			return;
 		}
 
-		float current = container.GetResourceValue();
-		if (current <= 0.01)
-		{
-			if (container.GetMaxResourceValue() < 900)
-				container.SetMaxResourceValue(900, true);
-
-			container.SetResourceValue(900, true);
-		}
-		else
-		{
-			float next = current + 900;
-			if (container.GetMaxResourceValue() < next)
-				container.SetMaxResourceValue(next, true);
-
-			container.IncreaseResourceValue(900, true);
-		}
-
+		HAM_Credit.CreditBarracks(barracks, amount, "prise de caserne");
 		HAM_Mission.MarkDirty();
 		HAM_Mission.SaveNow();
-		Print(string.Format("[13RDPA H&M] Caserne : fournitures %1", Math.Round(container.GetResourceValue())), LogLevel.NORMAL);
+		Print(string.Format("[13RDPA H&M] Caserne : fournitures prévues %1", amount), LogLevel.NORMAL);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1191,7 +1207,8 @@ class HAM_MasterBases
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Carburant, camp, planque ou base sur un esclave. La radio reste sur le maître.
+	//! Carburant, camp, planque ou base sur un esclave.
+	//! La radio est déjà posée dans le monde : on branche celle-là, sans en poser une seconde.
 	protected static void PlaceSlave(HAM_Point slave)
 	{
 		vector pos = slave.Pos();
@@ -1214,6 +1231,8 @@ class HAM_MasterBases
 			OpenBuilt(barracks, FactionKeyOf(slave.m_bPlayer));
 			ScheduleBarracksCap(barracks, slave.m_bPlayer);
 		}
+		else if (type == HAM_EMasterType.RADIO)
+			HookSlaveRadio(slave);
 		else if (type == HAM_EMasterType.HIDEOUT)
 			slave.m_Cache = PlaceHideout(pos, slave.Radius(), slave.m_Def.m_sName);
 		else if (type == HAM_EMasterType.BASE)
@@ -1222,6 +1241,208 @@ class HAM_MasterBases
 			RememberSlave(slave, GARAGE_HEAVY, pos, pos + Vector(16, 0, -10), 90, 12);
 			RememberSlave(slave, REPAIR_RAMP, pos, pos + Vector(28, 0, 0), 0, 14);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static ref array<IEntity> s_aRadioHits;
+	protected static ref array<HAM_Point> s_aRadioWait;
+	protected static ref map<string, int> s_mRadioTries;
+	protected static bool s_bRadioRetry;
+
+	//------------------------------------------------------------------------------------------------
+	//! L'antenne du calque (Antenna_S_US) entre dans la couverture, comme une antenne construite.
+	protected static void HookSlaveRadio(HAM_Point slave)
+	{
+		if (!slave || !slave.m_Def)
+			return;
+
+		IEntity radio = FindPlacedRadio(slave.Pos());
+		if (!radio)
+		{
+			WaitForSlaveRadio(slave);
+			return;
+		}
+
+		HAM_RadioLink.RememberAntenna(radio);
+		HAM_RadioLink.Apply(radio);
+		HAM_Util.Info(string.Format("Radio esclave %1 : antenne déjà posée branchée", slave.m_Def.m_sName));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void WaitForSlaveRadio(HAM_Point slave)
+	{
+		if (!slave || !slave.m_Def)
+			return;
+
+		if (!s_mRadioTries)
+			s_mRadioTries = new map<string, int>();
+
+		string name = slave.m_Def.m_sName;
+		int tries = 0;
+		if (s_mRadioTries.Contains(name))
+			tries = s_mRadioTries.Get(name);
+
+		tries++;
+		s_mRadioTries.Set(name, tries);
+		if (tries >= 6)
+		{
+			Print(string.Format("[13RDPA H&M] Pas de radio déjà posée pour %1 : esclave ignoré", name), LogLevel.WARNING);
+			return;
+		}
+
+		if (!s_aRadioWait)
+			s_aRadioWait = {};
+
+		if (s_aRadioWait.Find(slave) < 0)
+			s_aRadioWait.Insert(slave);
+
+		if (s_bRadioRetry || !GetGame() || !GetGame().GetCallqueue())
+			return;
+
+		s_bRadioRetry = true;
+		GetGame().GetCallqueue().CallLater(RetrySlaveRadios, 2000, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void RetrySlaveRadios()
+	{
+		s_bRadioRetry = false;
+		if (!s_aRadioWait)
+			return;
+
+		array<HAM_Point> waiting = {};
+		foreach (HAM_Point slave : s_aRadioWait)
+		{
+			if (slave)
+				waiting.Insert(slave);
+		}
+
+		s_aRadioWait.Clear();
+		foreach (HAM_Point slave : waiting)
+			HookSlaveRadio(slave);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SeePlacedRadio(IEntity ent)
+	{
+		if (!ent || IsRelay(ent))
+			return true;
+
+		if (HasRadio(ent) || PrefabHasAntenna(ent))
+			s_aRadioHits.Insert(ent);
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static IEntity FindPlacedRadio(vector pos)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return null;
+
+		s_aRadioHits = {};
+		world.QueryEntitiesBySphere(pos, 50, SeePlacedRadio);
+
+		IEntity best;
+		float bestSq = 0;
+		IEntity antenna;
+		float antennaSq = 0;
+		foreach (IEntity ent : s_aRadioHits)
+		{
+			if (!ent)
+				continue;
+
+			IEntity node = RadioNode(ent);
+			if (node)
+			{
+				float distSq = vector.DistanceSqXZ(node.GetOrigin(), pos);
+				if (!best || distSq < bestSq)
+				{
+					best = node;
+					bestSq = distSq;
+				}
+
+				continue;
+			}
+
+			if (!PrefabHasAntenna(ent))
+				continue;
+
+			float placedSq = vector.DistanceSqXZ(ent.GetOrigin(), pos);
+			if (!antenna || placedSq < antennaSq)
+			{
+				antenna = ent;
+				antennaSq = placedSq;
+			}
+		}
+
+		if (best && vector.DistanceXZ(best.GetOrigin(), pos) <= 80)
+			return best;
+
+		if (antenna && vector.DistanceXZ(antenna.GetOrigin(), pos) <= 80)
+			return antenna;
+
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static IEntity RadioNode(IEntity ent)
+	{
+		if (!ent || IsRelay(ent))
+			return null;
+
+		if (HasRadio(ent))
+			return ent;
+
+		IEntity child = ent.GetChildren();
+		while (child)
+		{
+			IEntity found = RadioNode(child);
+			if (found)
+				return found;
+
+			child = child.GetSibling();
+		}
+
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool HasRadio(IEntity ent)
+	{
+		if (!ent || IsRelay(ent))
+			return false;
+
+		if (ent.FindComponent(BaseRadioComponent))
+			return true;
+
+		if (ent.FindComponent(SCR_CoverageRadioComponent))
+			return true;
+
+		if (ent.FindComponent(SCR_AntennaServicePointComponent))
+			return true;
+
+		SCR_ServicePointComponent service = SCR_ServicePointComponent.Cast(ent.FindComponent(SCR_ServicePointComponent));
+		return service && service.GetType() == SCR_EServicePointType.RADIO_ANTENNA;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool PrefabHasAntenna(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return false;
+
+		return ent.GetPrefabData().GetPrefabName().Contains("Antenna_S_US");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool IsRelay(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return false;
+
+		return ent.GetPrefabData().GetPrefabName().Contains("HAM_RadioRelay");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1972,6 +2193,50 @@ modded class SCR_CampaignMilitaryBaseComponent
 			HAM_ApplyRadioKey();
 
 		super.OnRadioRangeChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Repose le plancher. Une valeur plus basse est acceptée : les relais encore posés ne sont pas touchés ici.
+	void HAM_SetRadioFloor(float floor)
+	{
+		if (!HAM_Mission.IsActive() || !Replication.IsServer())
+			return;
+
+		if (floor < 0)
+			floor = 0;
+
+		m_fHAM_RadioFloor = floor;
+		if (m_fRadioRange > floor)
+			m_fRadioRange = floor;
+
+		if (m_RadioComponent)
+		{
+			BaseTransceiver current = m_RadioComponent.GetTransceiver(0);
+			if (current && current.GetRange() > floor)
+				current.SetRange(floor);
+		}
+
+		RecalculateRadioRange();
+
+		float applied = m_fRadioRange;
+		if (applied < floor)
+			applied = floor;
+
+		if (applied > m_fHAM_RadioFloor)
+			m_fHAM_RadioFloor = applied;
+
+		m_fRadioRange = applied;
+		if (m_RadioComponent)
+		{
+			BaseTransceiver transceiver = m_RadioComponent.GetTransceiver(0);
+			if (transceiver)
+				transceiver.SetRange(applied);
+
+			m_RadioComponent.SetPower(true);
+		}
+
+		Replication.BumpMe();
+		OnRadioRangeChanged();
 	}
 
 	//------------------------------------------------------------------------------------------------

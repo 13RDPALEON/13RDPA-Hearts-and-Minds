@@ -2078,6 +2078,7 @@ class HAM_Garrison
 		cell.m_Stock.Add(HAM_EResource.MEN, -1);
 		HAM_Mission.RefreshZoneProps(cell);
 		HAM_Mission.MarkDirty();
+		HAM_Credit.CheckDefeat();
 	}
 
 	//------------------------------------------------------------------------------------------------

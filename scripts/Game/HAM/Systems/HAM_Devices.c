@@ -730,7 +730,7 @@ class HAM_Devices
 
 		int flags;
 		int mineCount = settings.MinesOf(line.m_Def);
-		int placed = PlaceMines(line.Pos(), 50, 150, mineCount, line.m_aDevices, line.m_aProps, flags);
+		int placed = PlaceMines(line.Pos(), settings.m_fMineMinDistance, settings.m_fMineMaxDistance, mineCount, line.m_aDevices, line.m_aProps, flags);
 		if (placed < 1)
 			return;
 
@@ -1766,7 +1766,7 @@ class HAM_Devices
 			{
 				RetireApMine(mine);
 				if (!RepPaid(mine))
-					HAM_Mission.AddGlobalRep(2.5, "mine AP désamorcée");
+					HAM_Mission.AddGlobalRep(HAM_Settings.Get().m_iRepApMine, "mine AP désamorcée");
 			}
 
 			return;
@@ -1779,7 +1779,7 @@ class HAM_Devices
 		}
 
 		if (!RepPaid(mine))
-			HAM_Mission.AddGlobalRep(5, "IED désamorcé");
+			HAM_Mission.AddGlobalRep(HAM_Settings.Get().m_iRepIedDisarm, "IED désamorcé");
 
 		int index = s_aIedMines.Find(mine);
 		HAM_Util.Delete(s_aIedProps[index]);

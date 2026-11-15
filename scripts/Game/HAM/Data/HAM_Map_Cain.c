@@ -96,9 +96,9 @@ class HAM_Map_Cain
 		// Ulfid, voisine du QG.
 		def.Master("Ulfid", HAM_EMasterType.CITY, Vector(2230.251, 126.125, 7355.555), 200, "QG");
 		def.Slave("Camp de Ulfid", "Ulfid", Vector(1928.308, 132.501, 7402.713), 300, HAM_EMasterType.CAMP);
-		def.Slave("Carburant de Ulfid", "Ulfid", Vector(2699.387, 221.312, 6991.725), 200, HAM_EMasterType.FUEL);
+		def.Slave("Station de Ulfid", "Ulfid", Vector(2699.387, 221.312, 6991.725), 200, HAM_EMasterType.FUEL);
 		def.Slave("Fard de Ulfid", "Ulfid", Vector(1650.525, 110.719, 7396.865), 200, HAM_EMasterType.RADIO);
-		def.Slave("Mine de Ulfid", "Ulfid", Vector(5550.407, 1.964, 8209.319), 200, HAM_EMasterType.RADIO);
+		def.Slave("Mine de Ulfid", "Cain", Vector(5550.407, 1.964, 8209.319), 200, HAM_EMasterType.RADIO);
 		def.Slave("Sceirie de Ulfid", "Ulfid", Vector(2729.641, 110.695, 7474.375), 200, HAM_EMasterType.SUPPLY_PERSONAL);
 		def.Mines("Mines de Ulfid", "Ulfid", Vector(1418.114, 0.381, 7690.279), 200);
 		def.Patrol("Patrouille de Ulfid", "Ulfid", Vector(1418.114, 0.381, 7690.279), 200);
@@ -177,13 +177,13 @@ class HAM_Map_Cain
 
 		// LeRocher, dernière cellule avant le QG ennemi. Voisins : Rowan et le QG ennemi.
 		def.Master("LeRocher", HAM_EMasterType.CITY, Vector(11519.273, 106.065, 10730.259), 300, "Rowan;QG ennemi");
-		def.Slave("Planque de la Ville de LeRocher", "LeRocher", Vector(11390.128, 86.537, 10511.521), 300, HAM_EMasterType.HIDEOUT);
-		def.Slave("Planque de la Ville de Kamensk", "LeRocher", Vector(11904.275, 6.363, 10770.85), 300, HAM_EMasterType.HIDEOUT);
-		def.Slave("Planque de la Centreville de Kamensk", "LeRocher", Vector(11832.164, 9.505, 10639.734), 300, HAM_EMasterType.HIDEOUT);
+		def.Slave("Ville du Rocher", "LeRocher", Vector(11390.128, 86.537, 10511.521), 300, HAM_EMasterType.HIDEOUT);
+		def.Slave("Ville de Kamensk", "LeRocher", Vector(11904.275, 6.363, 10770.85), 300, HAM_EMasterType.HIDEOUT);
+		def.Slave("Centreville de Kamensk", "LeRocher", Vector(11832.164, 9.505, 10639.734), 300, HAM_EMasterType.HIDEOUT);
 		def.Slave("Camp militaire de Kamensk", "LeRocher", Vector(11863.208, 8.093, 10730.962), 300, HAM_EMasterType.CAMP);
-		def.Slave("Tour de le Port de Kamensk", "LeRocher", Vector(11850.306, 3.727, 10951.258), 300, HAM_EMasterType.RADIO);
-		def.Slave("Depot de LeRocher", "LeRocher", Vector(11227.36, 94.519, 10262.796), 200, HAM_EMasterType.SUPPLY_VANILLA);
-		def.Slave("Plage de LeRocher", "LeRocher", Vector(11238.663, 0.156, 10860.158), 200, HAM_EMasterType.SUPPLY_PERSONAL);
+		def.Slave("Tour du Port de Kamensk", "LeRocher", Vector(11850.306, 3.727, 10951.258), 300, HAM_EMasterType.RADIO);
+		def.Slave("Depot du Rocher", "LeRocher", Vector(11227.36, 94.519, 10262.796), 200, HAM_EMasterType.SUPPLY_VANILLA);
+		def.Slave("Plage du Rocher", "LeRocher", Vector(11238.663, 0.156, 10860.158), 200, HAM_EMasterType.SUPPLY_PERSONAL);
 		def.Cqb("CQB 1 de LeRocher", "LeRocher", Vector(11902.579, 7.032, 10627.271), 100);
 		def.Cqb("CQB 2 de LeRocher", "LeRocher", Vector(11753.231, 34.968, 10422.848), 80);
 		def.Mines("Mines de LeRocher", "LeRocher", Vector(9333.521, 92.935, 9522.323), 200);

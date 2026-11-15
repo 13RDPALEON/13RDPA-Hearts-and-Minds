@@ -142,22 +142,59 @@ class HAM_Settings
 	int m_iConvoyMaxVehicles = 3;
 	float m_fConvoyStuckMinutes = 20;
 
-	// réputation
-	int m_iRepStart = 200;
+	// réputation globale, de m_iRepMin à m_iRepMax.
+	int m_iRepStart = 1000;
 	int m_iRepMin = 0;
-	int m_iRepMax = 1000;
-	int m_iRepLocalRevealThreshold = 100;
-	int m_iRepCivilianTalkThreshold = 300;
+	int m_iRepMax = 3000;
+	int m_iRepCivilianTalkThreshold = 500;
+	int m_iRepTier1 = 1000;
+	int m_iRepTier2 = 2000;
+	int m_iRepTier3 = 3000;
 	int m_iRepFrontlinePenalty = 40;
-	int m_iRepCivilianKillPenalty = 5;
-	int m_iRepCaptureBonus = 25;
+	int m_iRepCivilianKillPenalty = 15;
+	float m_fRepPerEnemyKill = 0.25;
+	int m_iRepCaptureBonus = 100;
 	int m_iRepMissionBonus = 20;
-	int m_iRepLocalCaptureBonus = 40;
-	int m_iRepLocalPerEnemyKill = 2;
-	int m_iRepLocalPerIntel = 30;
+	int m_iRepLocalCaptureBonus = 100;
+	float m_fRepIntel = 0.5;
+	int m_iIntelRevealOneIn = 4;
+	int m_iRepBanana = 5;
+	int m_iPaySupplies = 1000;
+	int m_iRepPay = 100;
+	int m_iNeedMin = 50;
+	int m_iNeedMax = 100;
+	int m_iRepNeed = 50;
+	int m_iNeedSupplies = 1500;
+	int m_iNeedMen = 2;
+	int m_iNameOneIn = 3;
+	int m_iIedFavorMen = 4;
+	int m_iRepApMine = 5;
+	int m_iRepIedDisarm = 10;
+	int m_iRespawnRep = 10;
+	int m_iRespawnMen = 1;
+	int m_iMasterWater = 100;
+	int m_iMasterFood = 100;
+	int m_iMasterAmmo = 100;
+	int m_iMasterSupplies = 3000;
+	int m_iCampMen = 8;
+	int m_iCampSupplies = 900;
+	int m_iHqStartMen = 10;
+	int m_iMissionTowerSupplies = 1500;
+	int m_iMissionTowerRep = 20;
+	int m_iMissionCheckpointSupplies = 2000;
+	int m_iMissionCheckpointRep = 50;
+	int m_iMissionOfficerMen = 2;
+	int m_iMissionOfficerRep = 100;
+	int m_iMissionHostageMen = 1;
+	int m_iMissionHostageRep = 150;
+	int m_iMissionHostageSupplies = 2500;
+	int m_iMissionCacheSupplies = 3000;
+	int m_iMissionCacheRep = 50;
+	int m_iMissionIedRep = 30;
+	int m_iMissionIedMen = 2;
 
-	// intel
-	float m_fIntelBodyChance = 0.15;
+	// intel. bodyChance : chance qu'un dossier de corps localise une zone. Le dossier lui-même tombe toujours.
+	float m_fIntelBodyChance = 0.6;
 	int m_iIntelPerCell = 2;
 	float m_fIntelBuildingRadius = 250;
 
@@ -533,9 +570,57 @@ class HAM_Settings
 		if (ctx.StartObject("reputation"))
 		{
 			m_iRepStart = RI(ctx, "start", m_iRepStart);
-			m_iRepLocalRevealThreshold = RI(ctx, "localRevealThreshold", m_iRepLocalRevealThreshold);
+			m_iRepMin = RI(ctx, "min", m_iRepMin);
+			m_iRepMax = RI(ctx, "max", m_iRepMax);
 			m_iRepCivilianTalkThreshold = RI(ctx, "civilianTalkThreshold", m_iRepCivilianTalkThreshold);
+			m_iRepTier1 = RI(ctx, "tier1", m_iRepTier1);
+			m_iRepTier2 = RI(ctx, "tier2", m_iRepTier2);
+			m_iRepTier3 = RI(ctx, "tier3", m_iRepTier3);
 			m_iRepFrontlinePenalty = RI(ctx, "frontlinePenalty", m_iRepFrontlinePenalty);
+			m_iRepCivilianKillPenalty = RI(ctx, "civilianKill", m_iRepCivilianKillPenalty);
+			m_fRepPerEnemyKill = RF(ctx, "perEnemyKill", m_fRepPerEnemyKill);
+			m_iRepCaptureBonus = RI(ctx, "cellCapture", m_iRepCaptureBonus);
+			m_iRepLocalCaptureBonus = RI(ctx, "pointCapture", m_iRepLocalCaptureBonus);
+			m_fRepIntel = RF(ctx, "intel", m_fRepIntel);
+			m_iIntelRevealOneIn = RI(ctx, "intelRevealOneIn", m_iIntelRevealOneIn);
+			m_iRepBanana = RI(ctx, "banana", m_iRepBanana);
+			m_iPaySupplies = RI(ctx, "paySupplies", m_iPaySupplies);
+			m_iRepPay = RI(ctx, "payRep", m_iRepPay);
+			m_iNeedMin = RI(ctx, "needMin", m_iNeedMin);
+			m_iNeedMax = RI(ctx, "needMax", m_iNeedMax);
+			m_iRepNeed = RI(ctx, "needRep", m_iRepNeed);
+			m_iNeedSupplies = RI(ctx, "needSupplies", m_iNeedSupplies);
+			m_iNeedMen = RI(ctx, "needMen", m_iNeedMen);
+			m_iNameOneIn = RI(ctx, "nameOneIn", m_iNameOneIn);
+			m_iIedFavorMen = RI(ctx, "iedFavorMen", m_iIedFavorMen);
+			m_iRepApMine = RI(ctx, "apMine", m_iRepApMine);
+			m_iRepIedDisarm = RI(ctx, "iedDisarm", m_iRepIedDisarm);
+			m_iRespawnRep = RI(ctx, "respawnRep", m_iRespawnRep);
+			m_iRespawnMen = RI(ctx, "respawnMen", m_iRespawnMen);
+			m_iMasterWater = RI(ctx, "masterWater", m_iMasterWater);
+			m_iMasterFood = RI(ctx, "masterFood", m_iMasterFood);
+			m_iMasterAmmo = RI(ctx, "masterAmmo", m_iMasterAmmo);
+			m_iMasterSupplies = RI(ctx, "masterSupplies", m_iMasterSupplies);
+			m_iCampMen = RI(ctx, "campMen", m_iCampMen);
+			m_iCampSupplies = RI(ctx, "campSupplies", m_iCampSupplies);
+			ctx.EndObject();
+		}
+
+		if (ctx.StartObject("missions"))
+		{
+			m_iMissionTowerSupplies = RI(ctx, "towerSupplies", m_iMissionTowerSupplies);
+			m_iMissionTowerRep = RI(ctx, "towerRep", m_iMissionTowerRep);
+			m_iMissionCheckpointSupplies = RI(ctx, "checkpointSupplies", m_iMissionCheckpointSupplies);
+			m_iMissionCheckpointRep = RI(ctx, "checkpointRep", m_iMissionCheckpointRep);
+			m_iMissionOfficerMen = RI(ctx, "officerMen", m_iMissionOfficerMen);
+			m_iMissionOfficerRep = RI(ctx, "officerRep", m_iMissionOfficerRep);
+			m_iMissionHostageMen = RI(ctx, "hostageMen", m_iMissionHostageMen);
+			m_iMissionHostageRep = RI(ctx, "hostageRep", m_iMissionHostageRep);
+			m_iMissionHostageSupplies = RI(ctx, "hostageSupplies", m_iMissionHostageSupplies);
+			m_iMissionCacheSupplies = RI(ctx, "cacheSupplies", m_iMissionCacheSupplies);
+			m_iMissionCacheRep = RI(ctx, "cacheRep", m_iMissionCacheRep);
+			m_iMissionIedRep = RI(ctx, "iedRep", m_iMissionIedRep);
+			m_iMissionIedMen = RI(ctx, "iedMen", m_iMissionIedMen);
 			ctx.EndObject();
 		}
 
@@ -638,6 +723,7 @@ class HAM_Settings
 			m_fMenCostWater = RF(ctx, "menCostWater", m_fMenCostWater);
 			m_fMenCostFood = RF(ctx, "menCostFood", m_fMenCostFood);
 			m_fMenCostAmmo = RF(ctx, "menCostAmmo", m_fMenCostAmmo);
+			m_iHqStartMen = RI(ctx, "hqStartMen", m_iHqStartMen);
 			ctx.EndObject();
 		}
 
@@ -705,6 +791,29 @@ class HAM_Settings
 			m_iRepMax = m_iRepMin + 1;
 
 		m_iRepStart = Math.Clamp(m_iRepStart, m_iRepMin, m_iRepMax);
+		if (m_iNameOneIn < 1)
+			m_iNameOneIn = 1;
+
+		if (m_iIntelRevealOneIn < 1)
+			m_iIntelRevealOneIn = 1;
+
+		if (m_iNeedMin < 0)
+			m_iNeedMin = 0;
+
+		if (m_iNeedMax < m_iNeedMin)
+			m_iNeedMax = m_iNeedMin;
+
+		if (m_iHqStartMen < 0)
+			m_iHqStartMen = 0;
+
+		if (m_iRespawnMen < 0)
+			m_iRespawnMen = 0;
+
+		if (m_fRepPerEnemyKill < 0)
+			m_fRepPerEnemyKill = 0;
+
+		if (m_iMenMax < 0)
+			m_iMenMax = 0;
 
 		m_fMineMinDistance = Math.Max(0, m_fMineMinDistance);
 		if (m_fMineMaxDistance < m_fMineMinDistance + 10)
@@ -826,9 +935,55 @@ class HAM_Settings
 		lines.Insert("");
 		lines.Insert("  \"reputation\": {");
 		lines.Insert("    \"start\": " + m_iRepStart.ToString() + ",");
-		lines.Insert("    \"localRevealThreshold\": " + m_iRepLocalRevealThreshold.ToString() + ",");
+		lines.Insert("    \"min\": " + m_iRepMin.ToString() + ",");
+		lines.Insert("    \"max\": " + m_iRepMax.ToString() + ",");
 		lines.Insert("    \"civilianTalkThreshold\": " + m_iRepCivilianTalkThreshold.ToString() + ",");
-		lines.Insert("    \"frontlinePenalty\": " + m_iRepFrontlinePenalty.ToString());
+		lines.Insert("    \"tier1\": " + m_iRepTier1.ToString() + ",");
+		lines.Insert("    \"tier2\": " + m_iRepTier2.ToString() + ",");
+		lines.Insert("    \"tier3\": " + m_iRepTier3.ToString() + ",");
+		lines.Insert("    \"frontlinePenalty\": " + m_iRepFrontlinePenalty.ToString() + ",");
+		lines.Insert("    \"civilianKill\": " + m_iRepCivilianKillPenalty.ToString() + ",");
+		lines.Insert("    \"perEnemyKill\": " + N(m_fRepPerEnemyKill) + ",");
+		lines.Insert("    \"pointCapture\": " + m_iRepLocalCaptureBonus.ToString() + ",");
+		lines.Insert("    \"cellCapture\": " + m_iRepCaptureBonus.ToString() + ",");
+		lines.Insert("    \"intel\": " + N(m_fRepIntel) + ",");
+		lines.Insert("    \"intelRevealOneIn\": " + m_iIntelRevealOneIn.ToString() + ",");
+		lines.Insert("    \"banana\": " + m_iRepBanana.ToString() + ",");
+		lines.Insert("    \"paySupplies\": " + m_iPaySupplies.ToString() + ",");
+		lines.Insert("    \"payRep\": " + m_iRepPay.ToString() + ",");
+		lines.Insert("    \"needMin\": " + m_iNeedMin.ToString() + ",");
+		lines.Insert("    \"needMax\": " + m_iNeedMax.ToString() + ",");
+		lines.Insert("    \"needRep\": " + m_iRepNeed.ToString() + ",");
+		lines.Insert("    \"needSupplies\": " + m_iNeedSupplies.ToString() + ",");
+		lines.Insert("    \"needMen\": " + m_iNeedMen.ToString() + ",");
+		lines.Insert("    \"nameOneIn\": " + m_iNameOneIn.ToString() + ",");
+		lines.Insert("    \"iedFavorMen\": " + m_iIedFavorMen.ToString() + ",");
+		lines.Insert("    \"apMine\": " + m_iRepApMine.ToString() + ",");
+		lines.Insert("    \"iedDisarm\": " + m_iRepIedDisarm.ToString() + ",");
+		lines.Insert("    \"respawnRep\": " + m_iRespawnRep.ToString() + ",");
+		lines.Insert("    \"respawnMen\": " + m_iRespawnMen.ToString() + ",");
+		lines.Insert("    \"masterWater\": " + m_iMasterWater.ToString() + ",");
+		lines.Insert("    \"masterFood\": " + m_iMasterFood.ToString() + ",");
+		lines.Insert("    \"masterAmmo\": " + m_iMasterAmmo.ToString() + ",");
+		lines.Insert("    \"masterSupplies\": " + m_iMasterSupplies.ToString() + ",");
+		lines.Insert("    \"campMen\": " + m_iCampMen.ToString() + ",");
+		lines.Insert("    \"campSupplies\": " + m_iCampSupplies.ToString());
+		lines.Insert("  },");
+		lines.Insert("");
+		lines.Insert("  \"missions\": {");
+		lines.Insert("    \"towerSupplies\": " + m_iMissionTowerSupplies.ToString() + ",");
+		lines.Insert("    \"towerRep\": " + m_iMissionTowerRep.ToString() + ",");
+		lines.Insert("    \"checkpointSupplies\": " + m_iMissionCheckpointSupplies.ToString() + ",");
+		lines.Insert("    \"checkpointRep\": " + m_iMissionCheckpointRep.ToString() + ",");
+		lines.Insert("    \"officerMen\": " + m_iMissionOfficerMen.ToString() + ",");
+		lines.Insert("    \"officerRep\": " + m_iMissionOfficerRep.ToString() + ",");
+		lines.Insert("    \"hostageMen\": " + m_iMissionHostageMen.ToString() + ",");
+		lines.Insert("    \"hostageRep\": " + m_iMissionHostageRep.ToString() + ",");
+		lines.Insert("    \"hostageSupplies\": " + m_iMissionHostageSupplies.ToString() + ",");
+		lines.Insert("    \"cacheSupplies\": " + m_iMissionCacheSupplies.ToString() + ",");
+		lines.Insert("    \"cacheRep\": " + m_iMissionCacheRep.ToString() + ",");
+		lines.Insert("    \"iedRep\": " + m_iMissionIedRep.ToString() + ",");
+		lines.Insert("    \"iedMen\": " + m_iMissionIedMen.ToString());
 		lines.Insert("  },");
 		lines.Insert("");
 		lines.Insert("  \"intel\": {");
@@ -904,7 +1059,8 @@ class HAM_Settings
 		lines.Insert("    \"menMax\": " + m_iMenMax.ToString() + ",");
 		lines.Insert("    \"menCostWater\": " + N(m_fMenCostWater) + ",");
 		lines.Insert("    \"menCostFood\": " + N(m_fMenCostFood) + ",");
-		lines.Insert("    \"menCostAmmo\": " + N(m_fMenCostAmmo));
+		lines.Insert("    \"menCostAmmo\": " + N(m_fMenCostAmmo) + ",");
+		lines.Insert("    \"hqStartMen\": " + m_iHqStartMen.ToString());
 		lines.Insert("  },");
 		lines.Insert("");
 		lines.Insert("  \"exchange\": {");
@@ -969,7 +1125,7 @@ class HAM_Settings
 		lines.Insert("    \"vehicleCruiseSpeed\": 20,");
 		lines.Insert("    \"stayInVehicleMode\": 2,");
 		lines.Insert("    \"fuelConsumption\": true,");
-		lines.Insert("    \"fuelConsumptionScale\": 0");
+		lines.Insert("    \"fuelConsumptionScale\": 8");
 		lines.Insert("  },");
 		lines.Insert("");
 		lines.Insert("  \"holdBreath\": {");

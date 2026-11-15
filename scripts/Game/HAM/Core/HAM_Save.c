@@ -42,6 +42,7 @@ class HAM_Save
 	protected static ref array<float> s_aSupplyValues;
 	protected static ref array<string> s_aSupplyArmed;
 	protected static ref array<string> s_aSupplyStable;
+	protected static ref array<string> s_aSupplyReasserted;
 	protected static ref array<string> s_aDepositNames;
 	protected static ref array<int> s_aDepositRefillWater;
 	protected static ref array<int> s_aDepositRefillFood;
@@ -67,6 +68,23 @@ class HAM_Save
 	//------------------------------------------------------------------------------------------------
 	static void ResetSession()
 	{
+		UnwatchMoves();
+		s_bSaveRun = false;
+		s_bSaveQueued = false;
+		s_iSavePhase = 0;
+		if (GetGame() && GetGame().GetCallqueue())
+		{
+			ScriptCallQueue queue = GetGame().GetCallqueue();
+			queue.Remove(SavePhase);
+			queue.Remove(SpawnBuilt);
+			queue.Remove(ApplyBaseSupplies);
+			queue.Remove(ReassertBaseSupplies);
+			queue.Remove(MarkBaseStable);
+			queue.Remove(ApplyCampaignSupplies);
+			queue.Remove(MarkCampStable);
+			queue.Remove(HAM_Convoys.CreditPending);
+		}
+
 		s_bSystemPlace = false;
 		s_bRestoringBuilt = false;
 		s_aBuilt = null;
@@ -78,6 +96,7 @@ class HAM_Save
 		s_aSupplyValues = null;
 		s_aSupplyArmed = null;
 		s_aSupplyStable = null;
+		s_aSupplyReasserted = null;
 		s_aDepositNames = null;
 		s_aDepositRefillWater = null;
 		s_aDepositRefillFood = null;
@@ -186,6 +205,7 @@ class HAM_Save
 
 		ctx.StartObject("hq");
 		WriteStock(ctx, HAM_Mission.s_HqStock);
+		ctx.WriteValue("cycleLeft", HAM_Mission.s_fHqCycleLeft);
 		ctx.EndObject();
 
 		array<HAM_Cell> cells = {};
@@ -201,7 +221,6 @@ class HAM_Save
 			ctx.StartObject("cell" + c.ToString());
 			ctx.WriteValue("name", cell.m_sName);
 			ctx.WriteValue("revealed", cell.m_bRevealed);
-			ctx.WriteValue("localRep", cell.m_iLocalRep);
 			ctx.WriteValue("graceLeft", cell.m_fGraceLeft);
 			ctx.WriteValue("cycleLeft", cell.m_fCycleLeft);
 			// Le temps du monde repart à zéro au chargement : on garde le temps déjà écoulé depuis la prise.
@@ -572,14 +591,27 @@ class HAM_Save
 			return;
 		}
 
+		bool loadedRep = false;
 		float globalRep;
 		if (ctx.ReadValue("globalRep", globalRep))
+		{
 			HAM_Mission.s_fGlobalRep = globalRep;
+			loadedRep = true;
+		}
 		else
 		{
 			int globalRepWhole;
 			if (ctx.ReadValue("globalRep", globalRepWhole))
+			{
 				HAM_Mission.s_fGlobalRep = globalRepWhole;
+				loadedRep = true;
+			}
+		}
+
+		if (loadedRep)
+		{
+			HAM_Settings repSettings = HAM_Settings.Get();
+			HAM_Mission.s_fGlobalRep = Math.Clamp(HAM_Mission.s_fGlobalRep, repSettings.m_iRepMin, repSettings.m_iRepMax);
 		}
 
 		string designated;
@@ -593,6 +625,10 @@ class HAM_Save
 		if (ctx.StartObject("hq"))
 		{
 			ReadStock(ctx, HAM_Mission.s_HqStock);
+			float cycleLeft;
+			if (ctx.ReadValue("cycleLeft", cycleLeft))
+				HAM_Mission.s_fHqCycleLeft = cycleLeft;
+
 			ctx.EndObject();
 		}
 
@@ -611,10 +647,6 @@ class HAM_Save
 				bool revealed;
 				if (ctx.ReadValue("revealed", revealed))
 					cell.m_bRevealed = revealed;
-
-				int localRep;
-				if (ctx.ReadValue("localRep", localRep))
-					cell.m_iLocalRep = localRep;
 
 				float graceLeft;
 				if (ctx.ReadValue("graceLeft", graceLeft))
@@ -852,6 +884,7 @@ class HAM_Save
 			ctx.ReadValue("to", target);
 			ctx.ReadValue("men", men);
 			ctx.EndObject();
+			HAM_Convoys.NotePending(men);
 			GetGame().GetCallqueue().CallLater(HAM_Convoys.CreditPending, 15000, false, target, men);
 		}
 
@@ -949,9 +982,31 @@ class HAM_Save
 	}
 
 	//------------------------------------------------------------------------------------------------
+	static bool SupplyReasserted(string name)
+	{
+		return s_aSupplyReasserted && s_aSupplyReasserted.Contains(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void MarkSupplyReasserted(string name)
+	{
+		if (name.IsEmpty())
+			return;
+
+		if (!s_aSupplyReasserted)
+			s_aSupplyReasserted = {};
+
+		if (!s_aSupplyReasserted.Contains(name))
+			s_aSupplyReasserted.Insert(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static void RememberSupply(string name, float value)
 	{
 		if (name.IsEmpty())
+			return;
+
+		if (BlocksPrefabMax(name, value))
 			return;
 
 		if (!s_aSupplyNames)
@@ -969,6 +1024,36 @@ class HAM_Save
 		}
 
 		s_aSupplyValues[index] = value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Tant que le rappel vanilla n'a pas tourné, un retour au plafond du prefab n'écrase pas la valeur sauvée.
+	protected static bool BlocksPrefabMax(string name, float value)
+	{
+		if (SupplyReasserted(name))
+			return false;
+
+		float saved;
+		if (!SupplyAmount(name, saved))
+			return false;
+
+		if (saved + 50 >= value)
+			return false;
+
+		return HAM_Mission.SupplyLooksLikePrefabMax(name, value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void UnwatchMoves()
+	{
+		if (!s_bWatchMoves)
+			return;
+
+		SCR_EditableEntityCore core = SCR_EditableEntityCore.Cast(SCR_EditableEntityCore.GetInstance(SCR_EditableEntityCore));
+		if (core)
+			core.Event_OnEntityTransformChangedServer.Remove(HAM_OnBuiltMoved);
+
+		s_bWatchMoves = false;
 	}
 
 	//------------------------------------------------------------------------------------------------

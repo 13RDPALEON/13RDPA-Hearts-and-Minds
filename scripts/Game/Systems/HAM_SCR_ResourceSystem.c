@@ -54,7 +54,7 @@ modded class SCR_ResourceSystem
     {
         if (!container) return;
 
-        // En H&M le remplissage 10 / 20 s est celui des dépôts vanilla, pas celui de chaque caisse.
+        // En H&M le remplissage 10 / 30 s est celui des dépôts vanilla, pas celui de chaque caisse.
         if (HAM_Mission.IsActive())
             return;
 

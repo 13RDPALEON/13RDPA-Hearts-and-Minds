@@ -7,10 +7,11 @@
 modded class SCR_GameModeCampaign
 {
 	//------------------------------------------------------------------------------------------------
-	//! La victoire vanilla par points de contrôle est coupée : la fin vient de la prise du QG ennemi.
+	//! Tant que le front H&M tourne, la victoire vanilla est coupée.
+	//! Si le composant est là mais que Start n'a pas lancé le front, le Conflit peut encore décider.
 	override protected void CheckForWinner()
 	{
-		if (HAM_Mission.IsActive())
+		if (HAM_Mission.IsRunning())
 			return;
 
 		super.CheckForWinner();
@@ -23,6 +24,31 @@ modded class SCR_GameModeCampaign
 		RPC_DoEndMatch(factionIndex);
 		Rpc(RPC_DoEndMatch, factionIndex);
 		EndGameMode(SCR_GameModeEndData.CreateSimple(EGameOverTypes.ENDREASON_SCORELIMIT, -1, factionIndex));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool CanPlayerSpawn_S(SCR_SpawnRequestComponent requestComponent, SCR_SpawnHandlerComponent handlerComponent, SCR_SpawnData data, out SCR_ESpawnResult result = SCR_ESpawnResult.SPAWN_NOT_ALLOWED)
+	{
+		if (!super.CanPlayerSpawn_S(requestComponent, handlerComponent, data, result))
+			return false;
+
+		if (!requestComponent)
+			return true;
+
+		return HAM_Credit.AllowSpawn(requestComponent.GetPlayerId(), result);
+	}
+}
+
+//------------------------------------------------------------------------------------------------
+modded class SCR_SpawnLogic
+{
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerSpawnResponse_S(SCR_SpawnRequestComponent requestComponent, SCR_ESpawnResult response)
+	{
+		if (response != SCR_ESpawnResult.OK && requestComponent)
+			HAM_Credit.RefundSpawn(requestComponent.GetPlayerId());
+
+		super.OnPlayerSpawnResponse_S(requestComponent, response);
 	}
 }
 
@@ -84,12 +110,59 @@ class HAM_RadioLink
 	protected static const ResourceName RELAY = "{C3A91E5704B82D20}Prefabs/HAM/Props/HAM_RadioRelay.et";
 	protected static ref array<IEntity> s_aLinked;
 	protected static ref array<IEntity> s_aRelays;
+	protected static ref array<IEntity> s_aDeployedHosts;
+	protected static ref array<IEntity> s_aDeployedRelays;
+	protected static ref array<IEntity> s_aWorldRadios;
 	protected static bool s_bAnswerQueued;
 
 	static void Apply(IEntity antenna)
 	{
-		if (!antenna || !Replication.IsServer() || !HAM_Mission.IsActive())
+		ApplyAttempt(antenna, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Antenne déjà dans le monde. Apply la branche quand le réseau l'atteint, sans seconde antenne.
+	static void RememberAntenna(IEntity antenna)
+	{
+		if (!antenna)
 			return;
+
+		if (!s_aWorldRadios)
+			s_aWorldRadios = {};
+
+		if (s_aWorldRadios.Find(antenna) < 0)
+			s_aWorldRadios.Insert(antenna);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void RefreshWorldRadios()
+	{
+		if (!s_aWorldRadios)
+			return;
+
+		foreach (IEntity antenna : s_aWorldRadios)
+		{
+			if (antenna)
+				Apply(antenna);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! L'antenne peut s'initialiser avant le QG. On réessaie tant que la mission ou le QG manque.
+	protected static void ApplyAttempt(IEntity antenna, int tries)
+	{
+		if (!antenna || !Replication.IsServer())
+			return;
+
+		bool waiting = !HAM_Mission.IsActive() || !HAM_Mission.s_HqBase || !HAM_Mission.s_HqBase.GetOwner();
+		if (waiting)
+		{
+			if (tries >= 40 || !GetGame() || !GetGame().GetCallqueue())
+				return;
+
+			GetGame().GetCallqueue().CallLater(ApplyAttempt, 2000, false, antenna, tries + 1);
+			return;
+		}
 
 		if (s_aLinked && s_aLinked.Contains(antenna))
 			return;
@@ -259,6 +332,216 @@ class HAM_RadioLink
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! La radio posée garde son relais de 20 km tant que l'objet est là.
+	static void RememberDeployed(IEntity host, IEntity relay)
+	{
+		if (!host)
+			return;
+
+		if (relay)
+			RememberRelay(relay);
+
+		if (!s_aDeployedHosts)
+		{
+			s_aDeployedHosts = {};
+			s_aDeployedRelays = {};
+		}
+
+		int index = s_aDeployedHosts.Find(host);
+		if (index >= 0)
+		{
+			if (relay)
+				s_aDeployedRelays[index] = relay;
+
+			return;
+		}
+
+		s_aDeployedHosts.Insert(host);
+		s_aDeployedRelays.Insert(relay);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! L'objet posé a été rangé ou supprimé : seul son relais part, puis le plancher radio est recalculé.
+	static void ReleaseDeployed(IEntity host, bool deleteRelay)
+	{
+		if (!host || !s_aDeployedHosts)
+			return;
+
+		int index = s_aDeployedHosts.Find(host);
+		if (index < 0)
+			return;
+
+		IEntity relay = s_aDeployedRelays[index];
+		s_aDeployedHosts.Remove(index);
+		s_aDeployedRelays.Remove(index);
+		if (s_aRelays && relay)
+			s_aRelays.RemoveItem(relay);
+
+		if (deleteRelay && relay)
+			HAM_Util.Delete(relay);
+
+		if (!HAM_Mission.IsActive())
+			return;
+
+		RecomputeRadioFloors();
+		ScheduleAnswer();
+		HAM_Util.Info("Radio retirée : relais enlevé, portée du QG recalculée");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void ResetSession()
+	{
+		if (GetGame() && GetGame().GetCallqueue())
+			GetGame().GetCallqueue().Remove(ReconnectPlayer);
+
+		s_aLinked = null;
+		s_aRelays = null;
+		s_aDeployedHosts = null;
+		s_aDeployedRelays = null;
+		s_aWorldRadios = null;
+		s_bAnswerQueued = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void RecomputeRadioFloors()
+	{
+		DropMissingRadios();
+		array<SCR_CampaignMilitaryBaseComponent> bases = {};
+		CollectPlayerBases(bases);
+		SCR_CampaignMilitaryBaseComponent hq = HAM_Mission.s_HqBase;
+		if (hq && bases.Find(hq) < 0)
+			bases.Insert(hq);
+
+		foreach (SCR_CampaignMilitaryBaseComponent base : bases)
+		{
+			if (!base)
+				continue;
+
+			base.HAM_SetRadioFloor(FloorFor(base));
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void DropMissingRadios()
+	{
+		if (s_aLinked)
+		{
+			for (int i = s_aLinked.Count() - 1; i >= 0; i--)
+			{
+				if (!s_aLinked[i])
+					s_aLinked.Remove(i);
+			}
+		}
+
+		if (s_aRelays)
+		{
+			for (int i = s_aRelays.Count() - 1; i >= 0; i--)
+			{
+				if (!s_aRelays[i])
+					s_aRelays.Remove(i);
+			}
+		}
+
+		if (!s_aDeployedHosts)
+			return;
+
+		for (int i = s_aDeployedHosts.Count() - 1; i >= 0; i--)
+		{
+			if (s_aDeployedHosts[i])
+				continue;
+
+			IEntity relay = s_aDeployedRelays[i];
+			s_aDeployedHosts.Remove(i);
+			s_aDeployedRelays.Remove(i);
+			if (s_aRelays && relay)
+				s_aRelays.RemoveItem(relay);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void CollectPlayerBases(notnull array<SCR_CampaignMilitaryBaseComponent> bases)
+	{
+		SCR_MilitaryBaseSystem system = SCR_MilitaryBaseSystem.GetInstance();
+		if (!system)
+			return;
+
+		array<SCR_MilitaryBaseComponent> listed = {};
+		system.GetBases(listed);
+		foreach (SCR_MilitaryBaseComponent entry : listed)
+		{
+			SCR_CampaignMilitaryBaseComponent campaignBase = SCR_CampaignMilitaryBaseComponent.Cast(entry);
+			if (!campaignBase || !campaignBase.GetOwner())
+				continue;
+
+			Faction faction = campaignBase.GetFaction();
+			if (!faction || !HAM_Units.IsPlayerFaction(faction.GetFactionKey()))
+				continue;
+
+			if (bases.Find(campaignBase) < 0)
+				bases.Insert(campaignBase);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Plancher utile : antennes encore liées, et radios posées encore là. Un relais vivant n'est pas raccourci.
+	protected static float FloorFor(SCR_CampaignMilitaryBaseComponent base)
+	{
+		if (!base || !base.GetOwner())
+			return 0;
+
+		float floor = 0;
+		vector origin = base.GetOwner().GetOrigin();
+		if (s_aLinked)
+		{
+			foreach (IEntity antenna : s_aLinked)
+			{
+				if (!antenna)
+					continue;
+
+				if (NearestPlayerBase(antenna.GetOrigin()) != base)
+					continue;
+
+				float want = LinkedWant(antenna, base);
+				if (want > floor)
+					floor = want;
+			}
+		}
+
+		if (base != HAM_Mission.s_HqBase || !s_aDeployedHosts)
+			return floor;
+
+		for (int i = 0; i < s_aDeployedHosts.Count(); i++)
+		{
+			IEntity host = s_aDeployedHosts[i];
+			if (!host)
+				continue;
+
+			float needed = vector.DistanceXZ(origin, host.GetOrigin()) + 50;
+			if (needed > floor)
+				floor = needed;
+		}
+
+		return floor;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static float LinkedWant(IEntity antenna, SCR_CampaignMilitaryBaseComponent base)
+	{
+		if (!antenna || !base || !base.GetOwner())
+			return 0;
+
+		float dist = vector.DistanceXZ(base.GetOwner().GetOrigin(), antenna.GetOrigin());
+		float range = AntennaRange(antenna);
+		if (range < 3000)
+			range = 3000;
+
+		if (dist <= base.GetRadius() + 40)
+			return range;
+
+		return dist + 50;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! La réapparition exige les deux sens. Étendre seulement le QG laisse la base à 1 km :
 	//! elle reçoit, mais ne répond pas, et le dédié affiche « hors de portée ».
 	static void ScheduleAnswer()
@@ -317,8 +600,8 @@ class HAM_RadioLink
 
 		string key = PlayerKey();
 		float hqRange = BaseRange(hq);
-		if (hqRange < 100)
-			hqRange = 1000;
+		if (hqRange < 3000)
+			hqRange = 3000;
 
 		hq.HAM_PublishRadio(hqRange, key);
 		hqRange = BaseRange(hq);
@@ -350,6 +633,7 @@ class HAM_RadioLink
 			linked++;
 		}
 
+		RefreshWorldRadios();
 		SCR_RadioCoverageSystem.UpdateAll(true);
 		GetGame().GetCallqueue().CallLater(SCR_CoverageRadioComponent.HAM_PushAll, 1500, false);
 		HAM_Util.Info(string.Format("Radio : %1 base(s) répondent au QG (portée QG %2 m)", linked, Math.Round(hqRange)));
@@ -470,6 +754,8 @@ modded class SCR_AntennaServicePointComponent
 modded class SCR_BaseDeployableInventoryItemComponent
 {
 	protected static const ResourceName HAM_RELAY = "{C3A91E5704B82D20}Prefabs/HAM/Props/HAM_RadioRelay.et";
+	protected IEntity m_HAM_Relay;
+	protected bool m_bHAM_Released;
 
 	override void Deploy(IEntity userEntity = null, bool reload = false)
 	{
@@ -480,10 +766,14 @@ modded class SCR_BaseDeployableInventoryItemComponent
 		if (!GetOwner().FindComponent(BaseRadioComponent))
 			return;
 
+		m_bHAM_Released = false;
 		HAM_ReachDeployedRadio(GetOwner().GetOrigin());
 		IEntity relay = HAM_Util.Spawn(HAM_RELAY, GetOwner().GetOrigin(), 0);
 		if (!relay)
+		{
+			HAM_RadioLink.RememberDeployed(GetOwner(), null);
 			return;
+		}
 
 		GetOwner().AddChild(relay, -1);
 		vector mat[4];
@@ -503,9 +793,36 @@ modded class SCR_BaseDeployableInventoryItemComponent
 				relayTx.SetRange(20000);
 		}
 
-		HAM_RadioLink.RememberRelay(relay);
+		m_HAM_Relay = relay;
+		HAM_RadioLink.RememberDeployed(GetOwner(), relay);
 		HAM_RadioLink.ScheduleAnswer();
 		HAM_Util.Info("Radio posée : relais de 20 km branché sur le réseau joueur");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void Dismantle(IEntity userEntity = null, bool reload = false)
+	{
+		HAM_ReleaseDeployedRadio(true);
+		super.Dismantle(userEntity, reload);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnDelete(IEntity owner)
+	{
+		HAM_ReleaseDeployedRadio(false);
+		super.OnDelete(owner);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void HAM_ReleaseDeployedRadio(bool deleteRelay)
+	{
+		if (m_bHAM_Released)
+			return;
+
+		m_bHAM_Released = true;
+		IEntity host = GetOwner();
+		m_HAM_Relay = null;
+		HAM_RadioLink.ReleaseDeployed(host, deleteRelay);
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -71,6 +71,24 @@ class HAM_Logistics
 
 			TickGrace(cell, dt, settings);
 		}
+
+		TickHqStock(dt, settings);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Même cycle que les maîtres tenus : entretien et hommes, sans grâce ni perte de base.
+	protected static void TickHqStock(float dt, HAM_Settings settings)
+	{
+		if (!HAM_Mission.s_HqStock)
+			return;
+
+		HAM_Mission.s_fHqCycleLeft -= dt;
+		if (HAM_Mission.s_fHqCycleLeft > 0)
+			return;
+
+		HAM_Mission.s_fHqCycleLeft = settings.m_fCycleMinutes * 60;
+		RunStockCycle(HAM_Mission.s_HqStock, settings);
+		HAM_Mission.MarkDirty();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -149,7 +167,18 @@ class HAM_Logistics
 	//! Entretien, puis production d'hommes avec le seul surplus au-dessus des seuils.
 	protected static void RunCycle(HAM_Cell cell, HAM_Settings settings)
 	{
-		HAM_Stock stock = cell.m_Stock;
+		RunStockCycle(cell.m_Stock, settings);
+		CheckHold(cell);
+		HAM_Mission.RefreshZoneProps(cell);
+		HAM_Mission.MarkDirty();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void RunStockCycle(HAM_Stock stock, HAM_Settings settings)
+	{
+		if (!stock)
+			return;
+
 		stock.Add(HAM_EResource.WATER, -settings.m_fUpkeepWater);
 		stock.Add(HAM_EResource.FOOD, -settings.m_fUpkeepFood);
 		stock.Add(HAM_EResource.AMMO, -settings.m_fUpkeepAmmo);
@@ -165,10 +194,43 @@ class HAM_Logistics
 			int men = Math.Min(settings.m_iMenPerCycle, settings.m_iMenMax - stock.m_iMen);
 			stock.Add(HAM_EResource.MEN, men);
 		}
+	}
 
-		CheckHold(cell);
-		HAM_Mission.RefreshZoneProps(cell);
+	//------------------------------------------------------------------------------------------------
+	//! Achat d'un homme sur la base du tableau. Le surplus des seuils n'est pas exigé.
+	static bool BuyMan(string baseName, int playerId)
+	{
+		HAM_Stock stock = HAM_Mission.StockOf(baseName);
+		if (!stock)
+			return false;
+
+		HAM_Settings settings = HAM_Settings.Get();
+		if (stock.m_iMen >= settings.m_iMenMax)
+		{
+			HAM_Net.NotifyPlayer(playerId, "Tableau", string.Format("Le stock d'hommes de %1 est déjà plein (%2/%3).", baseName, stock.m_iMen, settings.m_iMenMax), 6);
+			return false;
+		}
+
+		if (stock.m_fWater + 0.001 < settings.m_fMenCostWater || stock.m_fFood + 0.001 < settings.m_fMenCostFood || stock.m_fAmmo + 0.001 < settings.m_fMenCostAmmo)
+		{
+			HAM_Net.NotifyPlayer(playerId, "Tableau", string.Format("Pas assez de ressources à %1 pour un homme (%2 eau, %3 vivres, %4 munitions).", baseName, HAM_Util.FormatInt(settings.m_fMenCostWater), HAM_Util.FormatInt(settings.m_fMenCostFood), HAM_Util.FormatInt(settings.m_fMenCostAmmo)), 8);
+			return false;
+		}
+
+		stock.Add(HAM_EResource.WATER, -settings.m_fMenCostWater);
+		stock.Add(HAM_EResource.FOOD, -settings.m_fMenCostFood);
+		stock.Add(HAM_EResource.AMMO, -settings.m_fMenCostAmmo);
+		stock.Add(HAM_EResource.MEN, 1);
+		HAM_Cell cell = HAM_Mission.FindCell(baseName);
+		if (cell)
+		{
+			CheckHold(cell);
+			HAM_Mission.RefreshZoneProps(cell);
+		}
+
 		HAM_Mission.MarkDirty();
+		HAM_Net.NotifyPlayer(playerId, "Tableau", string.Format("Un homme rejoint %1. Coût : %2 eau, %3 vivres, %4 munitions.", baseName, HAM_Util.FormatInt(settings.m_fMenCostWater), HAM_Util.FormatInt(settings.m_fMenCostFood), HAM_Util.FormatInt(settings.m_fMenCostAmmo)), 6);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

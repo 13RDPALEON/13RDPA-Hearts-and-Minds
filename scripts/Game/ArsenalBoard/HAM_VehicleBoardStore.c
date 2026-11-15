@@ -363,6 +363,9 @@ class HAM_VehicleBoardStore
 
 	static void ApplyHiddenPack(string pack)
 	{
+		if (Replication.IsServer())
+			return;
+
 		s_bLoaded = true;
 		bool reset = true;
 		if (pack.IndexOf("*|") == 0)
@@ -425,6 +428,9 @@ class HAM_VehicleBoardStore
 
 	static void ApplyParamsPack(string costs, string ranks, string cargos)
 	{
+		if (Replication.IsServer())
+			return;
+
 		s_bLoaded = true;
 		s_aCostPrefab = {};
 		s_aCostValue = {};
@@ -493,13 +499,17 @@ class HAM_VehicleBoardStore
 			return;
 		}
 
-		string chunk = "!|";
-		int count = 0;
+		array<string> listed = {};
 		foreach (string prefab : s_aHidden)
 		{
-			if (prefab.IsEmpty())
-				continue;
+			if (!prefab.IsEmpty())
+				listed.Insert(prefab);
+		}
 
+		string chunk = "!|";
+		int count = 0;
+		foreach (string prefab : listed)
+		{
 			if (count >= 20)
 			{
 				player.HAM_VehicleBoardSyncHidden(chunk);

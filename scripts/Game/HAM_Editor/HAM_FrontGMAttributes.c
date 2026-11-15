@@ -29,7 +29,6 @@ class HAM_LiveSettings
 			case 11: return s.m_fDepositRefillPerMinute;
 			case 81: return s.m_fDepositRefillInterval;
 			case 12: return s.m_iRepStart;
-			case 13: return s.m_iRepLocalRevealThreshold;
 			case 14: return s.m_iRepCivilianTalkThreshold;
 			case 15: return s.m_iRepFrontlinePenalty;
 			case 16: return s.m_fIntelBodyChance;
@@ -97,6 +96,50 @@ class HAM_LiveSettings
 			case 97: return s.m_fHeliRadius;
 			case 98: return s.m_fHeliAltitudeMin;
 			case 99: return s.m_fHeliAltitudeMax;
+			case 100: return s.m_iRepTier1;
+			case 101: return s.m_iRepTier2;
+			case 102: return s.m_iRepTier3;
+			case 103: return s.m_iRepMax;
+			case 104: return s.m_fRepPerEnemyKill;
+			case 105: return s.m_iRepCivilianKillPenalty;
+			case 106: return s.m_iRepLocalCaptureBonus;
+			case 107: return s.m_iRepCaptureBonus;
+			case 108: return s.m_iRepApMine;
+			case 109: return s.m_iRepIedDisarm;
+			case 110: return s.m_fRepIntel;
+			case 111: return s.m_iIntelRevealOneIn;
+			case 112: return s.m_iRepBanana;
+			case 113: return s.m_iPaySupplies;
+			case 114: return s.m_iRepPay;
+			case 115: return s.m_iNeedMin;
+			case 116: return s.m_iNeedMax;
+			case 117: return s.m_iRepNeed;
+			case 118: return s.m_iNeedSupplies;
+			case 119: return s.m_iNeedMen;
+			case 120: return s.m_iNameOneIn;
+			case 121: return s.m_iIedFavorMen;
+			case 122: return s.m_iMissionTowerSupplies;
+			case 123: return s.m_iMissionTowerRep;
+			case 124: return s.m_iMissionCheckpointSupplies;
+			case 125: return s.m_iMissionCheckpointRep;
+			case 126: return s.m_iMissionOfficerMen;
+			case 127: return s.m_iMissionOfficerRep;
+			case 128: return s.m_iMissionHostageMen;
+			case 129: return s.m_iMissionHostageRep;
+			case 130: return s.m_iMissionHostageSupplies;
+			case 131: return s.m_iMissionCacheSupplies;
+			case 132: return s.m_iMissionCacheRep;
+			case 133: return s.m_iMissionIedRep;
+			case 134: return s.m_iMissionIedMen;
+			case 135: return s.m_iMasterWater;
+			case 136: return s.m_iMasterFood;
+			case 137: return s.m_iMasterAmmo;
+			case 138: return s.m_iMasterSupplies;
+			case 139: return s.m_iCampMen;
+			case 140: return s.m_iCampSupplies;
+			case 141: return s.m_iRespawnRep;
+			case 142: return s.m_iRespawnMen;
+			case 143: return s.m_iHqStartMen;
 		}
 
 		return 0;
@@ -132,7 +175,6 @@ class HAM_LiveSettings
 			case 11: s.m_fDepositRefillPerMinute = value; break;
 			case 81: s.m_fDepositRefillInterval = value; break;
 			case 12: s.m_iRepStart = count; break;
-			case 13: s.m_iRepLocalRevealThreshold = count; break;
 			case 14: s.m_iRepCivilianTalkThreshold = count; break;
 			case 15: s.m_iRepFrontlinePenalty = count; break;
 			case 16: s.m_fIntelBodyChance = value; break;
@@ -200,6 +242,50 @@ class HAM_LiveSettings
 			case 97: s.m_fHeliRadius = value; break;
 			case 98: s.m_fHeliAltitudeMin = value; break;
 			case 99: s.m_fHeliAltitudeMax = value; break;
+			case 100: s.m_iRepTier1 = count; break;
+			case 101: s.m_iRepTier2 = count; break;
+			case 102: s.m_iRepTier3 = count; break;
+			case 103: s.m_iRepMax = count; break;
+			case 104: s.m_fRepPerEnemyKill = value; break;
+			case 105: s.m_iRepCivilianKillPenalty = count; break;
+			case 106: s.m_iRepLocalCaptureBonus = count; break;
+			case 107: s.m_iRepCaptureBonus = count; break;
+			case 108: s.m_iRepApMine = count; break;
+			case 109: s.m_iRepIedDisarm = count; break;
+			case 110: s.m_fRepIntel = value; break;
+			case 111: s.m_iIntelRevealOneIn = count; break;
+			case 112: s.m_iRepBanana = count; break;
+			case 113: s.m_iPaySupplies = count; break;
+			case 114: s.m_iRepPay = count; break;
+			case 115: s.m_iNeedMin = count; break;
+			case 116: s.m_iNeedMax = count; break;
+			case 117: s.m_iRepNeed = count; break;
+			case 118: s.m_iNeedSupplies = count; break;
+			case 119: s.m_iNeedMen = count; break;
+			case 120: s.m_iNameOneIn = count; break;
+			case 121: s.m_iIedFavorMen = count; break;
+			case 122: s.m_iMissionTowerSupplies = count; break;
+			case 123: s.m_iMissionTowerRep = count; break;
+			case 124: s.m_iMissionCheckpointSupplies = count; break;
+			case 125: s.m_iMissionCheckpointRep = count; break;
+			case 126: s.m_iMissionOfficerMen = count; break;
+			case 127: s.m_iMissionOfficerRep = count; break;
+			case 128: s.m_iMissionHostageMen = count; break;
+			case 129: s.m_iMissionHostageRep = count; break;
+			case 130: s.m_iMissionHostageSupplies = count; break;
+			case 131: s.m_iMissionCacheSupplies = count; break;
+			case 132: s.m_iMissionCacheRep = count; break;
+			case 133: s.m_iMissionIedRep = count; break;
+			case 134: s.m_iMissionIedMen = count; break;
+			case 135: s.m_iMasterWater = count; break;
+			case 136: s.m_iMasterFood = count; break;
+			case 137: s.m_iMasterAmmo = count; break;
+			case 138: s.m_iMasterSupplies = count; break;
+			case 139: s.m_iCampMen = count; break;
+			case 140: s.m_iCampSupplies = count; break;
+			case 141: s.m_iRespawnRep = count; break;
+			case 142: s.m_iRespawnMen = count; break;
+			case 143: s.m_iHqStartMen = count; break;
 		}
 
 		s.Sanitize();
@@ -585,9 +671,6 @@ class HAM_GM_DepositRefillInterval : HAM_FrontFloatAttribute {}
 
 [BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
 class HAM_GM_RepStart : HAM_FrontFloatAttribute {}
-
-[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
-class HAM_GM_RepLocalReveal : HAM_FrontFloatAttribute {}
 
 [BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
 class HAM_GM_RepCivilianTalk : HAM_FrontFloatAttribute {}
@@ -1326,3 +1409,135 @@ class HAM_GM_CounterMinBase : HAM_FrontFloatAttribute {}
 
 [BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
 class HAM_GM_SaveInterval : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepTier1 : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepTier2 : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepTier3 : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepMax : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepEnemyKill : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepCivilianKill : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepPoint : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepCell : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepApMine : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepIedDisarm : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepIntel : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_IntelRevealOneIn : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepBanana : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_PaySupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepPay : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_NeedMin : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_NeedMax : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RepNeed : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_NeedSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_NeedMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_NameOneIn : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_IedFavorMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionTowerSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionTowerRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionCheckpointSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionCheckpointRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionOfficerMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionOfficerRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionHostageMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionHostageRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionHostageSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionCacheSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionCacheRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionIedRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MissionIedMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MasterWater : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MasterFood : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MasterAmmo : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_MasterSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_CampMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_CampSupplies : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RespawnRep : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_RespawnMen : HAM_FrontFloatAttribute {}
+
+[BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
+class HAM_GM_HqStartMen : HAM_FrontFloatAttribute {}

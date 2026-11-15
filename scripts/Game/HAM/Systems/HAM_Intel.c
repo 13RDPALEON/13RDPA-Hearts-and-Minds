@@ -78,8 +78,6 @@ class HAM_Intel
 	protected static ref array<IEntity> s_aPay;
 	protected static ref array<IEntity> s_aStay;
 	protected static ref array<ref HAM_CivilianNeed> s_aNeeds;
-	protected static const float NEED_REWARD_SUPPLIES = 100;
-	protected static const int NEED_REWARD_MEN = 2;
 	protected static ref array<ref HAM_MineFavor> s_aMineFavors;
 	protected static int s_iIedTask;
 	protected static ref array<ref HAM_CivilianWave> s_aWaves;
@@ -1741,8 +1739,9 @@ class HAM_Intel
 			return;
 
 		if (playerKill && !RepCounted(victim))
-			HAM_Mission.AddGlobalRep(0.25, "ennemi tué");
+			HAM_Mission.AddGlobalRep(settings.m_fRepPerEnemyKill, "ennemi tué");
 
+		// Chaque ennemi laisse un dossier. intel.bodyChance décide si ce dossier localise une zone.
 		GetGame().GetCallqueue().CallLater(PlaceBodyAction, BODY_ACTION_DELAY_MS, false, victim);
 	}
 
@@ -1793,7 +1792,7 @@ class HAM_Intel
 		}
 
 		HAM_Util.Delete(action);
-		GiveIntel(pos, playerId, "corps fouillé");
+		GiveIntel(pos, playerId, "corps fouillé", true);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1809,28 +1808,52 @@ class HAM_Intel
 		}
 
 		HAM_Util.Delete(intel);
-		GiveIntel(pos, playerId, "renseignement trouvé");
+		GiveIntel(pos, playerId, "renseignement trouvé", false);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Révèle parfois une cellule du front. Chaque document crédite une fois +5 de réputation globale.
-	protected static void GiveIntel(vector pos, int playerId, string reason)
+	//! Révèle parfois une cellule du front. Chaque document crédite la réputation réglée.
+	//! Un dossier de corps utilise intel.bodyChance. Un document de bâtiment utilise intelRevealOneIn.
+	protected static void GiveIntel(vector pos, int playerId, string reason, bool bodyDocument)
 	{
-		HAM_Mission.AddGlobalRep(5, "renseignement ramassé");
-		if (Math.RandomInt(0, 100) >= 25)
+		HAM_Settings settings = HAM_Settings.Get();
+		float bonus = settings.m_fRepIntel;
+		HAM_Mission.AddGlobalRep(bonus, "renseignement ramassé");
+		string gain = "Réputation +" + HAM_Mission.FormatRep(bonus) + ".";
+		bool useful = false;
+		if (bodyDocument)
 		{
-			HAM_Net.NotifyPlayer(playerId, "Renseignement", "Rien qui désigne une zone. Réputation +5.", 6);
+			float chance = settings.m_fIntelBodyChance;
+			if (chance < 0)
+				chance = 0;
+			if (chance > 1)
+				chance = 1;
+
+			useful = Math.RandomFloat01() < chance;
+		}
+		else
+		{
+			int oneIn = settings.m_iIntelRevealOneIn;
+			if (oneIn < 1)
+				oneIn = 1;
+
+			useful = Math.RandomInt(0, oneIn) == 0;
+		}
+
+		if (!useful)
+		{
+			HAM_Net.NotifyPlayer(playerId, "Renseignement", "Rien qui désigne une zone. " + gain, 6);
 			return;
 		}
 
 		HAM_Cell revealed = HAM_Front.RevealFrontCell(reason, pos, true);
 		if (revealed)
 		{
-			HAM_Net.NotifyPlayer(playerId, "Renseignement", string.Format("Le document localise une zone ennemie : %1. Réputation +5.", revealed.m_sName), 8);
+			HAM_Net.NotifyPlayer(playerId, "Renseignement", string.Format("Le document localise une zone ennemie : %1. %2", revealed.m_sName, gain), 8);
 			return;
 		}
 
-		HAM_Net.NotifyPlayer(playerId, "Renseignement", "Rien de nouveau sur la ligne de front. Réputation +5.", 8);
+		HAM_Net.NotifyPlayer(playerId, "Renseignement", "Rien de nouveau sur la ligne de front. " + gain, 8);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1992,7 +2015,7 @@ class HAM_Intel
 			s_aBanana.Insert(civilian);
 		}
 
-		HAM_Mission.AddGlobalRep(10, "banane donnée à un civil");
+		HAM_Mission.AddGlobalRep(HAM_Settings.Get().m_iRepBanana, "banane donnée à un civil");
 		HAM_Net.NotifyPlayer(playerId, "Civil", string.Format("Le civil accepte la banane. Réputation : %1.", HAM_Mission.FormatRep(HAM_Mission.s_fGlobalRep)), 6);
 	}
 
@@ -2060,6 +2083,11 @@ class HAM_Intel
 			FreezeForTalk(civilian);
 
 		player.HAM_OpenCivilianTalk(id, payOnly);
+		if (payOnly)
+		{
+			int cost = HAM_Settings.Get().m_iPaySupplies;
+			player.HAM_CivilianReply(string.Format("« Je n'ai rien vu, mais je peux vous aider si vous payez. %1 fournitures sur la base la plus proche. »", cost), true, string.Format("Payer %1 fournitures", cost));
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2075,7 +2103,7 @@ class HAM_Intel
 		vector pos = civilian.GetOrigin();
 
 		bool hold = false;
-		string confirm;
+		string confirm = string.Empty;
 		if (question == 1)
 			text = AnswerSeen(civilian, pos, reputation, canPay);
 		else if (question == 2)
@@ -2087,6 +2115,9 @@ class HAM_Intel
 			HoldCivilian(civilian);
 		else
 			ReleaseCivilian(civilian);
+
+		if (canPay && confirm.IsEmpty())
+			confirm = string.Format("Payer %1 fournitures", HAM_Settings.Get().m_iPaySupplies);
 
 		SCR_PlayerController player = HAM_Net.ControllerOf(playerId);
 		if (player)
@@ -2111,20 +2142,21 @@ class HAM_Intel
 
 		SCR_PlayerController player = HAM_Net.ControllerOf(playerId);
 		SCR_CampaignMilitaryBaseComponent base = HAM_VehicleDepot.SupplyBaseAt(civilian.GetOrigin());
-		if (!base || base.GetSupplies() < 100)
+		int cost = HAM_Settings.Get().m_iPaySupplies;
+		if (!base || base.GetSupplies() < cost)
 		{
 			if (player)
-				player.HAM_CivilianReply("« Il faut 100 ressources de base sur la base la plus proche. »", true, "Payer 100 ressources");
+				player.HAM_CivilianReply(string.Format("« Il faut %1 fournitures sur la base la plus proche. »", cost), true, string.Format("Payer %1 fournitures", cost));
 
 			return;
 		}
 
-		base.AddSupplies(-100);
+		base.AddSupplies(-cost);
 		ClearPay(civilian);
 		ReleaseCivilian(civilian);
-		HAM_Mission.AddGlobalRep(20, "paiement d'un civil");
+		HAM_Mission.AddGlobalRep(HAM_Settings.Get().m_iRepPay, "paiement d'un civil");
 		if (player)
-			player.HAM_CivilianReply("« Voilà ce que je peux faire pour vous. » Réputation +20.", false, "Fermer");
+			player.HAM_CivilianReply(SeenText(civilian.GetOrigin()), false, "Fermer");
 
 		RemoveAskAction(civilian);
 	}
@@ -2235,22 +2267,52 @@ class HAM_Intel
 			}
 		}
 
-		HAM_Stock stock = HAM_Mission.StockOf(HAM_Mission.HQ_NAME);
-		if (stock)
-			stock.Add(HAM_EResource.MEN, 4);
-
+		HAM_Credit.CreditMen(HAM_Mission.HQ_NAME, HAM_Settings.Get().m_iIedFavorMen, "retour des IED");
 		HAM_Mission.MarkDirty();
 		HAM_Net.NotifyPlayer(playerId, "Civil", "Merci de nous avoir aidez. De nouvelle recrute ce dirige vers la base.", 10);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! 0 refus, 1 parole sans service, 2 palier 1, 3 palier 2, 5 réponse du palier 3. Au plafond, un des trois est tiré.
+	protected static int AnswerBand(float reputation)
+	{
+		HAM_Settings settings = HAM_Settings.Get();
+		if (reputation < settings.m_iRepCivilianTalkThreshold)
+			return 0;
+
+		int band = 1;
+		if (reputation >= settings.m_iRepTier1)
+			band = 2;
+
+		if (reputation >= settings.m_iRepTier2)
+			band = 3;
+
+		bool ceiling = reputation + 0.001 >= settings.m_iRepMax;
+		if (reputation < settings.m_iRepTier3 && !ceiling)
+			return band;
+
+		int roll = Math.RandomInt(0, 3);
+		if (roll == 0)
+			return 2;
+
+		if (roll == 1)
+			return 3;
+
+		return 5;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected static string AnswerSeen(IEntity civilian, vector pos, float reputation, out bool canPay)
 	{
 		canPay = false;
-		if (reputation < 300)
+		int band = AnswerBand(reputation);
+		if (band == 0)
 			return "« Je ne veux pas vous parler. »";
 
-		if (reputation < 500)
+		if (band == 1)
+			return "« Je peux vous parler, mais je n'ai rien à vous apprendre. »";
+
+		if (band == 2)
 		{
 			canPay = true;
 			if (!s_aPay)
@@ -2259,19 +2321,27 @@ class HAM_Intel
 			if (!s_aPay.Contains(civilian))
 				s_aPay.Insert(civilian);
 
-			return "« Je n'ai rien vu, mais je pourrais vous aider si vous payez. Cent ressources. »";
+			return string.Format("« Je n'ai rien vu, mais je pourrais vous aider si vous payez. %1 fournitures. »", HAM_Settings.Get().m_iPaySupplies);
 		}
 
+		if (band == 5)
+			return SeenText(pos);
+
+		return "« Des troupes ennemies sont dans le coin. »";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static string SeenText(vector pos)
+	{
 		HAM_Cell cell = HAM_Mission.CellAt(pos);
-		HAM_Mission.AddGlobalRep(20, "renseignement d'un civil");
 		if (!cell || !cell.m_bRevealed)
-			return "« Des troupes ennemies sont dans le coin. » Réputation +20.";
+			return "« Des troupes ennemies sont dans le coin. »";
 
 		string slaveName = SlaveNear(pos);
 		if (slaveName.IsEmpty())
-			return "« Des troupes ennemies sont dans le coin. » Réputation +20.";
+			return "« Des troupes ennemies sont dans le coin. »";
 
-		return string.Format("« Des troupes ennemies ont été vues près de %1. » Réputation +20.", slaveName);
+		return string.Format("« Des troupes ennemies ont été vues près de %1. »", slaveName);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2279,23 +2349,39 @@ class HAM_Intel
 	{
 		canPay = false;
 		confirm = string.Empty;
-		if (reputation < 300)
+		int band = AnswerBand(reputation);
+		if (band == 0)
 			return "« Je n'ai besoin de rien. »";
 
+		if (band == 1)
+			return "« Pour l'instant, je n'ai rien à vous demander. »";
+
+		HAM_Settings settings = HAM_Settings.Get();
+		int minAmount = settings.m_iNeedMin;
+		int maxAmount = settings.m_iNeedMax;
+		if (maxAmount < minAmount)
+			maxAmount = minAmount;
+
 		HAM_EResource kind = HAM_EResource.FOOD;
-		int amount = Math.RandomInt(2, 6);
+		int amount = Math.RandomInt(minAmount, maxAmount + 1);
 		string asked = string.Format("%1 rations", amount);
 		if (Math.RandomInt(0, 2) == 0)
 		{
 			kind = HAM_EResource.WATER;
-			amount = Math.RandomInt(2, 6);
+			amount = Math.RandomInt(minAmount, maxAmount + 1);
 			asked = string.Format("%1 d'eau", amount);
 		}
 
 		RememberNeed(civilian, kind, amount);
 		canPay = true;
 		confirm = "Donner " + asked;
-		return string.Format("« J'ai besoin de %1. Elles seront prises sur le QG ou la base joueur la plus proche. »", asked);
+		if (band == 3)
+			return string.Format("« Il me faut %1. Prenez-les sur le stock tenu le plus proche. »", asked);
+
+		if (band == 5)
+			return string.Format("« Donnez-moi %1. Je verrai ensuite ce que je peux vous dire. »", asked);
+
+		return string.Format("« J'ai besoin de %1. Elles seront prises sur le stock tenu le plus proche. »", asked);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2339,14 +2425,20 @@ class HAM_Intel
 		ClearNeed(civilian);
 		ReleaseCivilian(civilian);
 		GrantNeedReward(civilian.GetOrigin());
+		HAM_Settings settings = HAM_Settings.Get();
+		HAM_Mission.AddGlobalRep(settings.m_iRepNeed, "demande d'un civil");
 		string extra = "« Je ne sais pas où est leur chef. »";
-		if (Math.RandomInt(0, 100) < 30)
+		int oneIn = settings.m_iNameOneIn;
+		if (oneIn < 1)
+			oneIn = 1;
+
+		if (Math.RandomInt(0, oneIn) == 0)
 		{
 			string master = MasterName(civilian.GetOrigin());
 			extra = string.Format("« Le maître ennemi, c'est %1. »", master);
 		}
 
-		string done = string.Format("%1 Pris sur %2. +%3 ressources, +%4 hommes.", extra, baseName, HAM_Util.FormatInt(NEED_REWARD_SUPPLIES), NEED_REWARD_MEN.ToString());
+		string done = string.Format("%1 Pris sur %2. +%3 fournitures, +%4 hommes.", extra, baseName, settings.m_iNeedSupplies, settings.m_iNeedMen);
 		if (player)
 			player.HAM_CivilianReply(done, false, "Fermer");
 
@@ -2405,10 +2497,17 @@ class HAM_Intel
 	protected static string AnswerHelp(IEntity civilian, vector pos, float reputation, int playerId, out bool hold)
 	{
 		hold = false;
-		if (reputation < 300)
+		int band = AnswerBand(reputation);
+		if (band == 0)
 			return "« Vous ne pouvez pas nous aider. »";
 
-		if (reputation < 500)
+		if (band == 1)
+			return "« Vous ne pouvez pas encore nous aider. »";
+
+		if (band == 3)
+			return "« Je ne peux pas encore vous lancer un service. »";
+
+		if (band == 2)
 		{
 			IEntity body = GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId);
 			vector from = pos;
@@ -2631,20 +2730,14 @@ class HAM_Intel
 	//------------------------------------------------------------------------------------------------
 	protected static void GrantNeedReward(vector pos)
 	{
-		SCR_CampaignMilitaryBaseComponent base = HAM_VehicleDepot.SupplyBaseAt(pos);
-		if (base)
-			base.AddSupplies(NEED_REWARD_SUPPLIES);
-
+		HAM_Settings settings = HAM_Settings.Get();
+		HAM_Credit.CreditConflict(HAM_Mission.DesignatedHq(), settings.m_iNeedSupplies, "demande d'un civil");
 		HAM_Cell cell = HAM_Mission.CellAt(pos);
-		HAM_Stock stock;
+		string menBase = HAM_Mission.HQ_NAME;
 		if (cell && cell.IsMasterPlayer())
-			stock = cell.m_Stock;
-		else
-			stock = HAM_Mission.StockOf(HAM_Mission.HQ_NAME);
+			menBase = cell.m_sName;
 
-		if (stock)
-			stock.Add(HAM_EResource.MEN, NEED_REWARD_MEN);
-
+		HAM_Credit.CreditMen(menBase, settings.m_iNeedMen, "demande d'un civil");
 		if (cell)
 			HAM_Mission.RefreshZoneProps(cell);
 	}
@@ -2695,7 +2788,6 @@ class HAM_Intel
 		if (!nearest)
 			return "aucune zone de la ligne de front";
 
-		HAM_Front.Reveal(nearest, "un civil a désigné le maître");
 		return nearest.m_sName;
 	}
 

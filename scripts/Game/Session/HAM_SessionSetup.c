@@ -6,6 +6,11 @@ modded class SCR_RespawnSystemComponent
 {
 	override void OnInit(IEntity owner)
 	{
+		// Le Workbench charge parfois le mode de jeu avant les attributs script :
+		// m_SpawnLogic reste vide, OnInit vanilla déréférence null et le lobby ne s'ouvre pas.
+		if (!m_SpawnLogic)
+			m_SpawnLogic = new SCR_MenuSpawnLogic();
+
 		HAM_ApplyDeployMenu(owner);
 		super.OnInit(owner);
 	}

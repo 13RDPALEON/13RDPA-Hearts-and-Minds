@@ -93,15 +93,15 @@ class HAM_Front
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static void Reveal(HAM_Cell cell, string reason)
+	static bool Reveal(HAM_Cell cell, string reason)
 	{
 		if (!cell || cell.m_bRevealed)
-			return;
+			return false;
 
 		if (!HAM_Mission.IsFront(cell))
 		{
 			Print(string.Format("[13RDPA H&M] Cellule %1 non révélée : elle n'est pas sur la ligne de front (%2)", cell.m_sName, reason), LogLevel.NORMAL);
-			return;
+			return false;
 		}
 
 		cell.m_bRevealed = true;
@@ -109,6 +109,7 @@ class HAM_Front
 		HAM_Mission.Notify("Renseignement", string.Format("Zone découverte : %1 (%2).", cell.m_sName, cell.TypeLabel()), 8);
 		Print(string.Format("[13RDPA H&M] Cellule %1 révélée : %2", cell.m_sName, reason), LogLevel.NORMAL);
 		HAM_Intel.OnCellRevealed(cell);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -117,15 +118,16 @@ class HAM_Front
 	{
 		HAM_Cell best;
 		float bestSq = float.MAX;
-		array<HAM_Cell> candidates = {};
 		foreach (HAM_Cell cell : HAM_Mission.s_aCells)
 		{
-			if (cell.m_bRevealed || !HAM_Mission.IsFront(cell))
+			if (!cell || cell.m_bRevealed || !HAM_Mission.IsFront(cell))
 				continue;
 
-			candidates.Insert(cell);
 			if (!useNear)
-				continue;
+			{
+				best = cell;
+				break;
+			}
 
 			float distSq = vector.DistanceSqXZ(cell.Pos(), near);
 			if (distSq < bestSq)
@@ -135,13 +137,12 @@ class HAM_Front
 			}
 		}
 
-		if (candidates.IsEmpty())
+		if (!best)
 			return null;
 
-		if (!best)
-			best = candidates.GetRandomElement();
+		if (!Reveal(best, reason))
+			return null;
 
-		Reveal(best, reason);
 		return best;
 	}
 
@@ -393,16 +394,16 @@ class HAM_Front
 			cell.m_bRevealed = true;
 			cell.m_fCapturedAt = point.m_fCapturedAt;
 			cell.m_Stock.Clear();
-			cell.m_Stock.Add(HAM_EResource.WATER, 100);
-			cell.m_Stock.Add(HAM_EResource.FOOD, 100);
-			cell.m_Stock.Add(HAM_EResource.AMMO, 100);
+			cell.m_Stock.Add(HAM_EResource.WATER, settings.m_iMasterWater);
+			cell.m_Stock.Add(HAM_EResource.FOOD, settings.m_iMasterFood);
+			cell.m_Stock.Add(HAM_EResource.AMMO, settings.m_iMasterAmmo);
 			if (point.m_Def.m_eType == HAM_EMasterType.CAMP)
-				cell.m_Stock.Add(HAM_EResource.MEN, HAM_MasterBases.CampMen());
+				HAM_Credit.CreditCamp(point.m_Def.m_sName, cell.m_sName, HAM_MasterBases.CampMen(), "prise de camp");
 
 			foreach (HAM_Point held : cell.m_aSlaves)
 			{
 				if (held.m_bPlayer && held.m_Def.m_eType == HAM_EMasterType.CAMP)
-					cell.m_Stock.Add(HAM_EResource.MEN, HAM_MasterBases.CampMen());
+					HAM_Credit.CreditCamp(held.m_Def.m_sName, cell.m_sName, HAM_MasterBases.CampMen(), "camp déjà tenu");
 			}
 
 			cell.m_fGraceLeft = settings.m_fGraceMinutes * 60;
@@ -420,7 +421,7 @@ class HAM_Front
 			string taken = string.Format("%1 (%2) est aux joueurs.", point.m_Def.m_sName, cell.m_sName);
 			if (point.m_Def.m_eType == HAM_EMasterType.CAMP)
 			{
-				cell.m_Stock.Add(HAM_EResource.MEN, HAM_MasterBases.CampMen());
+				HAM_Credit.CreditCamp(point.m_Def.m_sName, cell.m_sName, HAM_MasterBases.CampMen(), "prise de camp");
 				taken = string.Format("%1 (%2) est aux joueurs. La caserne verse %3 hommes.", point.m_Def.m_sName, cell.m_sName, HAM_MasterBases.CampMen());
 			}
 
@@ -438,7 +439,7 @@ class HAM_Front
 
 		Print(string.Format("[13RDPA H&M] Point %1 pris (cellule %2)", point.m_Def.m_sName, cell.m_sName), LogLevel.NORMAL);
 		HAM_RadioLink.ScheduleAnswer();
-		HAM_Mission.AddLocalRep(cell, settings.m_iRepLocalCaptureBonus);
+		HAM_Mission.AddGlobalRep(settings.m_iRepLocalCaptureBonus, "point pris");
 		HAM_Mission.RefreshZoneProps(cell);
 		HAM_Mission.RefreshMatchScore();
 		HAM_Mission.MarkDirty();
@@ -506,6 +507,7 @@ class HAM_Front
 		Print(string.Format("[13RDPA H&M] Cellule %1 perdue : %2", cell.m_sName, reason), LogLevel.NORMAL);
 		HAM_Mission.MarkDirty();
 		HAM_Mission.SaveNow();
+		HAM_Credit.CheckDefeat();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -523,7 +525,7 @@ class HAM_Front
 		point.m_fCapturedAt = -1;
 		HAM_MasterBases.AdoptSlave(point, false);
 		if (cell && point.m_Def.m_eType == HAM_EMasterType.CAMP)
-			cell.m_Stock.Add(HAM_EResource.MEN, -HAM_MasterBases.CampMen());
+			HAM_Credit.ReclaimCamp(point);
 
 		HAM_Garrison.OnSlaveLost(point);
 		HAM_SideMissions.OnCellChanged(cell);
@@ -533,5 +535,6 @@ class HAM_Front
 		Print(string.Format("[13RDPA H&M] Point %1 perdu : %2", point.m_Def.m_sName, reason), LogLevel.NORMAL);
 		HAM_Mission.MarkDirty();
 		HAM_Mission.SaveNow();
+		HAM_Credit.CheckDefeat();
 	}
 }

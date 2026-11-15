@@ -19,8 +19,8 @@ class HAM_CivilianDialog : SCR_ConfigurableDialogUi
 		{
 			m_bAnswered = true;
 			m_bPay = true;
-			SetMessage("« Je n'ai rien vu, mais je peux vous aider si vous payez. Cent ressources. »");
-			SetConfirm("Payer 100 ressources", true);
+			SetMessage("« Je n'ai rien vu, mais je peux vous aider si vous payez. »");
+			SetConfirm("Payer", true);
 		}
 		else
 		{
@@ -66,7 +66,7 @@ class HAM_CivilianDialog : SCR_ConfigurableDialogUi
 		if (canPay)
 		{
 			if (confirm.IsEmpty())
-				confirm = "Payer 100 ressources";
+				confirm = "Payer";
 
 			SetConfirm(confirm, true);
 		}

@@ -243,7 +243,6 @@ class HAM_Cell
 	bool m_bTouchesHq;
 	bool m_bEnemyHq;
 	bool m_bRevealed;
-	int m_iLocalRep;
 	ref HAM_Stock m_Stock = new HAM_Stock();
 	float m_fGraceLeft = -1;
 	float m_fCycleLeft;

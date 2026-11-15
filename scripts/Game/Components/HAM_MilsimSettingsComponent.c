@@ -386,7 +386,7 @@ class HAM_MilsimSettingsComponent : ScriptComponent
     void HAM_GMSetNoMinimumRank(bool v)           { m_bTRN_NoMinimumRank = v;           HAM_SettingChanged(); }
     void HAM_GMSetStealthGM(bool v)               { m_bTRN_StealthGM = v;               HAM_SettingChanged(); }
     void HAM_GMSetNameTagMaxDistance(float v)     { m_fTRN_NameTagMaxDistance = v;      HAM_SettingChanged(); }
-    //! Revenu automatique coupé hors dépôts vanilla. Les dépôts restent à 10 toutes les 600 s.
+    //! Revenu automatique coupé hors dépôts vanilla. Les dépôts restent à 10 toutes les 30 s.
     //! Le chargement d'un camion n'est pas concerné.
     void HAM_FreezeSupplyRegen()
     {
@@ -396,7 +396,7 @@ class HAM_MilsimSettingsComponent : ScriptComponent
         m_bTRN_NoSupplyRegenBases = true;
         m_bTRN_NoSupplyRegenDepots = false;
         m_fTRN_DepotRegenAmount = 10;
-        m_fTRN_DepotRegenTickrate = 600;
+        m_fTRN_DepotRegenTickrate = 30;
         m_bSilentGmNote = true;
         HAM_SettingChanged();
         m_bSilentGmNote = false;

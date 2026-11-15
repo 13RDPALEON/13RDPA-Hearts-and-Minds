@@ -449,13 +449,18 @@ class HAM_ArsenalBoardStore
 			return;
 		}
 
-		string chunk = "!|";
-		int count = 0;
+		// Copie : sur l'hôte, le RPC du premier paquet réécrit s_aHidden pendant ce parcours.
+		array<string> listed = {};
 		foreach (string prefab : s_aHidden)
 		{
-			if (prefab.IsEmpty())
-				continue;
+			if (!prefab.IsEmpty())
+				listed.Insert(prefab);
+		}
 
+		string chunk = "!|";
+		int count = 0;
+		foreach (string prefab : listed)
+		{
 			if (count >= 20)
 			{
 				player.HAM_ArsenalBoardSyncHidden(chunk);
@@ -548,6 +553,10 @@ class HAM_ArsenalBoardStore
 
 	static void ApplyHiddenPack(string pack)
 	{
+		// Le serveur a déjà la liste. Sur l'hôte le RPC revient ici et la vidait en cours d'envoi.
+		if (Replication.IsServer())
+			return;
+
 		s_bLoaded = true;
 		bool reset = true;
 		if (pack.IndexOf("*|") == 0)
@@ -595,6 +604,9 @@ class HAM_ArsenalBoardStore
 
 	static void ApplyParamsPack(string costs, string ranks, string bags)
 	{
+		if (Replication.IsServer())
+			return;
+
 		s_bLoaded = true;
 		s_aCostPrefab = {};
 		s_aCostValue = {};

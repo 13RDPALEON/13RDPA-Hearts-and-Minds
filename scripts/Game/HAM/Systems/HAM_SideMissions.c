@@ -416,8 +416,14 @@ class HAM_SideMissions
 		Ensure();
 		foreach (HAM_SideMission mission : s_aMissions)
 		{
-			if (mission.m_eKind == kind)
-				return mission;
+			if (!mission || mission.m_eKind != kind)
+				continue;
+
+			// Le sauvetage de famille est un otage sans ligne de tableau : il ne bloque pas l'Otage du tableau.
+			if (mission.m_bNoReward)
+				continue;
+
+			return mission;
 		}
 
 		return null;
@@ -1124,8 +1130,8 @@ class HAM_SideMissions
 			EndTask(mission, SCR_ETaskState.COMPLETED);
 			if (mission.m_bNoReward)
 				HAM_Mission.Notify("Famille", "La personne est libre.", 8);
-			else
-				Reward(mission);
+
+			Reward(mission);
 		}
 		else
 		{
@@ -1142,30 +1148,62 @@ class HAM_SideMissions
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Fournitures au QG désigné, et un versement d'eau, de nourriture ou de munitions à la base qui a lancé.
+	//! Chaque type a sa récompense. Les fournitures vont au QG désigné, les hommes au QG de départ.
 	protected static void Reward(HAM_SideMission mission)
 	{
 		HAM_Settings settings = HAM_Settings.Get();
-		HAM_Mission.PaySupplies(settings.m_iMissionRewardSupplies, "mission " + KindName(mission.m_eKind));
-
-		string baseName = mission.m_sBase;
-		if (!HAM_Mission.IsAlliedBase(baseName))
-			baseName = HAM_Mission.HQ_NAME;
-
-		HAM_Stock stock = HAM_Mission.StockOf(baseName);
-		HAM_EResource resource = Math.RandomInt(0, 3);
-		if (stock)
+		int supplies = 0;
+		int men = 0;
+		int reputation = 0;
+		switch (mission.m_eKind)
 		{
-			stock.Add(resource, settings.m_fMissionRewardResource);
-			HAM_Mission.RefreshBaseProp(baseName);
-			HAM_Cell cell = HAM_Mission.FindCell(baseName);
-			if (cell)
-				HAM_Logistics.CheckHold(cell);
+			case HAM_EMissionKind.TOWER:
+				supplies = settings.m_iMissionTowerSupplies;
+				reputation = settings.m_iMissionTowerRep;
+				break;
+			case HAM_EMissionKind.CHECKPOINT:
+				supplies = settings.m_iMissionCheckpointSupplies;
+				reputation = settings.m_iMissionCheckpointRep;
+				break;
+			case HAM_EMissionKind.OFFICER:
+				men = settings.m_iMissionOfficerMen;
+				reputation = settings.m_iMissionOfficerRep;
+				break;
+			case HAM_EMissionKind.HOSTAGE:
+				men = settings.m_iMissionHostageMen;
+				supplies = settings.m_iMissionHostageSupplies;
+				reputation = settings.m_iMissionHostageRep;
+				break;
+			case HAM_EMissionKind.CACHE:
+				supplies = settings.m_iMissionCacheSupplies;
+				reputation = settings.m_iMissionCacheRep;
+				break;
+			case HAM_EMissionKind.IED:
+				men = settings.m_iMissionIedMen;
+				reputation = settings.m_iMissionIedRep;
+				break;
 		}
 
-		HAM_Mission.AddGlobalRep(settings.m_iRepMissionBonus, "mission réussie");
+		string kind = KindName(mission.m_eKind);
+		string reason = "mission " + kind;
+		if (supplies > 0)
+			HAM_Credit.CreditConflict(HAM_Mission.DesignatedHq(), supplies, reason);
+
+		if (men > 0)
+			HAM_Credit.CreditMen(HAM_Mission.HQ_NAME, men, reason);
+
+		HAM_Mission.AddGlobalRep(reputation, "mission réussie");
 		HAM_Mission.MarkDirty();
-		HAM_Mission.Notify("Mission réussie", string.Format("%1 (%2) : +%3 fournitures au QG, +%4 %5 à %6.", KindName(mission.m_eKind), mission.m_sZone, settings.m_iMissionRewardSupplies, HAM_Util.FormatInt(settings.m_fMissionRewardResource), HAM_Stock.Label(resource), baseName), 12);
+		string text = string.Format("%1 (%2) : réputation +%3.", kind, mission.m_sZone, reputation);
+		if (supplies > 0)
+			text = string.Format("%1 (%2) : +%3 fournitures au QG, réputation +%4.", kind, mission.m_sZone, supplies, reputation);
+
+		if (men > 0 && supplies > 0)
+			text = string.Format("%1 (%2) : +%3 hommes au QG de départ, +%4 fournitures au QG, réputation +%5.", kind, mission.m_sZone, men, supplies, reputation);
+		else if (men > 0)
+			text = string.Format("%1 (%2) : +%3 hommes au QG de départ, réputation +%4.", kind, mission.m_sZone, men, reputation);
+
+		HAM_Mission.Notify("Mission réussie", text, 12);
 	}
 
 	//------------------------------------------------------------------------------------------------

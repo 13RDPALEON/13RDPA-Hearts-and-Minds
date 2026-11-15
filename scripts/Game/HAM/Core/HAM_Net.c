@@ -447,6 +447,21 @@ class HAM_Net
 	}
 
 	//------------------------------------------------------------------------------------------------
+	static void ResetSession()
+	{
+		s_mSyncTries = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void ResetSyncTries(int playerId)
+	{
+		if (playerId <= 0 || !s_mSyncTries)
+			return;
+
+		s_mSyncTries.Set(playerId, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static void BroadcastState()
 	{
 		PlayerManager players = GetGame().GetPlayerManager();
@@ -457,7 +472,7 @@ class HAM_Net
 		players.GetPlayers(ids);
 		foreach (int playerId : ids)
 		{
-			SyncPlayer(playerId);
+			SyncPlayerNow(playerId);
 		}
 	}
 
@@ -851,7 +866,13 @@ modded class SCR_PlayerController
 	//! Tableau : demande des données de la base où le tableau est posé.
 	void HAM_AskBoard(RplId boardId)
 	{
-		Rpc(HAM_RpcAskBoard, boardId);
+		if (!Replication.IsServer())
+		{
+			Rpc(HAM_RpcAskBoard, boardId);
+			return;
+		}
+
+		HAM_BoardServer.SendBoard(GetPlayerId(), boardId);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -864,7 +885,13 @@ modded class SCR_PlayerController
 	//------------------------------------------------------------------------------------------------
 	void HAM_AskBoardAction(RplId boardId, int operation, string target, int kindA, int kindB, float amount)
 	{
-		Rpc(HAM_RpcAskBoardAction, boardId, operation, target, kindA, kindB, amount);
+		if (!Replication.IsServer())
+		{
+			Rpc(HAM_RpcAskBoardAction, boardId, operation, target, kindA, kindB, amount);
+			return;
+		}
+
+		HAM_BoardServer.DoAction(GetPlayerId(), boardId, operation, target, kindA, kindB, amount);
 	}
 
 	//------------------------------------------------------------------------------------------------

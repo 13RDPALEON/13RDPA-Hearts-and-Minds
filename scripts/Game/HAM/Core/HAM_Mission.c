@@ -44,9 +44,19 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 		super.OnPlayerConnected(playerId);
 		if (Replication.IsServer())
 		{
+			HAM_Net.ResetSyncTries(playerId);
 			GetGame().GetCallqueue().CallLater(HAM_Net.SyncPlayer, 1000, false, playerId);
 			HAM_RadioLink.ScheduleReconnect(playerId);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
+	{
+		if (Replication.IsServer())
+			HAM_Credit.RefundSpawn(playerId);
+
+		super.OnPlayerDisconnected(playerId, cause, timeout);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -60,7 +70,13 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 
 		int playerId = instigatorContextData.GetVictimPlayerID();
 		if (playerId > 0)
+		{
 			HAM_ParadropComponent.Abandon(playerId, instigatorContextData.GetVictimEntity());
+			bool removed = instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.DELETED);
+			bool edited = instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.DELETED_BY_EDITOR);
+			if (!removed && !edited)
+				HAM_Credit.NoteDied(playerId);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -107,6 +123,7 @@ class HAM_Mission
 	protected static HAM_MissionComponent s_Component;
 	protected static bool s_bBooted;
 	protected static bool s_bRunning;
+	protected static bool s_bLoopsArmed;
 	protected static bool s_bEnded;
 	protected static bool s_bClientsDirty;
 	protected static bool s_bSaveDirty;
@@ -121,6 +138,7 @@ class HAM_Mission
 	static ref array<ref HAM_Line> s_aLines;
 	static HAM_MapPoint s_HqPoint;
 	static ref HAM_Stock s_HqStock;
+	static float s_fHqCycleLeft;
 	static SCR_CampaignMilitaryBaseComponent s_HqBase;
 	static SCR_CampaignMilitaryBaseComponent s_EnemyHqBase;
 	static string s_sDesignatedHq = "QG";
@@ -129,6 +147,7 @@ class HAM_Mission
 	static ref array<int> s_aPlayerIds;
 	static ref array<IEntity> s_aPlayerBodies;
 	protected static ref array<IEntity> s_aSupplyArmPending;
+	protected static ref array<string> s_aReassertQueued;
 	protected static bool s_bArmingSupply;
 
 	//------------------------------------------------------------------------------------------------
@@ -147,10 +166,23 @@ class HAM_Mission
 	//------------------------------------------------------------------------------------------------
 	protected static void ResetSession()
 	{
-		GetGame().GetCallqueue().Remove(Tick);
-		GetGame().GetCallqueue().Remove(SlowTick);
+		ScriptCallQueue queue = GetGame().GetCallqueue();
+		queue.Remove(Boot);
+		queue.Remove(WaitConflict);
+		queue.Remove(Tick);
+		queue.Remove(SlowTick);
+		queue.Remove(RefreshLoadedStocks);
+		queue.Remove(ArmVanillaCacheLater);
+		queue.Remove(ReassertVanillaSupplyLater);
+		queue.Remove(HAM_SideMissions.DropPersisted);
+		queue.Remove(HAM_VehiclePersist.Apply);
+		queue.Remove(HAM_VehiclePersist.ScanHq);
+		queue.Remove(HAM_Save.SpawnBuilt);
+		queue.Remove(HAM_Save.ApplyBaseSupplies);
+		queue.Remove(HAM_Save.ApplyCampaignSupplies);
 		s_bBooted = false;
 		s_bRunning = false;
+		s_bLoopsArmed = false;
 		s_bEnded = false;
 		s_bClientsDirty = false;
 		s_bSaveDirty = false;
@@ -161,12 +193,18 @@ class HAM_Mission
 		s_aLines = null;
 		s_HqPoint = null;
 		s_HqStock = null;
+		s_fHqCycleLeft = 0;
 		s_HqBase = null;
 		s_EnemyHqBase = null;
 		s_sDesignatedHq = HQ_NAME;
 		s_bTriSeeded = false;
 		s_aSupplyArmPending = null;
+		s_aReassertQueued = null;
 		s_bArmingSupply = false;
+		SCR_BaseGameMode mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		if (mode)
+			mode.GetOnPlayerSpawned().Remove(HAM_OnPlayerSpawned);
+
 		HAM_Settings.Reload();
 		HAM_Front.ResetSession();
 		HAM_Garrison.ResetSession();
@@ -178,6 +216,10 @@ class HAM_Mission
 		HAM_Intel.ResetSession();
 		HAM_SideMissions.ResetSession();
 		HAM_Hospital.ResetSession();
+		HAM_Credit.ResetSession();
+		HAM_SupplyWatch.ResetSession();
+		HAM_RadioLink.ResetSession();
+		HAM_Net.ResetSession();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -200,6 +242,12 @@ class HAM_Mission
 	static bool IsRunning()
 	{
 		return s_bRunning && !s_bEnded;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool HasEnded()
+	{
+		return s_bEnded;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -232,6 +280,9 @@ class HAM_Mission
 	//------------------------------------------------------------------------------------------------
 	protected static void Start()
 	{
+		if (s_bRunning)
+			return;
+
 		string key = s_Component.GetMapKey();
 		s_Map = new HAM_MapDef();
 		if (!HAM_MapRegistry.Build(key, s_Map))
@@ -276,22 +327,33 @@ class HAM_Mission
 		GetGame().GetCallqueue().CallLater(RefreshLoadedStocks, 2000, false);
 
 		s_bRunning = true;
-		SCR_BaseGameMode mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		if (mode)
-			mode.GetOnPlayerSpawned().Insert(HAM_OnPlayerSpawned);
-
 		s_fLastSave = HAM_Util.Now();
 		s_aPlayerIds = {};
 		s_aPlayerBodies = {};
 		MarkClientsDirty();
 		GetGame().GetCallqueue().CallLater(HAM_VehiclePersist.Apply, 4000, false);
 		GetGame().GetCallqueue().CallLater(HAM_VehiclePersist.ScanHq, 8000, false);
-
-		GetGame().GetCallqueue().CallLater(Tick, TICK_MS, true);
-		GetGame().GetCallqueue().CallLater(SlowTick, SLOW_TICK_MS, true);
+		ArmSessionLoops();
 		HAM_RadioLink.ScheduleAnswer();
 		RefreshMatchScore();
 		Print(string.Format("[13RDPA H&M] Front démarré sur %1 : %2 cellules, %3 points, %4 dépôts, %5 lignes", key, s_aCells.Count(), s_aPoints.Count(), s_aDeposits.Count(), s_aLines.Count()), LogLevel.NORMAL);
+		HAM_Credit.CheckDefeat();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Un WaitConflict en retard ne doit pas réinscrire la boucle ni l'apparition.
+	protected static void ArmSessionLoops()
+	{
+		if (s_bLoopsArmed)
+			return;
+
+		SCR_BaseGameMode mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		if (mode)
+			mode.GetOnPlayerSpawned().Insert(HAM_OnPlayerSpawned);
+
+		GetGame().GetCallqueue().CallLater(Tick, TICK_MS, true);
+		GetGame().GetCallqueue().CallLater(SlowTick, SLOW_TICK_MS, true);
+		s_bLoopsArmed = true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -317,6 +379,8 @@ class HAM_Mission
 		s_HqStock.m_fFood = 200;
 		s_HqStock.m_fAmmo = 200;
 		HAM_Settings settings = HAM_Settings.Get();
+		s_HqStock.m_iMen = settings.m_iHqStartMen;
+		s_fHqCycleLeft = settings.m_fCycleMinutes * 60;
 		s_fGlobalRep = settings.m_iRepStart;
 
 		foreach (HAM_MapPoint masterDef : s_Map.m_aPoints)
@@ -926,6 +990,52 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Même délai que les stocks de base : 6 s puis 14 s après l'armement du dépôt.
+	protected static void ScheduleVanillaReassert(IEntity cache)
+	{
+		if (!cache || !GetGame() || !GetGame().GetCallqueue())
+			return;
+
+		string supplyName = SupplyPointName(cache);
+		if (supplyName.IsEmpty())
+			return;
+
+		if (!s_aReassertQueued)
+			s_aReassertQueued = {};
+
+		if (s_aReassertQueued.Contains(supplyName))
+			return;
+
+		s_aReassertQueued.Insert(supplyName);
+		GetGame().GetCallqueue().CallLater(ReassertVanillaSupplyLater, 6000, false, cache, supplyName, 0);
+		GetGame().GetCallqueue().CallLater(ReassertVanillaSupplyLater, 14000, false, cache, supplyName, 1);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReassertVanillaSupplyLater(IEntity cache, string supplyName, int pass)
+	{
+		if (cache)
+			ReassertVanillaSupply(cache);
+
+		if (pass < 1)
+			return;
+
+		HAM_Save.MarkSupplyReasserted(supplyName);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void FinishSupplyArm(IEntity cache, string supplyName, bool haveSaved)
+	{
+		if (haveSaved)
+		{
+			ScheduleVanillaReassert(cache);
+			return;
+		}
+
+		HAM_Save.MarkSupplyReasserted(supplyName);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static bool SupplyBoxesReady(SCR_ResourceContainer stock, SCR_ResourceEncapsulator enc)
 	{
 		if (!stock)
@@ -979,6 +1089,7 @@ class HAM_Mission
 			}
 
 			HAM_SupplyWatch.Arm(cache);
+			FinishSupplyArm(cache, supplyName, haveSaved);
 			DropSupplyArm(cache);
 			return;
 		}
@@ -1033,6 +1144,7 @@ class HAM_Mission
 			HAM_Save.RememberSupply(supplyName, live);
 			HAM_Save.MarkSupplyArmed(supplyName);
 			s_fSupplyArmedAt = HAM_Util.Now();
+			FinishSupplyArm(cache, supplyName, haveSaved);
 			DropSupplyArm(cache);
 			string regen = "arrêtée";
 			if (!HAM_MilsimSettingsComponent.HAM_NoSupplyRegenDepots() && HAM_MilsimSettingsComponent.HAM_DepotRegenAmount() > 0)
@@ -1054,6 +1166,7 @@ class HAM_Mission
 			HAM_Save.MarkSupplyArmed(supplyName);
 		}
 
+		FinishSupplyArm(cache, supplyName, haveSaved);
 		HAM_SupplyWatch.Arm(cache);
 		DropSupplyArm(cache);
 	}
@@ -1085,6 +1198,29 @@ class HAM_Mission
 		}
 
 		return nearestName;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool SupplyLooksLikePrefabMax(string name, float value)
+	{
+		if (name.IsEmpty() || !s_aPoints)
+			return false;
+
+		foreach (HAM_Point point : s_aPoints)
+		{
+			if (!point || !point.m_Def || point.m_Def.m_sName != name || point.m_Def.m_eType != HAM_EMasterType.SUPPLY_VANILLA || !point.m_Prop)
+				continue;
+
+			int live;
+			int maxValue;
+			VanillaSupplyStock(point.m_Prop, live, maxValue);
+			if (maxValue <= 0)
+				return false;
+
+			return value + 1 >= maxValue;
+		}
+
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1387,7 +1523,9 @@ class HAM_Mission
 			float saved;
 			bool haveSaved = HAM_Save.SupplyAmount(point.m_Def.m_sName, saved);
 			float live = value;
-			if (haveSaved && HAM_Util.Now() - s_fSupplyArmedAt < 20 && maxValue > 0 && live + 1 >= maxValue && saved + 50 < maxValue)
+			bool prefabJump = haveSaved && maxValue > 0 && live + 1 >= maxValue && saved + 50 < maxValue;
+			bool beforeReassert = !HAM_Save.SupplyReasserted(point.m_Def.m_sName);
+			if (prefabJump && (beforeReassert || HAM_Util.Now() - s_fSupplyArmedAt < 20))
 			{
 				IEntity storage = FindSupplyStorage(point.m_Prop);
 				if (!storage)
@@ -1525,6 +1663,7 @@ class HAM_Mission
 		HAM_RadioLink.ScheduleAnswer();
 		HAM_RadioLink.ScheduleReconnect(playerId);
 		HAM_Net.SyncPlayerNow(playerId);
+		HAM_Credit.OnBody(playerId);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1811,28 +1950,18 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! +1000 dans un dépôt vanilla du maître capturé, sinon au QG de départ. N'efface pas un stock.
+	//! Fournitures Conflit sur le dépôt vanilla du maître. Le surplus suit le report, sans versement direct au QG.
 	static void PourMasterSupplies(HAM_Cell cell)
 	{
 		if (!cell)
 			return;
 
-		bool poured = false;
-		SCR_CampaignMilitaryBaseComponent base = FindBaseNear(cell.Pos(), 120);
-		if (base && base.GetOwner())
-		{
-			HAM_MasterLinkComponent link = HAM_MasterLinkComponent.Cast(base.GetOwner().FindComponent(HAM_MasterLinkComponent));
-			if (link)
-				poured = link.PourOwnedSupplies(1000);
-		}
-
-		if (poured)
-		{
-			Print(string.Format("[13RDPA H&M] +1000 fournitures au dépôt de %1", cell.m_sName), LogLevel.NORMAL);
+		int amount = HAM_Settings.Get().m_iMasterSupplies;
+		if (amount <= 0)
 			return;
-		}
 
-		GrantStartingHqSupplies(1000, "prise de " + cell.m_sName);
+		HAM_Credit.CreditMasterDepot(cell, amount, "prise de " + cell.m_sName);
+		Print(string.Format("[13RDPA H&M] Fournitures de prise versées sur le dépôt de %1", cell.m_sName), LogLevel.NORMAL);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1916,17 +2045,6 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static void AddLocalRep(HAM_Cell cell, int delta)
-	{
-		if (!cell || delta == 0)
-			return;
-
-		HAM_Settings settings = HAM_Settings.Get();
-		cell.m_iLocalRep = Math.Clamp(cell.m_iLocalRep + delta, settings.m_iRepMin, settings.m_iRepMax);
-		MarkDirty();
-	}
-
-	//------------------------------------------------------------------------------------------------
 	static void Notify(string title, string message, int seconds = 8)
 	{
 		HAM_Net.NotifyAll(title, message, seconds);
@@ -1951,6 +2069,26 @@ class HAM_Mission
 
 		campaign.HAM_EndWithVictory(factions.GetFactionIndex(playerFaction));
 	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Fin de partie : plus aucun homme disponible.
+	static void Defeat()
+	{
+		if (s_bEnded)
+			return;
+
+		s_bEnded = true;
+		SaveImmediate();
+		Notify("Échec de la mission", "Il ne reste plus aucun homme. La campagne est perdue.", 20);
+
+		SCR_GameModeCampaign campaign = SCR_GameModeCampaign.GetInstance();
+		FactionManager factions = GetGame().GetFactionManager();
+		Faction enemyFaction = HAM_Util.FactionByKey(HAM_Units.ENEMY_FACTION);
+		if (!campaign || !factions || !enemyFaction)
+			return;
+
+		campaign.HAM_EndWithVictory(factions.GetFactionIndex(enemyFaction));
+	}
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1963,6 +2101,16 @@ class HAM_SupplyWatch
 	protected static ref array<IEntity> s_aCaches;
 	protected static bool s_bPulse;
 
+	static void ResetSession()
+	{
+		if (GetGame() && GetGame().GetCallqueue())
+			GetGame().GetCallqueue().Remove(Pulse);
+
+		s_bPulse = false;
+		s_aCaches = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static void Arm(IEntity cache)
 	{
 		if (!cache)
@@ -1979,7 +2127,7 @@ class HAM_SupplyWatch
 			return;
 
 		s_bPulse = true;
-		GetGame().GetCallqueue().CallLater(Pulse, 20000, true);
+		GetGame().GetCallqueue().CallLater(Pulse, 30000, true);
 	}
 
 	static void Tick()
@@ -1987,7 +2135,7 @@ class HAM_SupplyWatch
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! 10 fournitures toutes les 20 s, seulement sous le plafond, seulement sur un dépôt vanilla.
+	//! 10 fournitures toutes les 30 s, seulement sous le plafond, seulement sur un dépôt vanilla.
 	protected static void Pulse()
 	{
 		if (!HAM_Mission.IsRunning() || !s_aCaches)

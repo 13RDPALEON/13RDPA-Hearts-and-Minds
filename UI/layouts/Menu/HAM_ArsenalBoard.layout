@@ -384,7 +384,7 @@ FrameWidgetClass {
      Slot FrameWidgetSlot {
       Anchor 0 0 0 0
       OffsetLeft 16
-      OffsetTop 588
+      OffsetTop 620
       SizeX 848
       SizeY 36
      }
@@ -403,11 +403,34 @@ FrameWidgetClass {
      }
     }
     ButtonWidgetClass {
+     Name "MultiBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 440
+      OffsetTop 620
+      SizeX 420
+      SizeY 36
+     }
+     Color 0.18 0.22 0.34 1
+     {
+      TextWidgetClass {
+       Name "MultiText"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Sélection multiple"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
      Name "Prev"
      Slot FrameWidgetSlot {
       Anchor 0 0 0 0
       OffsetLeft 16
-      OffsetTop 632
+      OffsetTop 660
       SizeX 150
       SizeY 36
      }
@@ -429,7 +452,7 @@ FrameWidgetClass {
      Slot FrameWidgetSlot {
       Anchor 0 0 0 0
       OffsetLeft 186
-      OffsetTop 632
+      OffsetTop 660
       SizeX 150
       SizeY 36
      }
@@ -711,7 +734,7 @@ FrameWidgetClass {
      Slot FrameWidgetSlot {
       Anchor 0 0 0 0
       OffsetLeft 354
-      OffsetTop 632
+      OffsetTop 660
       SizeX 150
       SizeY 36
      }

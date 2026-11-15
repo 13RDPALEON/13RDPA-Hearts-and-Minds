@@ -2194,7 +2194,7 @@ $grp GenericEntity : "{7E42BC76C7DD77DA}Prefabs/HAM/Bases/HAM_HQBase.et" {
     "Encryption key" "coldBorscht"
     Transceivers {
      RelayTransceiver "{5C669673E8C94083}" {
-      "Transmitting Range" 500
+      "Transmitting Range" 3000
      }
     }
    }
@@ -2212,6 +2212,11 @@ $grp GenericEntity : "{7E42BC76C7DD77DA}Prefabs/HAM/Bases/HAM_HQBase.et" {
   components {
    SCR_CoverageRadioComponent "{5C669673C2A82A2B}" {
     "Encryption key" "chickenNuggets"
+    Transceivers {
+     RelayTransceiver "{5C669673E8C94083}" {
+      "Transmitting Range" 3000
+     }
+    }
    }
    SCR_FactionAffiliationComponent "{5AFC974A2595F05D}" {
     "faction affiliation" "US"

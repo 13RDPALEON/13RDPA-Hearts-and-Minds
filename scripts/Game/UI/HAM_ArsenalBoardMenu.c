@@ -247,12 +247,16 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 	protected HAM_EArsenalBoardMode m_eMode;
 	protected string m_sSearch;
 	protected int m_iPage;
+	protected int m_iVisibleRows;
 	protected int m_iCategory;
 	protected bool m_bDetail;
 	protected string m_sDetailPrefab;
 	protected string m_sListPrefab;
 	protected int m_iListIndex;
 	protected bool m_bSelectAll;
+	protected bool m_bMultiSelect;
+	protected bool m_bHoldPreview;
+	protected ref array<int> m_aPicked;
 	protected int m_iRankIndex;
 	protected bool m_bDetailIsBag;
 	protected ref array<string> m_aPrefab;
@@ -270,11 +274,13 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		m_sSearch = string.Empty;
 		m_iListIndex = -1;
 		m_iPage = 0;
+		m_iVisibleRows = PAGE_SIZE;
 		m_iCategory = 0;
 		m_bDetail = false;
 		m_aPrefab = {};
 		m_aLabel = {};
 		m_aShown = {};
+		m_aPicked = {};
 		m_aItems = {};
 		m_aRanks = {};
 		m_aCatNames = {};
@@ -350,8 +356,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 		float listTop = 172;
 		float rowH = 40;
-		float footer = 100;
-		float avail = panelH - listTop - footer;
+		float selectAllY = panelH - 92;
+		float listBottom = selectAllY - 8;
+		float avail = listBottom - listTop;
+		if (avail < 1)
+			avail = 1;
+
 		float fitH = avail / PAGE_SIZE;
 		if (fitH < rowH)
 			rowH = fitH;
@@ -359,13 +369,48 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		if (rowH < 28)
 			rowH = 28;
 
+		if (rowH > avail)
+			rowH = avail;
+
+		// Le plancher de 28 px ne doit pas recouvrir Tout sélectionner.
+		int visible = PAGE_SIZE;
+		while (visible > 1 && rowH * visible > avail)
+			visible = visible - 1;
+
+		int placed = 0;
 		for (int row = 0; row < PAGE_SIZE; row++)
 		{
-			Place("Item" + row.ToString(), 16, listTop + row * rowH, listW, rowH - 4);
-			BindButton("Item" + row.ToString());
+			string rowName = "Item" + row.ToString();
+			float rowY = listTop + row * rowH;
+			float drawH = rowH - 4;
+			bool fits = row < visible && rowY < selectAllY;
+			if (fits && rowY + drawH > listBottom)
+				drawH = listBottom - rowY;
+
+			if (fits && (drawH < 1 || rowY + drawH > selectAllY))
+				fits = false;
+
+			if (fits)
+			{
+				Place(rowName, 16, rowY, listW, drawH);
+				SetRowClickable(rowName, true);
+				placed = placed + 1;
+			}
+			else
+			{
+				Place(rowName, 16, -100, listW, 0);
+				SetNamedVisible(rowName, false);
+				SetRowClickable(rowName, false);
+			}
+
+			BindButton(rowName);
 		}
 
-		Place("SelectAllBtn", 16, panelH - 92, listW, 36);
+		m_iVisibleRows = placed;
+
+		float halfW = (listW - 8) * 0.5;
+		Place("SelectAllBtn", 16, selectAllY, halfW, 36);
+		Place("MultiBtn", 16 + halfW + 8, selectAllY, halfW, 36);
 		Place("Prev", 16, panelH - 48, 140, 36);
 		Place("Next", 168, panelH - 48, 140, 36);
 		Place("Close", panelW - 176, panelH - 48, 150, 36);
@@ -399,6 +444,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		Place("BackBtn", cardX + 290, fieldY + 112, 120, 34);
 
 		BindButton("SelectAllBtn");
+		BindButton("MultiBtn");
 		BindButton("SearchBtn");
 		BindButton("CatPrev");
 		BindButton("CatNext");
@@ -441,7 +487,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		while (w)
 		{
 			string name = w.GetName();
-			if (name == "Close" || name == "Prev" || name == "Next" || name == "SearchBtn")
+			if (name == "Close" || name == "Prev" || name == "Next" || name == "SearchBtn" || name == "SelectAllBtn" || name == "MultiBtn")
 				return name;
 
 			if (name == "CatPrev" || name == "CatNext" || name == "SaveBtn" || name == "ResetBtn" || name == "BackBtn")
@@ -491,6 +537,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		FrameSlot.SetSize(widget, width, height);
 		widget.SetVisible(true);
 		widget.SetOpacity(1);
+		if (name == "SelectAllBtn" || name == "MultiBtn")
+			widget.SetZOrder(30);
+		else if (name == "ItemPreview")
+			widget.SetZOrder(20);
+		else if (name.IndexOf("Item") == 0)
+			widget.SetZOrder(0);
 	}
 
 	protected void BindButton(string name)
@@ -503,10 +555,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			return;
 
 		widget.AddHandler(this);
+		widget.SetFlags(WidgetFlags.CLIPCHILDREN);
 		Widget child = widget.GetChildren();
 		while (child)
 		{
 			child.SetFlags(WidgetFlags.IGNORE_CURSOR);
+			child.SetFlags(WidgetFlags.INHERIT_CLIPPING);
 			child = child.GetSibling();
 		}
 	}
@@ -571,6 +625,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			if (m_iPage > 0)
 			{
 				m_iPage = m_iPage - 1;
+				LeaveSelectionModes();
 				PaintRows();
 			}
 			return true;
@@ -580,11 +635,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		{
 			int maxPage = 0;
 			if (m_aPrefab.Count() > 0)
-				maxPage = (m_aPrefab.Count() - 1) / PAGE_SIZE;
+				maxPage = (m_aPrefab.Count() - 1) / PageRows();
 
 			if (m_iPage < maxPage)
 			{
 				m_iPage = m_iPage + 1;
+				LeaveSelectionModes();
 				PaintRows();
 			}
 			return true;
@@ -614,9 +670,43 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			if (!IsFilterMode() || m_aPrefab.IsEmpty())
 				return true;
 
+			m_bMultiSelect = false;
+			if (m_aPicked)
+				m_aPicked.Clear();
+
 			m_bSelectAll = !m_bSelectAll;
+			m_bHoldPreview = true;
 			PaintRows();
 			RefreshSelectAll();
+			RefreshMulti();
+			m_bHoldPreview = false;
+			if (!m_bSelectAll)
+				ShowListPreview();
+
+			return true;
+		}
+
+		if (name == "MultiBtn")
+		{
+			if (!IsFilterMode() || m_aPrefab.IsEmpty())
+				return true;
+
+			m_bSelectAll = false;
+			RefreshSelectAll();
+			if (m_bMultiSelect)
+			{
+				LeaveSelectionModes();
+				PaintRows();
+				return true;
+			}
+
+			m_bMultiSelect = true;
+			FillPagePicks();
+			m_bHoldPreview = true;
+			PaintRows();
+			RefreshMulti();
+			ApplyMultiPreview();
+			m_bHoldPreview = false;
 			return true;
 		}
 
@@ -638,7 +728,10 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		if (name.Length() >= 4 && name.Substring(0, 4) == "Item")
 		{
 			int local = name.Substring(4, name.Length() - 4).ToInt();
-			int index = m_iPage * PAGE_SIZE + local;
+			if (local < 0 || local >= PageRows())
+				return true;
+
+			int index = m_iPage * PageRows() + local;
 			if (index < 0 || index >= m_aPrefab.Count())
 				return false;
 
@@ -651,6 +744,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void OnRowClick(int index)
 	{
+		if (m_bMultiSelect)
+		{
+			TogglePick(index);
+			return;
+		}
+
 		string prefab = m_aPrefab[index];
 		m_sListPrefab = prefab;
 		if (!m_bDetail)
@@ -668,9 +767,20 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void ApplyFilter()
 	{
+		if (m_bMultiSelect)
+		{
+			ExcludePicked();
+			LeaveSelectionModes();
+			PaintRows();
+			return;
+		}
+
 		if (m_bSelectAll)
 		{
-			ExcludeCurrentList();
+			int start;
+			int end;
+			CurrentPage(start, end);
+			ExcludeRange(start, end);
 			m_bSelectAll = false;
 			RefreshSelectAll();
 			PaintRows();
@@ -717,42 +827,156 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Exclut toute la liste affichée, toutes pages, recherche et catégorie comprises.
-	protected void ExcludeCurrentList()
+	protected void CurrentPage(out int start, out int end)
 	{
-		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
-		for (int i = 0; i < m_aPrefab.Count(); i++)
+		int pageSize = PageRows();
+		start = m_iPage * pageSize;
+		end = start + pageSize;
+		if (start < 0)
+			start = 0;
+
+		if (end > m_aPrefab.Count())
+			end = m_aPrefab.Count();
+
+		if (start > end)
+			start = end;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FillPagePicks()
+	{
+		if (!m_aPicked)
+			m_aPicked = {};
+
+		m_aPicked.Clear();
+		int start;
+		int end;
+		CurrentPage(start, end);
+		for (int i = start; i < end; i++)
+			m_aPicked.Insert(i);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void TogglePick(int index)
+	{
+		if (!m_aPicked)
+			m_aPicked = {};
+
+		int at = m_aPicked.Find(index);
+		if (at >= 0)
+			m_aPicked.Remove(at);
+		else
+			m_aPicked.Insert(index);
+
+		m_bHoldPreview = true;
+		PaintRows();
+		m_bHoldPreview = false;
+		ApplyMultiPreview();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool IsPicked(int index)
+	{
+		return m_aPicked && m_aPicked.Find(index) >= 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void LeaveSelectionModes()
+	{
+		bool wasMulti = m_bMultiSelect;
+		m_bSelectAll = false;
+		m_bMultiSelect = false;
+		if (m_aPicked)
+			m_aPicked.Clear();
+
+		RefreshSelectAll();
+		RefreshMulti();
+		if (wasMulti)
+			ShowListPreview();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Exclut les lignes encore cochées de la page en cours.
+	protected void ExcludePicked()
+	{
+		if (!m_aPicked)
+			return;
+
+		int start;
+		int end;
+		CurrentPage(start, end);
+		foreach (int index : m_aPicked)
 		{
-			string prefab = m_aPrefab[i];
-			if (IsVehicleMode())
-			{
-				if (player)
-					player.HAM_VehicleBoardAskSetShown(prefab, false);
+			if (index < start || index >= end)
+				continue;
 
-				HAM_VehicleBoardStore.SetShown(prefab, false);
-			}
-			else
-			{
-				if (player)
-					player.HAM_ArsenalBoardAskSetShown(prefab, false);
-
-				HAM_ArsenalBoardStore.SetShown(prefab, false);
-			}
-
-			m_aShown.Set(i, 0);
-			string label = m_aLabel[i];
-			label.Replace("    Inclus", "");
-			label.Replace("    Exclus", "");
-			m_aLabel.Set(i, label + "    Exclus");
+			ExcludeAt(index);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ExcludeRange(int start, int end)
+	{
+		for (int i = start; i < end; i++)
+			ExcludeAt(i);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ExcludeAt(int index)
+	{
+		if (index < 0 || index >= m_aPrefab.Count())
+			return;
+
+		string prefab = m_aPrefab[index];
+		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (IsVehicleMode())
+		{
+			if (player)
+				player.HAM_VehicleBoardAskSetShown(prefab, false);
+
+			HAM_VehicleBoardStore.SetShown(prefab, false);
+		}
+		else
+		{
+			if (player)
+				player.HAM_ArsenalBoardAskSetShown(prefab, false);
+
+			HAM_ArsenalBoardStore.SetShown(prefab, false);
+		}
+
+		m_aShown.Set(index, 0);
+		string label = m_aLabel[index];
+		label.Replace("    Inclus", "");
+		label.Replace("    Exclus", "");
+		m_aLabel.Set(index, label + "    Exclus");
 	}
 
 	protected void RefreshSelectAll()
 	{
 		if (m_bSelectAll)
-			SetText("SelectAllText", "Liste sélectionnée");
+			SetText("SelectAllText", "Page sélectionnée");
 		else
 			SetText("SelectAllText", "Tout sélectionner");
+	}
+
+	protected void RefreshMulti()
+	{
+		if (m_bMultiSelect)
+			SetText("MultiText", "Sélection en cours");
+		else
+			SetText("MultiText", "Sélection multiple");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ApplyMultiPreview()
+	{
+		if (!m_bMultiSelect || !m_wRoot)
+			return;
+
+		SetText("DetailName", "Sélection multiple");
+		ItemPreviewWidget preview = ItemPreviewWidget.Cast(m_wRoot.FindAnyWidget("ItemPreview"));
+		if (preview)
+			preview.SetVisible(false);
 	}
 
 	protected void OpenDetail(string prefab, int index)
@@ -863,7 +1087,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			return;
 		}
 		m_bSelectAll = false;
+		m_bMultiSelect = false;
+		if (m_aPicked)
+			m_aPicked.Clear();
+
 		RefreshSelectAll();
+		RefreshMulti();
 		m_aPrefab.Clear();
 		m_aLabel.Clear();
 		m_aShown.Clear();
@@ -1072,9 +1301,21 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		}
 	}
 
+	protected int PageRows()
+	{
+		if (m_iVisibleRows < 1)
+			return 1;
+
+		if (m_iVisibleRows > PAGE_SIZE)
+			return PAGE_SIZE;
+
+		return m_iVisibleRows;
+	}
+
 	protected void PaintRows()
 	{
-		int start = m_iPage * PAGE_SIZE;
+		int pageSize = PageRows();
+		int start = m_iPage * pageSize;
 		for (int i = 0; i < PAGE_SIZE; i++)
 		{
 			int index = start + i;
@@ -1083,24 +1324,27 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			if (!btn)
 				continue;
 
-			if (index >= m_aPrefab.Count())
+			if (i >= pageSize || index >= m_aPrefab.Count())
 			{
 				btn.SetVisible(false);
+				btn.SetFlags(WidgetFlags.IGNORE_CURSOR);
 				if (label)
 					label.SetText("—");
 				continue;
 			}
 
 			btn.SetVisible(true);
+			btn.ClearFlags(WidgetFlags.IGNORE_CURSOR);
+			bool picked = m_bSelectAll || (m_bMultiSelect && IsPicked(index));
 			if (label)
 			{
-				if (m_bSelectAll)
+				if (picked)
 					label.SetText(m_aLabel[index] + "  · sélection");
 				else
 					label.SetText(m_aLabel[index]);
 			}
 
-			if (m_bSelectAll)
+			if (picked)
 				btn.SetColor(new Color(0.22, 0.28, 0.48, 1));
 			else if (IsFilterMode())
 			{
@@ -1128,11 +1372,13 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		SetNamedVisible("Prev", true);
 		SetNamedVisible("Next", true);
 		SetNamedVisible("SelectAllBtn", IsFilterMode());
+		SetNamedVisible("MultiBtn", IsFilterMode());
+		int pageSize = PageRows();
 		for (int i = 0; i < PAGE_SIZE; i++)
-			SetNamedVisible("Item" + i.ToString(), true);
+			SetNamedVisible("Item" + i.ToString(), i < pageSize);
 
 		SetNamedVisible("DetailName", true);
-		SetNamedVisible("ItemPreview", true);
+		SetNamedVisible("ItemPreview", !m_bMultiSelect);
 		SetNamedVisible("CostLabel", false);
 		SetNamedVisible("CostEdit", false);
 		SetNamedVisible("RankLabel", false);
@@ -1150,7 +1396,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void ShowListPreview()
 	{
-		if (m_bDetail)
+		if (m_bDetail || m_bMultiSelect)
 			return;
 
 		if (m_sListPrefab.IsEmpty())
@@ -1175,6 +1421,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		SetNamedVisible("Prev", false);
 		SetNamedVisible("Next", false);
 		SetNamedVisible("SelectAllBtn", false);
+		SetNamedVisible("MultiBtn", false);
 		for (int i = 0; i < PAGE_SIZE; i++)
 			SetNamedVisible("Item" + i.ToString(), false);
 
@@ -1203,8 +1450,86 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			widget.SetVisible(visible);
 	}
 
+	protected void SetRowClickable(string name, bool clickable)
+	{
+		if (!m_wRoot)
+			return;
+
+		Widget widget = m_wRoot.FindAnyWidget(name);
+		if (!widget)
+			return;
+
+		widget.SetZOrder(0);
+		if (clickable)
+			widget.ClearFlags(WidgetFlags.IGNORE_CURSOR);
+		else
+			widget.SetFlags(WidgetFlags.IGNORE_CURSOR);
+	}
+
+	protected bool IsInventoryItemPrefab(string prefab)
+	{
+		if (prefab.IsEmpty())
+			return false;
+
+		if (prefab.Contains("sélection"))
+			return false;
+
+		Resource resource = Resource.Load(prefab);
+		if (!resource || !resource.IsValid())
+			return false;
+
+		BaseContainer current = SCR_BaseContainerTools.FindEntitySource(resource);
+		if (!current)
+			return false;
+
+		int guard = 0;
+		while (current && guard < 12)
+		{
+			guard = guard + 1;
+			IEntitySource source = IEntitySource.Cast(current);
+			if (source)
+			{
+				typename entityType = source.GetClassName().ToType();
+				if (entityType)
+				{
+					if (entityType.IsInherited(Vehicle))
+						return false;
+
+					if (entityType.IsInherited(SCR_ChimeraCharacter))
+						return false;
+				}
+
+				int count = source.GetComponentCount();
+				for (int i = 0; i < count; i++)
+				{
+					IEntityComponentSource component = source.GetComponent(i);
+					if (!component)
+						continue;
+
+					typename kind = component.GetClassName().ToType();
+					if (!kind)
+						continue;
+
+					if (kind.IsInherited(CharacterControllerComponent))
+						return false;
+
+					if (kind.IsInherited(BaseCompartmentManagerComponent))
+						return false;
+				}
+			}
+
+			current = current.GetAncestor();
+		}
+
+		return true;
+	}
+
 	protected void ShowItemPreview(string prefab)
 	{
+		// Tout sélectionner et la sélection multiple repeignent les lignes. Ils ne relancent pas l'aperçu.
+		if (m_bHoldPreview || m_bMultiSelect)
+			return;
+
 		if (!m_wRoot)
 			return;
 
@@ -1212,7 +1537,14 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		if (!preview)
 			return;
 
-		if (prefab.IsEmpty())
+		if (IsVehicleMode())
+		{
+			preview.SetVisible(false);
+			return;
+		}
+
+		// Véhicule, personnage, nom vide ou prefab illisible : ne pas appeler le gestionnaire.
+		if (!IsInventoryItemPrefab(prefab))
 		{
 			preview.SetVisible(false);
 			return;
@@ -1227,6 +1559,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			return;
 
 		preview.SetVisible(true);
+		preview.SetZOrder(20);
 		manager.SetPreviewItemFromPrefab(preview, prefab);
 	}
 
@@ -1342,7 +1675,12 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 	protected void RebuildVehicles()
 	{
 		m_bSelectAll = false;
+		m_bMultiSelect = false;
+		if (m_aPicked)
+			m_aPicked.Clear();
+
 		RefreshSelectAll();
+		RefreshMulti();
 		m_aPrefab.Clear();
 		m_aLabel.Clear();
 		m_aShown.Clear();

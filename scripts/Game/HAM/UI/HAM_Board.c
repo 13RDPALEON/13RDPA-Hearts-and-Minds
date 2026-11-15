@@ -11,7 +11,8 @@ enum HAM_EBoardOp
 	DESIGNATE = 3,
 	MISSION = 4,
 	CANCEL_MISSION = 5,
-	UNLOAD = 6
+	UNLOAD = 6,
+	BUY_MAN = 7
 }
 
 //------------------------------------------------------------------------------------------------
@@ -100,6 +101,9 @@ class HAM_BoardServer
 		floats.Insert(settings.m_fAmmoThreshold);
 		floats.Insert(settings.m_fExchangeRatio);
 		floats.Insert(settings.m_fExchangeStep);
+		floats.Insert(settings.m_fMenCostWater);
+		floats.Insert(settings.m_fMenCostFood);
+		floats.Insert(settings.m_fMenCostAmmo);
 
 		array<string> allied = {};
 		HAM_Mission.AlliedBases(allied);
@@ -153,6 +157,9 @@ class HAM_BoardServer
 				break;
 			case HAM_EBoardOp.UNLOAD:
 				HAM_Logistics.Unload(baseName, playerId, board.GetOrigin());
+				break;
+			case HAM_EBoardOp.BUY_MAN:
+				HAM_Logistics.BuyMan(baseName, playerId);
 				break;
 		}
 
@@ -469,6 +476,7 @@ class HAM_ResourceBoardHandler : ScriptedWidgetEventHandler
 			Row("exchange", "Échanger une ressource");
 			Row("transfer", "Transférer vers une base alliée");
 			Row("convoy", "Envoyer un convoi d'hommes");
+			Row("buy", string.Format("Acheter un homme (%1 eau, %2 vivres, %3 munitions)", HAM_Util.FormatInt(FloatAt(8)), HAM_Util.FormatInt(FloatAt(9)), HAM_Util.FormatInt(FloatAt(10))));
 			Row("missions", "Missions secondaires");
 			if (IntAt(0) == 1 && IntAt(1) == 0)
 				Row("designate", "Définir cette base comme QG");
@@ -747,6 +755,8 @@ class HAM_ResourceBoardHandler : ScriptedWidgetEventHandler
 				m_ePage = HAM_EBoardPage.TRANSFER_KIND;
 			else if (key == "convoy")
 				m_ePage = HAM_EBoardPage.CONVOY_TARGET;
+			else if (key == "buy")
+				Send(HAM_EBoardOp.BUY_MAN, string.Empty, 0, 0, 0);
 			else if (key == "missions")
 				m_ePage = HAM_EBoardPage.MISSIONS;
 			else if (key == "designate")
