@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------------------------
-// « Définir comme QG » : une base Conflit du camp joueur est posée sur le maître désigné et devient
-// la base principale de la faction (spawn, fournitures, construction du Conflit).
-// L'ancien QG garde sa base et son stock ; seul son point d'apparition est coupé.
+// « Définir comme QG » : la base Conflit du maître désigné devient la base principale
+// (fournitures, construction). Le Conflit ne retire pas le point de l'ancien QG :
+// tant que cette base reste tenue, on peut toujours y réapparaître.
 // Rien n'est transféré tout seul. La ligne de front ne bouge pas.
 //------------------------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ class HAM_HqDesignation
 		HAM_Mission.s_sDesignatedHq = baseName;
 		HAM_Mission.MarkDirty();
 		HAM_Mission.SaveNow();
-		HAM_Mission.Notify("Nouveau QG", string.Format("%1 est désormais le QG : apparition, construction et versements s'y font.", baseName), 12);
+		HAM_Mission.Notify("Nouveau QG", string.Format("%1 est désormais le QG : construction et versements s'y font. On peut toujours réapparaître sur l'ancien tant qu'il est tenu.", baseName), 12);
 		Print(string.Format("[13RDPA H&M] QG désigné : %1 (joueur %2)", baseName, playerId), LogLevel.NORMAL);
 		return true;
 	}
@@ -147,8 +147,11 @@ class HAM_HqDesignation
 		SetSpawnEnabled(newBase, true);
 		if (oldBase && oldBase != newBase)
 		{
+			// Avant SetAsHQ(false) : sinon le contrôle radio, qui ne s'applique qu'aux bases
+			// qui ne sont plus QG, efface la faction du point dans le même appel.
+			SCR_CampaignMilitaryBaseComponent.HAM_RetainSpawn(oldBase);
 			oldBase.SetAsHQ(false);
-			SetSpawnEnabled(oldBase, false);
+			SetSpawnEnabled(oldBase, true);
 		}
 	}
 

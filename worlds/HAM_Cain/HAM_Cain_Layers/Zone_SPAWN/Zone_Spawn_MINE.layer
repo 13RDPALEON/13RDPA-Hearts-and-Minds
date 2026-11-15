@@ -1,4 +1,10 @@
-GenericEntity Udarnik_Mines_2_R80 : "{EC13D4E934B2ADD8}Prefabs/Items/Demining/MineFlags/MineFlag_US.et" {
- Flags 0x100000 0
- coords 4294.005 40.407 3577.27
+$grp GenericEntity : "{EC13D4E934B2ADD8}Prefabs/Items/Demining/MineFlags/MineFlag_US.et" {
+ Udarnik_Mines_R80 {
+  Flags 0x100000 0
+  coords 4294.005 40.407 3577.27
+ }
+ Ugoldar_Mines_R80 {
+  Flags 0x100000 0
+  coords 7000.586 4.909 3849.348
+ }
 }

@@ -437,6 +437,7 @@ class HAM_Front
 			HAM_MasterBases.PourBarracks(point);
 
 		Print(string.Format("[13RDPA H&M] Point %1 pris (cellule %2)", point.m_Def.m_sName, cell.m_sName), LogLevel.NORMAL);
+		HAM_RadioLink.ScheduleAnswer();
 		HAM_Mission.AddLocalRep(cell, settings.m_iRepLocalCaptureBonus);
 		HAM_Mission.RefreshZoneProps(cell);
 		HAM_Mission.RefreshMatchScore();

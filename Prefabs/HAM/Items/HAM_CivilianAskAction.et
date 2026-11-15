@@ -12,8 +12,8 @@ GenericEntity {
      Position PointInfo "{F399F765BEA46571}" {
       Offset 0 0 0
      }
-     Radius 2
-     Height 2
+     Radius 8
+     Height 3
      "Display UI At Reference Point" 1
     }
    }

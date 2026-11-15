@@ -43,7 +43,10 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 	{
 		super.OnPlayerConnected(playerId);
 		if (Replication.IsServer())
+		{
 			GetGame().GetCallqueue().CallLater(HAM_Net.SyncPlayer, 1000, false, playerId);
+			HAM_RadioLink.ScheduleReconnect(playerId);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -286,6 +289,7 @@ class HAM_Mission
 
 		GetGame().GetCallqueue().CallLater(Tick, TICK_MS, true);
 		GetGame().GetCallqueue().CallLater(SlowTick, SLOW_TICK_MS, true);
+		HAM_RadioLink.ScheduleAnswer();
 		RefreshMatchScore();
 		Print(string.Format("[13RDPA H&M] Front démarré sur %1 : %2 cellules, %3 points, %4 dépôts, %5 lignes", key, s_aCells.Count(), s_aPoints.Count(), s_aDeposits.Count(), s_aLines.Count()), LogLevel.NORMAL);
 	}
@@ -366,7 +370,16 @@ class HAM_Mission
 
 			HAM_Cell owner = FindCell(def.m_sCell);
 			if (!owner)
+			{
+				HAM_MapPoint cited = s_Map.Find(def.m_sCell);
+				if (!cited || cited.m_eRole != HAM_ERole.HQ)
+					continue;
+
+				HAM_Line hqLine = new HAM_Line();
+				hqLine.m_Def = def;
+				s_aLines.Insert(hqLine);
 				continue;
+			}
 
 			if (def.m_eRole == HAM_ERole.SLAVE)
 			{
@@ -588,8 +601,8 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static IEntity s_ReuseFound;
 	protected static string s_sReuseToken;
+	protected static ref array<IEntity> s_aReuseHits;
 	protected static ref array<IEntity> s_aOldSupply;
 
 	//------------------------------------------------------------------------------------------------
@@ -598,19 +611,76 @@ class HAM_Mission
 		if (!ent || !ent.GetPrefabData())
 			return true;
 
-		if (!s_ReuseFound && ent.GetPrefabData().GetPrefabName().Contains(s_sReuseToken))
-			s_ReuseFound = ent;
+		if (ent.GetPrefabData().GetPrefabName().Contains(s_sReuseToken))
+			s_aReuseHits.Insert(ent);
 
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Le prefab de la zone, dans les 200 m du centre. S'il est plus près d'une autre zone du même type, on le laisse.
 	protected static IEntity ReuseNear(vector spot, string token)
 	{
-		s_ReuseFound = null;
+		s_aReuseHits = {};
 		s_sReuseToken = token;
-		GetGame().GetWorld().QueryEntitiesBySphere(spot, 20, SeeReuse);
-		return s_ReuseFound;
+		GetGame().GetWorld().QueryEntitiesBySphere(spot, 200, SeeReuse);
+
+		IEntity best = null;
+		float bestSq = 0;
+		foreach (IEntity ent : s_aReuseHits)
+		{
+			if (!ent)
+				continue;
+
+			float distSq = vector.DistanceSqXZ(ent.GetOrigin(), spot);
+			if (!best || distSq < bestSq)
+			{
+				best = ent;
+				bestSq = distSq;
+			}
+		}
+
+		if (best && CloserSameZone(spot, best.GetOrigin(), token))
+			return null;
+
+		return best;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool CloserSameZone(vector spot, vector found, string token)
+	{
+		if (!s_aPoints)
+			return false;
+
+		float ours = vector.DistanceSqXZ(spot, found);
+		foreach (HAM_Point point : s_aPoints)
+		{
+			if (!SameReuse(point, token))
+				continue;
+
+			if (vector.DistanceSqXZ(point.Pos(), spot) < 1)
+				continue;
+
+			if (vector.DistanceSqXZ(point.Pos(), found) < ours)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SameReuse(HAM_Point point, string token)
+	{
+		if (!point || !point.m_Def)
+			return false;
+
+		if (point.m_Def.m_eType == HAM_EMasterType.SUPPLY_VANILLA)
+			return token == "253C2F12F79B289D";
+
+		if (point.m_Def.m_eType == HAM_EMasterType.SUPPLY_PERSONAL)
+			return token == "7178DA7410FD44E1";
+
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1452,7 +1522,8 @@ class HAM_Mission
 		if (s_HqBase)
 			s_HqBase.RecalculateRadioRange();
 
-		GetGame().GetCallqueue().CallLater(SCR_RadioCoverageSystem.UpdateAll, 500, false, false, false);
+		HAM_RadioLink.ScheduleAnswer();
+		HAM_RadioLink.ScheduleReconnect(playerId);
 		HAM_Net.SyncPlayerNow(playerId);
 	}
 

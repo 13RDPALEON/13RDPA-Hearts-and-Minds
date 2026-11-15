@@ -416,7 +416,7 @@ class HAM_Devices
 
 		foreach (HAM_Line line : HAM_Mission.s_aLines)
 		{
-			if (!line || !line.m_Def || line.m_Def.m_eRole != HAM_ERole.IED || !line.m_bSpawnedOnce)
+			if (!line || !line.m_Def || line.m_Def.m_eRole != HAM_ERole.IED || !line.m_bSpawnedOnce || !line.m_aDevices || line.m_aDevices.IsEmpty())
 				continue;
 
 			if (lines.Find(line.m_Def.m_sName) < 0)
@@ -699,8 +699,10 @@ class HAM_Devices
 	protected static void TickMineLine(HAM_Line line, array<IEntity> bodies, HAM_Settings settings)
 	{
 		HAM_Cell cell = line.m_Cell;
-		bool blocked = !cell || !HAM_Mission.IsFront(cell) || cell.IsMasterPlayer() || HAM_Mission.SlaveHolds(cell, line.Pos());
-		if (blocked)
+		if (!cell || !HAM_Mission.IsFront(cell))
+			return;
+
+		if (cell.IsMasterPlayer() || HAM_Mission.SlaveHolds(cell, line.Pos()))
 		{
 			line.m_bSpawnedOnce = true;
 			return;
@@ -726,11 +728,14 @@ class HAM_Devices
 		if (nearest > activation || line.m_bSpawnedOnce)
 			return;
 
-		line.m_bSpawnedOnce = true;
-		line.m_bActive = true;
 		int flags;
 		int mineCount = settings.MinesOf(line.m_Def);
-		int placed = PlaceMines(line.Pos(), 0, line.m_Def.m_fRadius, mineCount, line.m_aDevices, line.m_aProps, flags);
+		int placed = PlaceMines(line.Pos(), 50, 150, mineCount, line.m_aDevices, line.m_aProps, flags);
+		if (placed < 1)
+			return;
+
+		line.m_bSpawnedOnce = true;
+		line.m_bActive = true;
 		HAM_Util.Info(string.Format("Mines posées : %1, %2 sur %3 (%4 drapeaux)", line.m_Def.m_sName, placed, mineCount, flags));
 	}
 
@@ -1094,6 +1099,12 @@ class HAM_Devices
 		HAM_DeviceJob job = s_aJobs[0];
 		if (!DeviceJobAlive(job) || !StepDevice(job))
 		{
+			if (job && job.m_Line && job.m_Line.m_Def && job.m_Line.m_Def.m_eRole == HAM_ERole.IED && (!job.m_Line.m_aDevices || job.m_Line.m_aDevices.IsEmpty()))
+			{
+				job.m_Line.m_bActive = false;
+				job.m_Line.m_bSpawnedOnce = false;
+			}
+
 			if (job && DeviceJobAlive(job))
 			{
 				HAM_Util.Info(string.Format("Engins posés : %1, IED %2, mines %3 (%4 drapeaux)", job.m_sName, job.m_iIedPlaced, job.m_iMinePlaced, job.m_iFlags));
@@ -1191,18 +1202,17 @@ class HAM_Devices
 	//------------------------------------------------------------------------------------------------
 	protected static bool PlaceSingleMine(HAM_DeviceJob job)
 	{
-		float minDist = job.m_fMin;
-		float maxDist = job.m_fMax;
-		if (job.m_bMines)
-		{
-			minDist = 0;
-			maxDist = job.m_fRadius;
-		}
+		float minDist = 50;
+		float maxDist = 150;
 
 		for (int attempt = 0; attempt < 8; attempt++)
 		{
 			vector pos = HAM_Util.RandomAround(job.m_vCenter, minDist, maxDist);
-			if (HAM_Util.IsWater(pos) || TooClose(job.m_aDevices, pos, MINE_SPACING))
+			if (HAM_Util.IsWater(pos) || HAM_Util.IsNearWater(pos) || TooClose(job.m_aDevices, pos, MINE_SPACING))
+				continue;
+
+			float fromCenter = vector.DistanceXZ(pos, job.m_vCenter);
+			if (fromCenter < minDist || fromCenter > maxDist)
 				continue;
 
 			IEntity mine = SpawnArmed(HAM_Units.MINE_AP, pos);
@@ -1329,7 +1339,11 @@ class HAM_Devices
 		for (int attempt = 0; attempt < count * 10 && placed < count; attempt++)
 		{
 			vector pos = HAM_Util.RandomAround(center, minDist, maxDist);
-			if (HAM_Util.IsNearWater(pos) || !HAM_Util.OutOfBuildings(pos) || TooCloseToList(spots, pos, MINE_SPACING) || TooClose(devices, pos, 4))
+			if (HAM_Util.IsWater(pos) || HAM_Util.IsNearWater(pos) || TooCloseToList(spots, pos, MINE_SPACING) || TooClose(devices, pos, 4))
+				continue;
+
+			float fromCenter = vector.DistanceXZ(pos, center);
+			if (minDist > 0 && (fromCenter < minDist || fromCenter > maxDist))
 				continue;
 
 			IEntity mine = SpawnArmed(HAM_Units.MINE_AP, pos);

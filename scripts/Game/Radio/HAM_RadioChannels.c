@@ -284,11 +284,13 @@ class HAM_RadioChannels
 		if (!component)
 			return;
 
+		// Ne pas remplacer une clé déjà posée sur le prefab : une radio de faction
+		// en coldBorscht ne parle plus à un poste dont on a écrasé la clé.
 		Faction faction = SCR_FactionManager.SGetPlayerFaction(playerId);
-		if (faction)
+		if (faction && component.GetEncryptionKey().IsEmpty())
 		{
 			string key = faction.GetFactionRadioEncryptionKey();
-			if (!key.IsEmpty() && component.GetEncryptionKey() != key)
+			if (!key.IsEmpty())
 				component.SetEncryptionKey(key);
 		}
 
@@ -626,6 +628,93 @@ class HAM_RadioChannels
 
 			freqs.Insert(freq);
 			ranges.Insert(rangeMeters);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Relance le poste du joueur. Déjà allumé, à portée et avec une clé : on ne touche à rien.
+	static void Reconnect(int playerId)
+	{
+		if (!HAM_Mission.IsActive() || playerId <= 0)
+			return;
+
+		Reseat(playerId);
+		if (!Replication.IsServer())
+			return;
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!players)
+			return;
+
+		SCR_PlayerController player = SCR_PlayerController.Cast(players.GetPlayerController(playerId));
+		if (player)
+			player.HAM_AskRadioReconnect();
+	}
+
+	static void ReconnectLocal()
+	{
+		int playerId = SCR_PlayerController.GetLocalPlayerId();
+		Reseat(playerId);
+	}
+
+	protected static void Reseat(int playerId)
+	{
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!players)
+			return;
+
+		IEntity character = players.GetPlayerControlledEntity(playerId);
+		if (!character)
+			return;
+
+		array<IEntity> radios = {};
+		SCR_GadgetManagerComponent gadgets = SCR_GadgetManagerComponent.Cast(character.FindComponent(SCR_GadgetManagerComponent));
+		if (gadgets)
+		{
+			IEntity held = gadgets.GetHeldGadget();
+			if (held && held.FindComponent(BaseRadioComponent))
+				radios.Insert(held);
+		}
+
+		CollectRadios(character, radios);
+
+		string key = "";
+		FactionManager factions = GetGame().GetFactionManager();
+		if (factions)
+		{
+			SCR_Faction faction = SCR_Faction.Cast(factions.GetFactionByKey(HAM_Units.PLAYER_FACTION));
+			if (faction)
+				key = faction.GetFactionRadioEncryptionKey();
+		}
+
+		foreach (IEntity radio : radios)
+		{
+			ReseatOne(radio, key);
+		}
+	}
+
+	protected static void ReseatOne(IEntity radio, string key)
+	{
+		BaseRadioComponent component = BaseRadioComponent.Cast(radio.FindComponent(BaseRadioComponent));
+		if (!component)
+			return;
+
+		SCR_GadgetComponent gadget = SCR_GadgetComponent.Cast(radio.FindComponent(SCR_GadgetComponent));
+		if (gadget && gadget.HAM_IsListenOnly())
+			return;
+
+		if (!component.IsPowered())
+			component.SetPower(true);
+
+		if (!key.IsEmpty() && component.GetEncryptionKey().IsEmpty())
+			component.SetEncryptionKey(key);
+
+		int count = component.TransceiversCount();
+		for (int i = 0; i < count; i++)
+		{
+			BaseTransceiver transceiver = component.GetTransceiver(i);
+			if (transceiver && transceiver.GetRange() < RADIO_RANGE)
+				transceiver.SetRange(RADIO_RANGE);
 		}
 	}
 
@@ -1883,6 +1972,23 @@ modded class SCR_VONEntryRadio
 
 modded class SCR_PlayerController
 {
+	void HAM_AskRadioReconnect()
+	{
+		if (!Replication.IsServer())
+			return;
+
+		if (GetPlayerId() == SCR_PlayerController.GetLocalPlayerId())
+			return;
+
+		Rpc(HAM_RpcReconnectRadio);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void HAM_RpcReconnectRadio()
+	{
+		HAM_RadioChannels.ReconnectLocal();
+	}
+
 	void HAM_RequestRadioAdd()
 	{
 		Rpc(HAM_RpcRadioAdd);

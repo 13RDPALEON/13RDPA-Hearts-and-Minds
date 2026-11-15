@@ -380,6 +380,29 @@ FrameWidgetClass {
      }
     }
     ButtonWidgetClass {
+     Name "SelectAllBtn"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 0
+      OffsetLeft 16
+      OffsetTop 588
+      SizeX 848
+      SizeY 36
+     }
+     Color 0.18 0.22 0.34 1
+     {
+      TextWidgetClass {
+       Name "SelectAllText"
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1
+       }
+       Text "Tout sélectionner"
+       "Font Size" 15
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    ButtonWidgetClass {
      Name "Prev"
      Slot FrameWidgetSlot {
       Anchor 0 0 0 0

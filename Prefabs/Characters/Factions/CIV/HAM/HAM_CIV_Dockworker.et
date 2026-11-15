@@ -33,8 +33,8 @@ SCR_ChimeraCharacter : "{5882AE7A4543AFB4}Prefabs/Characters/Factions/CIV/Dockwo
       PivotID "spine3"
       Offset 0 0.2 0
      }
-     Radius 2
-     Height 2
+     Radius 8
+     Height 3
      Omnidirectional 1
      FilterActionsUsingCache 0
      LineOfSightCheck 0
@@ -44,14 +44,6 @@ SCR_ChimeraCharacter : "{5882AE7A4543AFB4}Prefabs/Characters/Factions/CIV/Dockwo
    additionalActions + {
     HAM_CivilianBananaUserAction "{C1A10001A11C0401}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0411}" {
@@ -61,14 +53,6 @@ SCR_ChimeraCharacter : "{5882AE7A4543AFB4}Prefabs/Characters/Factions/CIV/Dockwo
     }
     HAM_CivilianInfoUserAction "{C1A10001A11C0402}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0412}" {
@@ -78,14 +62,6 @@ SCR_ChimeraCharacter : "{5882AE7A4543AFB4}Prefabs/Characters/Factions/CIV/Dockwo
     }
     HAM_CivilianInterrogateUserAction "{C1A10001A11C0403}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0413}" {

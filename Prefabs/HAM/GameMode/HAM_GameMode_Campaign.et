@@ -61,7 +61,7 @@ SCR_GameModeCampaign : "{3B230AAC5252108F}Prefabs/MP/Modes/Conflict/GameMode_Cam
      m_sTitleText "13RDPA Hearts and Minds"
      m_aIntroduction {
       SCR_WelcomeScreenIntroduction "{5D349E3F6FF705DE}" {
-       m_sContentImage "{4B4DDC7134E529D4}UI/Textures/MissionLoadingScreens/HAM_LC.edds"
+       m_sContentImage "{6F5AE7AB3B11BC37}UI/Textures/MissionLoadingScreens/Mission_LC.edds"
        m_sContentTitleText "Le front"
        m_sContentDescriptionText "Kolguyev est découpée en cellules. Seules celles qui touchent les vôtres sont ouvertes. Passer derrière le front renvoie au QG et coûte de la réputation."
       }

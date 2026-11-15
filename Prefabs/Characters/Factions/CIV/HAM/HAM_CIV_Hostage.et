@@ -48,8 +48,8 @@ SCR_ChimeraCharacter : "{22E43956740A6794}Prefabs/Characters/Factions/CIV/Generi
       PivotID "spine3"
       Offset 0 0.2 0
      }
-     Radius 2
-     Height 2
+     Radius 8
+     Height 3
      Omnidirectional 1
      FilterActionsUsingCache 0
      LineOfSightCheck 0
@@ -59,14 +59,6 @@ SCR_ChimeraCharacter : "{22E43956740A6794}Prefabs/Characters/Factions/CIV/Generi
    additionalActions + {
     HAM_HostageFreeUserAction "{C1A10001A11C0501}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0511}" {

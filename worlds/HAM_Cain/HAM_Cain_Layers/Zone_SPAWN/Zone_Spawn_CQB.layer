@@ -7,8 +7,36 @@ $grp GenericEntity : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPo
   Flags 0x100000 0
   coords 4298.874 40.451 3577.434
  }
- Udarnik_CQB_3_R50 {
+ Udarnik_CQB_R50 {
   Flags 0x100000 0
   coords 4722.666 56.698 3678.883
+ }
+ Ugoldar_CQB_R80 {
+  Flags 0x100000 0
+  coords 7427.526 22.05 4861.751
+ }
+ Ugoldar_CQB_R100 {
+  Flags 0x100000 0
+  coords 6794.294 27.644 4023.215
+ }
+ Ugoldar_CQB_1_R80 {
+  Flags 0x100000 0
+  coords 6993.198 5.223 3851.927
+ }
+ Gorshkov_CQB_1_R100 {
+  Flags 0x100000 0
+  coords 8402.425 22.719 6421.382
+ }
+ Ugold_CQB_1_R100 {
+  Flags 0x100000 0
+  coords 6780.034 441.812 6752.478
+ }
+ Cain_CQB_1_R100 {
+  Flags 0x100000 0
+  coords 6210.534 37.224 8012.943
+ }
+ LeRocher_CQB_1_R80 {
+  Flags 0x100000 0
+  coords 11753.231 34.968 10422.848
  }
 }

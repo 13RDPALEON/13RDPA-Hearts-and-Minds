@@ -48,6 +48,13 @@ class HAM_MapPoint
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Maître de cellule, ou le QG joueur : les lignes qui le citent restent sur la carte.
+	bool IsLineParent()
+	{
+		return m_eRole == HAM_ERole.HQ || IsCellMaster();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool IsCapturable()
 	{
 		return m_eRole == HAM_ERole.MASTER || m_eRole == HAM_ERole.ENEMY_HQ || m_eRole == HAM_ERole.SLAVE;
@@ -238,7 +245,7 @@ class HAM_MapDef
 				continue;
 
 			HAM_MapPoint master = Find(point.m_sCell);
-			if (master && master.IsCellMaster())
+			if (master && master.IsLineParent())
 				continue;
 
 			Print(string.Format("[13RDPA H&M] Carte %1 : ligne %2 ignorée, maître %3 absent", m_sKey, point.m_sName, point.m_sCell), LogLevel.WARNING);

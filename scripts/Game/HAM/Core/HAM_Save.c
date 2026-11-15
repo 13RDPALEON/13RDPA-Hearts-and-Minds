@@ -409,16 +409,37 @@ class HAM_Save
 
 	//------------------------------------------------------------------------------------------------
 	//! Appelé quand le fichier du front a vraiment été écrit, pas quand il a été mis en file.
-	static void OnJsonSaved()
+	static void OnJsonSaved(string body)
 	{
 		if (!s_sSavedLine.IsEmpty())
 			Print(s_sSavedLine, LogLevel.NORMAL);
+
+		if (SameAsNewestBackup(body))
+			return;
 
 		KeepBackup();
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Cinq copies complètes. save1 est la plus récente. À la sixième, seule save5 disparaît.
+	//! La partie peut écrire deux fois le même état de suite. On ne décale pas l'historique pour un double.
+	protected static bool SameAsNewestBackup(string body)
+	{
+		string newest = BackupFile(1);
+		if (!FileIO.FileExists(newest))
+			return false;
+
+		FileHandle file = FileIO.OpenFile(newest, FileMode.READ);
+		if (!file)
+			return false;
+
+		string line;
+		bool read = file.ReadLine(line);
+		file.Close();
+		return read && line == body;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Cinq copies complètes, une par état différent. save1 est la plus récente. À la sixième, seule save5 disparaît.
 	protected static void KeepBackup()
 	{
 		FileIO.MakeDirectory(BACKUP_ROOT);

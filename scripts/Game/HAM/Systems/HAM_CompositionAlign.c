@@ -114,6 +114,32 @@ modded class SCR_CampaignMilitaryBaseManager
 		if (enemy)
 			campaign.SetControlPointsHeld(enemy, hostile);
 	}
+
+	//------------------------------------------------------------------------------------------------
+	//! « Radio hors de portée » à côté du micro, et le bandeau au respawn.
+	//! Les deux lisent cette fonction sur le client. Le graphe de couverture n'arrive pas
+	//! toujours sur le dédié : être à portée d'une base joueur suffit.
+	override bool IsEntityInFactionRadioSignal(notnull IEntity entity, notnull Faction faction)
+	{
+		if (!HAM_Mission.IsActive() || !faction || !HAM_Units.IsPlayerFaction(faction.GetFactionKey()))
+			return super.IsEntityInFactionRadioSignal(entity, faction);
+
+		vector pos = entity.GetOrigin();
+		foreach (SCR_CampaignMilitaryBaseComponent base : m_aBases)
+		{
+			if (!base || !base.GetOwner() || base.GetFaction() != faction)
+				continue;
+
+			float range = base.GetRadioRange();
+			if (range < 1000)
+				range = 1000;
+
+			if (vector.DistanceXZ(pos, base.GetOwner().GetOrigin()) <= range)
+				return true;
+		}
+
+		return super.IsEntityInFactionRadioSignal(entity, faction);
+	}
 }
 
 modded class SCR_CampaignMilitaryBaseComponent

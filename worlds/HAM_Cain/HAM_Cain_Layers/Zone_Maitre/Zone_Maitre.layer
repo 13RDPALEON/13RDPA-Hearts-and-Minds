@@ -1,3 +1,114 @@
-GenericEntity Udarnik_Ville_Poste_R300 : "{FEFE7B425EA72747}Prefabs/Compositions/Slotted/SlotFlatSmall/Headquarters_S_Conflict_US_01.et" {
- coords 4415.882 40.289 3544.781
+$grp GenericEntity : "{FEFE7B425EA72747}Prefabs/Compositions/Slotted/SlotFlatSmall/Headquarters_S_Conflict_US_01.et" {
+ Udarnik_Ville_Poste_R300_VQG {
+  coords 4415.882 40.289 3544.781
+ }
+ Ugoldar_Ville_Poste_R500_VUdarnik {
+  coords 6644.696 25.821 3905.052
+  angles 0 135.966 0
+ }
+ Ulfid_Ville_Poste_R200_VQG {
+  coords 2230.251 126.125 7355.555
+  angles 0 -89.379 0
+ }
+ Hamertin_Ville_Poste_R400_VUIlfid {
+  coords 3286.324 268.281 6792.042
+ }
+ Cain_Ville_Poste_R400_VUlfid {
+  coords 6327.804 37.599 8004.253
+ }
+ Ugold_Viille_Poste_R200 {
+  coords 6524.823 493.293 6614.982
+  angles 0 -33.742 0
+ }
+ PikdeCain_Ville_Poste_R100_V1CainV2HamertinV3UgoldV4Soumont {
+  coords 5089.824 688.671 6347.482
+  {
+   GenericEntity {
+    ID "68FC71F6D337EA12"
+    {
+     GenericEntity {
+      ID "68FC71F7E6B63AF8"
+      coords 1.004 0.412 0.062
+      angles -0.892 -0.056 3.577
+     }
+     GenericEntity {
+      ID "68FC71F7E6B645B7"
+      coords -2.148 0.739 0.035
+      angles -2.429 -2.032 7.208
+     }
+     GenericEntity {
+      ID "68FC71F7E6B69974"
+      coords 3.509 0.244 0.013
+      angles 3.429 3.055 2.865
+     }
+    }
+   }
+  }
+ }
+ Soumont_Ville_Poste_R100_VUdarnik {
+  coords 5272.756 407.197 5326.531
+  angles 0 84.919 0
+ }
+ Gorshkov_Ville_Poste_R400_VPikdeCain {
+  coords 7754.825 312.131 8172.653
+  angles 0 -177.39 0
+ }
+ Rowan_Ville_Poste_R500_VKomsomo {
+  coords 9644.172 132.483 9996.863
+  angles 0 51.383 0
+ }
+ Komsomo_Ville_Poste_R500_VGorshkov {
+  coords 8623.405 95.977 9284.329
+  angles 0 -44.982 0
+ }
+ LeRocher_Ville_Poste_R300_VRowan {
+  coords 11519.273 106.065 10730.259
+  angles 0 -102.778 0
+  {
+   GenericEntity {
+    ID "68FC71F6D337EA12"
+    coords -2.066 -0.327 8.093
+    {
+     GenericEntity {
+      ID "68FC71F7E6B63AF8"
+      coords 1.003 0 0.063
+     }
+     GenericEntity {
+      ID "68FC71F7E6B645B7"
+      coords -2.149 0 0.037
+     }
+     GenericEntity {
+      ID "68FC71F7E6B69974"
+      coords 3.508 0 0.015
+     }
+     StaticModelEntity {
+      ID "68FC71F4875B2A1F"
+      coords 0.249 0 1.933
+     }
+     StaticModelEntity {
+      ID "68FC71F7E6B63AFA"
+      coords -3.229 0 1.435
+     }
+     StaticModelEntity {
+      ID "68FC71F7E6B69970"
+      coords 4.208 0 1.474
+     }
+    }
+   }
+   GenericEntity {
+    ID "658A80EFA3FCE878"
+    coords -1.343 -0.327 6.32
+    {
+     DecalEntity {
+      ID "56DEFDB4A2C87F38"
+      coords 0 0 0
+     }
+    }
+   }
+   SCR_SpawnPoint {
+    ID "658A80EFA3FCE84E"
+    coords -3.5 -0.327 5.5
+   }
+  }
+ }
 }

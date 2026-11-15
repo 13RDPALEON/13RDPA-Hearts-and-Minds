@@ -1,0 +1,78 @@
+$grp GenericEntity : "{EC13D4E934B2ADD8}Prefabs/Items/Demining/MineFlags/MineFlag_US.et" {
+ Udarnik_Mines_IED_R100 {
+  Flags 0x100000 0
+  coords 4372.615 22.776 2937.426
+ }
+ Ugoldar_Mines_IED_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 6375.318 6.58 3251.746
+ }
+ Ugoldar_Mines_IED_Patrouille_R300 {
+  Flags 0x100000 0
+  coords 6284.42 3.969 2864.983
+ }
+ Ugoldar_CQB_Mines_Patrouille_R80 {
+  Flags 0x100000 0
+  coords 6507.437 7.594 2536.282
+ }
+ Ugoldar_Mines_CQB_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 7611.186 19.776 4825.583
+ }
+ Ugoldar_Mine_Patrouille_R250 {
+  Flags 0x100000 0
+  coords 5862.045 90.775 3583.308
+ }
+ Ugoldar_Mine_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 5871.59 171.142 4183.754
+ }
+ Ugoldar_Mines_IED_Patrouille_R250 {
+  Flags 0x100000 0
+  coords 6815.721 56.453 4403.33
+ }
+ LeRocher_Mines_IED_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 9333.521 92.935 9522.323
+ }
+ Komsomo_Mines_IED_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 9163.171 120.897 9087.095
+ }
+ Komsomo_Mines_IED_Patrouille_2_R200 {
+  Flags 0x100000 0
+  coords 8474.379 196.745 8994.898
+ }
+ Cain_Mines_IED_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 5891.775 2.641 8407.846
+ }
+ PikdeCain_Mines_Patrouille_R100 {
+  Flags 0x100000 0
+  coords 5082.457 689.37 6339.071
+ }
+ Ulfid_Mines_Patrouille_R200 {
+  Flags 0x100000 0
+  coords 1418.114 0.381 7690.279
+ }
+ QGEN_CQB_Patrouille_R100 {
+  Flags 0x100000 0
+  coords 12070.707 2.157 10569.948
+ }
+ QGEN_CQB_Patrouille_2_R100 {
+  Flags 0x100000 0
+  coords 12042.385 3.066 10930.212
+ }
+ QGEN_Mine_CQB_Patrouille_R100 {
+  Flags 0x100000 0
+  coords 12228.09 2.376 10914.596
+ }
+ QGEN_CQB_Patrouille_3_R100 {
+  Flags 0x100000 0
+  coords 12095.796 2.156 10454.21
+ }
+ LeRocher_CQB_Patrouille_R100 {
+  Flags 0x100000 0
+  coords 11902.579 7.032 10627.271
+ }
+}

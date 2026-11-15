@@ -1,0 +1,58 @@
+$grp GenericEntity : "{37FF913E70F888CF}Prefabs/Compositions/Slotted/SlotFlatMedium/VehicleMaintenance_M_Conflict_US_01.et" {
+ Ugoldar_Base_BaseMilitairedeUgoldar_R200 {
+  coords 7668.438 23.161 5080.069
+  angles 0 -167.21 0
+  {
+   SCR_DestructibleBuildingEntity : "{125CF206731B064B}Prefabs/HAM/Props/HAM_RampVehicle.et" {
+    coords 12.585 -0.102 21.289
+    angles 0 0.493 0
+   }
+   GenericEntity : "{ECB8E313DFBD3417}Prefabs/Compositions/Slotted/SlotFlatSmall/VehicleMaintenance_S_US_01.et" {
+    coords -5.77 -0.024 24.957
+    angles 0 91.801 0
+   }
+  }
+ }
+ Ugold_Base_BaseMilitaireDeUgold_R300 {
+  coords 7132.497 314.322 6037.294
+  angles 0 83.868 0
+  {
+   SCR_DestructibleBuildingEntity : "{125CF206731B064B}Prefabs/HAM/Props/HAM_RampVehicle.et" {
+    coords -18.922 0.214 -36.01
+    angles 0 70.013 0
+   }
+   GenericEntity : "{ECB8E313DFBD3417}Prefabs/Compositions/Slotted/SlotFlatSmall/VehicleMaintenance_S_US_01.et" {
+    coords -7.265 -0.06 -58.661
+    angles 0 54.935 0
+   }
+  }
+ }
+ Gorshkov_Base_BaseMilitaireDeGorshkov_R500 {
+  coords 8739.86 9.344 7460.356
+  angles 0 110.896 0
+  {
+   SCR_DestructibleBuildingEntity : "{125CF206731B064B}Prefabs/HAM/Props/HAM_RampVehicle.et" {
+    coords 48.378 -0 -6.759
+    angles 0 -87.954 0
+   }
+   GenericEntity : "{ECB8E313DFBD3417}Prefabs/Compositions/Slotted/SlotFlatSmall/VehicleMaintenance_S_US_01.et" {
+    coords 51.813 -0.001 1.146
+    angles 0 -90.248 0
+   }
+  }
+ }
+ Komsomo_Base_BaseMilitaireDeKomsomo_R500 {
+  coords 9610.193 11.563 8716.397
+  angles 0 -175.028 0
+  {
+   SCR_DestructibleBuildingEntity : "{125CF206731B064B}Prefabs/HAM/Props/HAM_RampVehicle.et" {
+    coords -7.193 -0 41.147
+    angles 0 -52.81 0
+   }
+   GenericEntity : "{ECB8E313DFBD3417}Prefabs/Compositions/Slotted/SlotFlatSmall/VehicleMaintenance_S_US_01.et" {
+    coords -28.297 -0.001 41.037
+    angles 0 37.622 0
+   }
+  }
+ }
+}

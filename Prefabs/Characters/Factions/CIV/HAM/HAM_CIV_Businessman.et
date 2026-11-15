@@ -24,8 +24,8 @@ SCR_ChimeraCharacter : "{B3AB6D12D247DDB5}Prefabs/Characters/Factions/CIV/Busine
       PivotID "spine3"
       Offset 0 0.2 0
      }
-     Radius 2
-     Height 2
+     Radius 8
+     Height 3
      Omnidirectional 1
      FilterActionsUsingCache 0
      LineOfSightCheck 0
@@ -35,14 +35,6 @@ SCR_ChimeraCharacter : "{B3AB6D12D247DDB5}Prefabs/Characters/Factions/CIV/Busine
    additionalActions + {
     HAM_CivilianBananaUserAction "{C1A10001A11C0201}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0211}" {
@@ -52,14 +44,6 @@ SCR_ChimeraCharacter : "{B3AB6D12D247DDB5}Prefabs/Characters/Factions/CIV/Busine
     }
     HAM_CivilianInfoUserAction "{C1A10001A11C0202}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0212}" {
@@ -69,14 +53,6 @@ SCR_ChimeraCharacter : "{B3AB6D12D247DDB5}Prefabs/Characters/Factions/CIV/Busine
     }
     HAM_CivilianInterrogateUserAction "{C1A10001A11C0203}" {
      ParentContextList {
-      "default"
-      "Head"
-      "Chest"
-      "LowerTorso"
-      "LeftArm"
-      "RightArm"
-      "LeftLeg"
-      "RightLeg"
       "HAM_Civilian"
      }
      UIInfo SCR_ActionUIInfo "{C1A10001A11C0213}" {

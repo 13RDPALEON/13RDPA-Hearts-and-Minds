@@ -91,3 +91,53 @@ modded class SCR_CampaignBuildingBudgetEditorComponent
 		return campaign.GetBaseManager().CanFactionBuildNewBase(player.GetFaction());
 	}
 }
+
+//------------------------------------------------------------------------------------------------
+modded class SCR_CampaignBuildingAreaMeshComponent
+{
+	//! Le maillage vanilla s'étend du rayon de la zone. 20 km autour d'un QG sort de Cain
+	//! (coin vers 29800, 200, 34922) et l'assertion « Entity out of world bounds » tombe dans GenerateAreaMesh.
+	//! Le rayon de construction reste celui du fournisseur : seule la maille visible est ramenée dans le monde.
+	override float GetRadius()
+	{
+		float radius = super.GetRadius();
+		if (!HAM_Mission.IsActive())
+			return radius;
+
+		return HAM_MeshRadiusInsideWorld(radius);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected float HAM_MeshRadiusInsideWorld(float radius)
+	{
+		IEntity ent = GetOwner();
+		if (!ent || radius <= 0 || !GetGame())
+			return radius;
+
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return radius;
+
+		vector mins;
+		vector maxs;
+		world.GetBoundBox(mins, maxs);
+		if (maxs[0] - mins[0] < 100 || maxs[2] - mins[2] < 100)
+			return radius;
+
+		vector center = ent.GetOrigin();
+		float margin = 32;
+		float roomX = Math.Min(center[0] - mins[0], maxs[0] - center[0]) - margin;
+		float roomZ = Math.Min(center[2] - mins[2], maxs[2] - center[2]) - margin;
+		float room = roomX;
+		if (roomZ < room)
+			room = roomZ;
+
+		if (room < 25)
+			room = 25;
+
+		if (radius > room)
+			return room;
+
+		return radius;
+	}
+}

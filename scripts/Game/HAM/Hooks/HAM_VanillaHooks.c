@@ -83,6 +83,8 @@ class HAM_RadioLink
 {
 	protected static const ResourceName RELAY = "{C3A91E5704B82D20}Prefabs/HAM/Props/HAM_RadioRelay.et";
 	protected static ref array<IEntity> s_aLinked;
+	protected static ref array<IEntity> s_aRelays;
+	protected static bool s_bAnswerQueued;
 
 	static void Apply(IEntity antenna)
 	{
@@ -116,8 +118,14 @@ class HAM_RadioLink
 			want = dist + 50;
 
 		SetBaseRange(base, want);
+		// RecalculateRadioRange éteint la radio de l'antenne. On la rallume :
+		// sinon, à côté d'elle, il n'y a plus de signal.
+		ForceAntennaRange(antenna, range);
+		PowerRadio(antenna, true);
 		if (!atBase)
 			SpawnForwarder(antenna, range);
+
+		ScheduleAnswer();
 
 		HAM_Cell master = NearestEnemyMaster(antenna.GetOrigin());
 		string extra = "Aucun maître ennemi.";
@@ -186,22 +194,28 @@ class HAM_RadioLink
 
 	protected static void SetBaseRange(SCR_CampaignMilitaryBaseComponent base, float range)
 	{
-		SCR_CoverageRadioComponent radio = SCR_CoverageRadioComponent.Cast(base.GetOwner().FindComponent(SCR_CoverageRadioComponent));
-		if (!radio)
-			return;
+		string key = PlayerKey();
+		// Publie la portée : SetRange seul reste sur le serveur, le client garde le préfab (1 km).
+		base.HAM_PublishRadio(range, key);
 
-		BaseTransceiver transceiver = radio.GetTransceiver(0);
-		if (transceiver && transceiver.GetRange() < range)
-			transceiver.SetRange(range);
+		array<SCR_ServicePointComponent> antennas = {};
+		base.GetServicesByType(antennas, SCR_EServicePointType.RADIO_ANTENNA);
+		foreach (SCR_ServicePointComponent service : antennas)
+		{
+			if (!service || !service.GetOwner())
+				continue;
 
+			PowerRadio(service.GetOwner(), true);
+		}
+	}
+
+	protected static string PlayerKey()
+	{
 		SCR_Faction faction = SCR_Faction.Cast(GetGame().GetFactionManager().GetFactionByKey(HAM_Units.PLAYER_FACTION));
-		if (faction)
-			radio.SetEncryptionKey(faction.GetFactionRadioEncryptionKey());
+		if (!faction)
+			return "";
 
-		radio.SetPower(true);
-		base.RecalculateRadioRange();
-		if (transceiver && transceiver.GetRange() < range)
-			transceiver.SetRange(range);
+		return faction.GetFactionRadioEncryptionKey();
 	}
 
 	protected static void SpawnForwarder(IEntity antenna, float range)
@@ -218,7 +232,7 @@ class HAM_RadioLink
 		if (!radio)
 			return;
 
-		radio.SetIsSource(false);
+		radio.SetIsSource(true);
 		SCR_Faction faction = SCR_Faction.Cast(GetGame().GetFactionManager().GetFactionByKey(HAM_Units.PLAYER_FACTION));
 		if (faction)
 			radio.SetEncryptionKey(faction.GetFactionRadioEncryptionKey());
@@ -228,6 +242,157 @@ class HAM_RadioLink
 			transceiver.SetRange(range);
 
 		radio.SetPower(true);
+		RememberRelay(relay);
+		ScheduleAnswer();
+	}
+
+	static void RememberRelay(IEntity relay)
+	{
+		if (!relay)
+			return;
+
+		if (!s_aRelays)
+			s_aRelays = {};
+
+		if (s_aRelays.Find(relay) < 0)
+			s_aRelays.Insert(relay);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! La réapparition exige les deux sens. Étendre seulement le QG laisse la base à 1 km :
+	//! elle reçoit, mais ne répond pas, et le dédié affiche « hors de portée ».
+	static void ScheduleAnswer()
+	{
+		if (!Replication.IsServer() || !HAM_Mission.IsActive() || !GetGame() || !GetGame().GetCallqueue())
+			return;
+
+		if (s_bAnswerQueued)
+			return;
+
+		s_bAnswerQueued = true;
+		GetGame().GetCallqueue().CallLater(RunAnswer, 500, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Deux passages : 30 s puis 45 s. Déjà relié, on ne change rien. Sinon la radio est rerallumée.
+	static void ScheduleReconnect(int playerId)
+	{
+		if (!Replication.IsServer() || !HAM_Mission.IsActive() || playerId <= 0)
+			return;
+
+		if (!GetGame() || !GetGame().GetCallqueue())
+			return;
+
+		GetGame().GetCallqueue().CallLater(ReconnectPlayer, 30000, false, playerId);
+		GetGame().GetCallqueue().CallLater(ReconnectPlayer, 45000, false, playerId);
+	}
+
+	protected static void ReconnectPlayer(int playerId)
+	{
+		if (!Replication.IsServer() || !HAM_Mission.IsActive() || playerId <= 0)
+			return;
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!players || !players.IsPlayerConnected(playerId))
+			return;
+
+		ScheduleAnswer();
+		HAM_RadioChannels.Reconnect(playerId);
+	}
+
+	protected static void RunAnswer()
+	{
+		s_bAnswerQueued = false;
+		Answer();
+	}
+
+	protected static void Answer()
+	{
+		if (!Replication.IsServer() || !HAM_Mission.IsActive())
+			return;
+
+		SCR_CampaignMilitaryBaseComponent hq = HAM_Mission.s_HqBase;
+		if (!hq || !hq.GetOwner())
+			return;
+
+		string key = PlayerKey();
+		float hqRange = BaseRange(hq);
+		if (hqRange < 100)
+			hqRange = 1000;
+
+		hq.HAM_PublishRadio(hqRange, key);
+		hqRange = BaseRange(hq);
+		vector hqPos = hq.GetOwner().GetOrigin();
+
+		SCR_MilitaryBaseSystem system = SCR_MilitaryBaseSystem.GetInstance();
+		if (!system)
+			return;
+
+		array<SCR_MilitaryBaseComponent> bases = {};
+		system.GetBases(bases);
+		int linked = 0;
+		foreach (SCR_MilitaryBaseComponent listed : bases)
+		{
+			SCR_CampaignMilitaryBaseComponent campaignBase = SCR_CampaignMilitaryBaseComponent.Cast(listed);
+			if (!campaignBase || campaignBase == hq || !campaignBase.GetOwner())
+				continue;
+
+			Faction faction = campaignBase.GetFaction();
+			if (!faction || !HAM_Units.IsPlayerFaction(faction.GetFactionKey()))
+				continue;
+
+			vector pos = campaignBase.GetOwner().GetOrigin();
+			float need = ReplyDistance(pos, hqPos, hqRange);
+			if (need <= 0)
+				continue;
+
+			campaignBase.HAM_PublishRadio(need, key);
+			linked++;
+		}
+
+		SCR_RadioCoverageSystem.UpdateAll(true);
+		GetGame().GetCallqueue().CallLater(SCR_CoverageRadioComponent.HAM_PushAll, 1500, false);
+		HAM_Util.Info(string.Format("Radio : %1 base(s) répondent au QG (portée QG %2 m)", linked, Math.Round(hqRange)));
+	}
+
+	protected static float ReplyDistance(vector pos, vector hqPos, float hqRange)
+	{
+		float need = -1;
+		float distHq = vector.DistanceXZ(pos, hqPos);
+		if (distHq <= hqRange)
+			need = distHq + 50;
+
+		if (!s_aRelays)
+			return need;
+
+		foreach (IEntity relay : s_aRelays)
+		{
+			if (!relay)
+				continue;
+
+			SCR_CoverageRadioComponent radio = SCR_CoverageRadioComponent.Cast(relay.FindComponent(SCR_CoverageRadioComponent));
+			if (!radio || !radio.IsPowered() || !radio.GetTransceiver(0))
+				continue;
+
+			float relayRange = radio.GetTransceiver(0).GetRange();
+			float relayHq = vector.DistanceXZ(relay.GetOrigin(), hqPos);
+			float relayBase = vector.DistanceXZ(relay.GetOrigin(), pos);
+			if (relayRange < relayHq || relayRange < relayBase)
+				continue;
+
+			float hop = relayBase + 50;
+			if (need < 0 || hop < need)
+				need = hop;
+		}
+
+		return need;
+	}
+
+	protected static void PowerRadio(IEntity antenna, bool on)
+	{
+		BaseRadioComponent radio = BaseRadioComponent.Cast(antenna.FindComponent(BaseRadioComponent));
+		if (radio)
+			radio.SetPower(on);
 	}
 
 	protected static SCR_CampaignMilitaryBaseComponent NearestPlayerBase(vector pos)
@@ -324,6 +489,22 @@ modded class SCR_BaseDeployableInventoryItemComponent
 		vector mat[4];
 		Math3D.MatrixIdentity4(mat);
 		relay.SetLocalTransform(mat);
+		SCR_CoverageRadioComponent relayRadio = SCR_CoverageRadioComponent.Cast(relay.FindComponent(SCR_CoverageRadioComponent));
+		if (relayRadio)
+		{
+			relayRadio.SetIsSource(true);
+			relayRadio.SetPower(true);
+			SCR_Faction faction = SCR_Faction.Cast(GetGame().GetFactionManager().GetFactionByKey(HAM_Units.PLAYER_FACTION));
+			if (faction)
+				relayRadio.SetEncryptionKey(faction.GetFactionRadioEncryptionKey());
+
+			BaseTransceiver relayTx = relayRadio.GetTransceiver(0);
+			if (relayTx)
+				relayTx.SetRange(20000);
+		}
+
+		HAM_RadioLink.RememberRelay(relay);
+		HAM_RadioLink.ScheduleAnswer();
 		HAM_Util.Info("Radio posée : relais de 20 km branché sur le réseau joueur");
 	}
 
@@ -339,14 +520,57 @@ modded class SCR_BaseDeployableInventoryItemComponent
 		if (!hqRadio)
 			return;
 
-		hqRadio.SetPower(true);
-		BaseTransceiver transceiver = hqRadio.GetTransceiver(0);
-		if (!transceiver)
+		float needed = vector.DistanceXZ(hq.GetOwner().GetOrigin(), radioPos) + 50;
+		hq.HAM_PublishRadio(needed, "");
+	}
+}
+
+//------------------------------------------------------------------------------------------------
+modded class SCR_CoverageRadioComponent
+{
+	protected static ref array<SCR_CoverageRadioComponent> s_aHAM_Radios;
+
+	override void OnInit(IEntity owner)
+	{
+		super.OnInit(owner);
+		if (!s_aHAM_Radios)
+			s_aHAM_Radios = {};
+
+		if (s_aHAM_Radios.Find(this) < 0)
+			s_aHAM_Radios.Insert(this);
+
+		if (GetGame() && GetGame().GetCallqueue())
+			GetGame().GetCallqueue().CallLater(HAM_PushIfGame, 2000, false);
+	}
+
+	override void OnDelete(IEntity owner)
+	{
+		super.OnDelete(owner);
+		if (s_aHAM_Radios)
+			s_aHAM_Radios.RemoveItem(this);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Le premier BumpMe part pendant l'init, avant l'enregistrement réplication.
+	//! Sur un dédié il est jeté (« unregistred item ») et le client reste hors de portée.
+	protected void HAM_PushIfGame()
+	{
+		if (!HAM_Mission.IsActive() || !Replication.IsServer())
 			return;
 
-		float needed = vector.DistanceXZ(hq.GetOwner().GetOrigin(), radioPos) + 50;
-		if (transceiver.GetRange() < needed)
-			transceiver.SetRange(needed);
+		Replication.BumpMe();
+	}
+
+	static void HAM_PushAll()
+	{
+		if (!HAM_Mission.IsActive() || !Replication.IsServer() || !s_aHAM_Radios)
+			return;
+
+		foreach (SCR_CoverageRadioComponent radio : s_aHAM_Radios)
+		{
+			if (radio)
+				radio.HAM_PushIfGame();
+		}
 	}
 }
 

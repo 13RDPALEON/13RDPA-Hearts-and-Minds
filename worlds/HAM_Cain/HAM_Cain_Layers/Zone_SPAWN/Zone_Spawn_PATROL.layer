@@ -15,4 +15,8 @@ $grp GenericEntity : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPo
   Flags 0x100000 0
   coords 3626.309 10.327 3935.866
  }
+ Ugoldar_Patrouille_R80 {
+  Flags 0x100000 0
+  coords 7427.053 21.99 4865.29
+ }
 }

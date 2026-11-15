@@ -1,8 +1,9 @@
 //------------------------------------------------------------------------------------------------
-// Vie entre les zones déjà posées. Les distances viennent du plan :
-// joueur 400 à 1200 m, zone ennemie 400 m, zone joueur 2000 m pour les patrouilles, entre spawns 400 m.
-// Un maître ou un esclave disponible doit être à 1000 m. À 800 m, capturé ou vidé, la paire s'arrête.
-// Les civils continuent même si la paire est arrêtée.
+// Vie entre les zones déjà posées. Mines, IED et civils gardent l'ancien plan :
+// joueur 400 à 1200 m, zone ennemie 400 m, zone joueur 800 m, entre spawns 400 m.
+// Une patrouille naît à 600 m du joueur, au point valide le plus proche de lui.
+// Quatre au plus autour de lui : au-delà de 1,2 km de tous les joueurs, elle est retirée.
+// 1,5 km du QG, 600 m d'une zone ennemie, 1 km d'une zone tenue, 200 à 500 m d'une autre patrouille.
 //------------------------------------------------------------------------------------------------
 
 class HAM_InterAnchor
@@ -32,7 +33,14 @@ class HAM_Interzone
 	protected static const float PLAYER_MAX = 1200;
 	protected static const float ENEMY_ZONE = 400;
 	protected static const float PLAYER_ZONE = 800;
-	protected static const float PATROL_PLAYER_ZONE = 2000;
+	protected static const float PATROL_FROM_PLAYER = 600;
+	protected static const float PATROL_AROUND = 1200;
+	protected static const int PATROL_MAX = 4;
+	protected static const float PATROL_FROM_HQ = 1500;
+	protected static const float PATROL_FROM_ENEMY = 600;
+	protected static const float PATROL_FROM_HELD = 1000;
+	protected static const float PATROL_GAP_MIN = 200;
+	protected static const float PATROL_GAP_MAX = 500;
 	protected static const float SEPARATION = 400;
 	protected static const float HOST_NEAR = 1000;
 	protected static const float HOST_STOP = 800;
@@ -59,6 +67,8 @@ class HAM_Interzone
 		Ensure();
 		CollectAnchors();
 		RefreshLive();
+		DropFarPatrols();
+		DropFarCivils();
 		BanStopped();
 
 		int playerIndex = Math.RandomInt(0, HAM_Mission.s_aPlayerBodies.Count());
@@ -91,7 +101,7 @@ class HAM_Interzone
 		if (spot.m_bLive)
 			return;
 
-		if (spot.m_vPos != vector.Zero && vector.DistanceXZ(spot.m_vPos, pos) < SEPARATION)
+		if (kind != KIND_PATROL && spot.m_vPos != vector.Zero && vector.DistanceXZ(spot.m_vPos, pos) < SEPARATION)
 			return;
 
 		if (!SpawnKind(kind, pos, spot))
@@ -205,8 +215,7 @@ class HAM_Interzone
 	//------------------------------------------------------------------------------------------------
 	protected static int MissingKind(IEntity body)
 	{
-		int patrols = CountKind(body, KIND_PATROL);
-		if (patrols < 2)
+		if (CountAround(body, KIND_PATROL, PATROL_AROUND) < PATROL_MAX)
 			return KIND_PATROL;
 
 		if (CountKind(body, KIND_MINE) < 1)
@@ -240,10 +249,240 @@ class HAM_Interzone
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Patrouilles encore autour de ce joueur, d'après leur position actuelle.
+	protected static int CountAround(IEntity body, int kind, float radius)
+	{
+		if (!body)
+			return 0;
+
+		int count = 0;
+		vector origin = body.GetOrigin();
+		foreach (HAM_InterSpot spot : s_aSpots)
+		{
+			if (!spot || !spot.m_bLive || spot.m_iKind != kind)
+				continue;
+
+			if (vector.DistanceXZ(PatrolPos(spot), origin) <= radius)
+				count++;
+		}
+
+		return count;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Une patrouille loin de tous les joueurs ne reste pas sur la carte.
+	protected static void DropFarPatrols()
+	{
+		if (!HAM_Mission.s_aPlayerBodies)
+			return;
+
+		foreach (HAM_InterSpot spot : s_aSpots)
+		{
+			if (!spot || !spot.m_bLive || spot.m_iKind != KIND_PATROL)
+				continue;
+
+			if (NearAnyPlayer(PatrolPos(spot), PATROL_AROUND))
+				continue;
+
+			ReleasePatrol(spot);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Les civils entre les zones, à pied ou en voiture, partent quand plus aucun joueur n'est dans leur bande.
+	protected static void DropFarCivils()
+	{
+		if (!HAM_Mission.s_aPlayerBodies)
+			return;
+
+		foreach (HAM_InterSpot spot : s_aSpots)
+		{
+			if (!spot || !spot.m_bLive || spot.m_iKind != KIND_CIVIL)
+				continue;
+
+			if (NearAnyPlayer(CivilPos(spot), PLAYER_MAX))
+				continue;
+
+			if (CivilHasPlayer(spot))
+				continue;
+
+			ReleaseCivil(spot);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static vector CivilPos(HAM_InterSpot spot)
+	{
+		foreach (IEntity ent : spot.m_aEntities)
+		{
+			if (ent && !HAM_Util.IsDead(ent))
+				return ent.GetOrigin();
+		}
+
+		return spot.m_vPos;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool CivilHasPlayer(HAM_InterSpot spot)
+	{
+		PlayerManager players = GetGame().GetPlayerManager();
+		foreach (IEntity ent : spot.m_aEntities)
+		{
+			if (VehicleHasPlayer(ent, players))
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReleaseCivil(HAM_InterSpot spot)
+	{
+		if (!spot)
+			return;
+
+		foreach (IEntity ent : spot.m_aEntities)
+		{
+			if (!ent)
+				continue;
+
+			Vehicle vehicle = Vehicle.Cast(ent);
+			if (vehicle)
+				ReleaseVehicleCrew(vehicle);
+
+			HAM_Util.Delete(ent);
+		}
+
+		spot.m_aEntities.Clear();
+		HAM_Util.DeleteGroups(spot.m_aGroups);
+		spot.m_aGroups.Clear();
+		spot.m_bLive = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReleaseVehicleCrew(Vehicle vehicle)
+	{
+		if (!vehicle)
+			return;
+
+		SCR_BaseCompartmentManagerComponent compartments = SCR_BaseCompartmentManagerComponent.Cast(vehicle.FindComponent(SCR_BaseCompartmentManagerComponent));
+		if (!compartments)
+			return;
+
+		SCR_AIGroup crew = HAM_Garrison.CrewGroup(compartments);
+		if (crew)
+			HAM_Util.DeleteGroup(crew);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool NearAnyPlayer(vector pos, float radius)
+	{
+		foreach (IEntity body : HAM_Mission.s_aPlayerBodies)
+		{
+			if (body && vector.DistanceXZ(body.GetOrigin(), pos) <= radius)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReleasePatrol(HAM_InterSpot spot)
+	{
+		if (!spot)
+			return;
+
+		array<IEntity> vehicles = {};
+		foreach (SCR_AIGroup group : spot.m_aGroups)
+			CollectGroupVehicles(group, vehicles);
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		foreach (IEntity vehicle : vehicles)
+		{
+			if (!vehicle || VehicleHasPlayer(vehicle, players))
+				continue;
+
+			HAM_Util.Delete(vehicle);
+		}
+
+		HAM_Util.DeleteGroups(spot.m_aGroups);
+		spot.m_aGroups.Clear();
+		spot.m_bLive = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void CollectGroupVehicles(SCR_AIGroup group, notnull array<IEntity> vehicles)
+	{
+		if (!group)
+			return;
+
+		array<AIAgent> agents = {};
+		group.GetAgents(agents);
+		foreach (AIAgent agent : agents)
+		{
+			if (!agent)
+				continue;
+
+			IEntity body = agent.GetControlledEntity();
+			if (!body)
+				continue;
+
+			CompartmentAccessComponent access = CompartmentAccessComponent.Cast(body.FindComponent(CompartmentAccessComponent));
+			if (!access)
+				continue;
+
+			BaseCompartmentSlot slot = access.GetCompartment();
+			if (!slot)
+				continue;
+
+			IEntity vehicle = VehicleOf(slot.GetOwner());
+			if (vehicle && vehicles.Find(vehicle) < 0)
+				vehicles.Insert(vehicle);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static IEntity VehicleOf(IEntity seat)
+	{
+		Vehicle vehicle = Vehicle.Cast(seat);
+		if (vehicle)
+			return vehicle;
+
+		if (!seat)
+			return null;
+
+		return Vehicle.Cast(seat.GetRootParent());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool VehicleHasPlayer(IEntity vehicle, PlayerManager players)
+	{
+		if (!vehicle || !players)
+			return false;
+
+		SCR_BaseCompartmentManagerComponent compartments = SCR_BaseCompartmentManagerComponent.Cast(vehicle.FindComponent(SCR_BaseCompartmentManagerComponent));
+		if (!compartments)
+			return false;
+
+		array<IEntity> occupants = {};
+		compartments.GetOccupants(occupants);
+		foreach (IEntity occupant : occupants)
+		{
+			if (occupant && players.GetPlayerIdFromControlledEntity(occupant) > 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static bool FindPoint(IEntity body, int playerId, int kind, out vector pos, out string pair)
 	{
 		pos = vector.Zero;
 		pair = string.Empty;
+		if (kind == KIND_PATROL)
+			return FindPatrolPoint(body, playerId, pos, pair);
+
 		vector forward = TravelDir(body, playerId);
 		bool forwardFirst = Math.RandomInt(0, 2) == 0;
 		int start = Math.RandomInt(0, 4);
@@ -272,7 +511,7 @@ class HAM_Interzone
 					raw = body.GetOrigin() - forward * dist;
 
 				vector sample;
-				if (!HAM_Util.FindSite(raw, 4, sample) || HAM_Util.IsNearWater(sample))
+				if (!HAM_Util.FindSite(raw, 4, sample) || !HAM_Util.FieldSpot(sample))
 					continue;
 
 				string found;
@@ -289,10 +528,114 @@ class HAM_Interzone
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Huit points sur le cercle de 600 m. On garde le valide le plus proche du joueur.
+	protected static bool FindPatrolPoint(IEntity body, int playerId, out vector pos, out string pair)
+	{
+		pos = vector.Zero;
+		pair = string.Empty;
+		vector origin = body.GetOrigin();
+		vector angles = TravelDir(body, playerId).VectorToAngles();
+		vector best = vector.Zero;
+		float bestSq = -1;
+		for (int step = 0; step < 8; step++)
+		{
+			vector turn = angles;
+			turn[0] = turn[0] + step * 45;
+			vector dir = turn.AnglesToVector();
+			dir[1] = 0;
+			if (dir.LengthSq() < 0.01)
+				continue;
+
+			dir.Normalize();
+			vector raw = origin + dir * PATROL_FROM_PLAYER;
+			vector sample;
+			if (!HAM_Util.FindSite(raw, 4, sample) || !HAM_Util.FieldSpot(sample))
+				continue;
+
+			if (!AcceptPatrol(sample))
+				continue;
+
+			float distSq = vector.DistanceSqXZ(sample, origin);
+			if (bestSq >= 0 && distSq >= bestSq)
+				continue;
+
+			best = sample;
+			bestSq = distSq;
+		}
+
+		if (bestSq < 0)
+			return false;
+
+		pos = best;
+		pair = string.Format("patrol_%1_%2_%3", Math.Round(pos[0]), Math.Round(pos[2]), s_aSpots.Count());
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool AcceptPatrol(vector sample)
+	{
+		if (!HAM_Mission.s_aPlayerBodies)
+			return false;
+
+		foreach (IEntity body : HAM_Mission.s_aPlayerBodies)
+		{
+			if (body && vector.DistanceXZ(body.GetOrigin(), sample) < PATROL_FROM_PLAYER)
+				return false;
+		}
+
+		if (vector.DistanceXZ(HAM_Mission.DesignatedHqPos(), sample) < PATROL_FROM_HQ)
+			return false;
+
+		foreach (HAM_InterAnchor anchor : s_aAnchors)
+		{
+			if (!anchor || !anchor.m_bCamp)
+				continue;
+
+			float dist = vector.DistanceXZ(anchor.m_vPos, sample);
+			if (anchor.m_bHeld && dist < PATROL_FROM_HELD)
+				return false;
+
+			if (!anchor.m_bHeld && dist < PATROL_FROM_ENEMY)
+				return false;
+		}
+
+		float nearest = -1;
+		foreach (HAM_InterSpot spot : s_aSpots)
+		{
+			if (!spot || !spot.m_bLive || spot.m_iKind != KIND_PATROL)
+				continue;
+
+			float dist = vector.DistanceXZ(PatrolPos(spot), sample);
+			if (dist < PATROL_GAP_MIN)
+				return false;
+
+			if (nearest < 0 || dist < nearest)
+				nearest = dist;
+		}
+
+		if (nearest >= 0 && nearest > PATROL_GAP_MAX)
+			return false;
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static vector PatrolPos(HAM_InterSpot spot)
+	{
+		foreach (SCR_AIGroup group : spot.m_aGroups)
+		{
+			if (HAM_Util.AliveCount(group) > 0)
+				return group.GetOrigin();
+		}
+
+		return spot.m_vPos;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static bool Accept(vector sample, int kind, out string pair)
 	{
 		pair = string.Empty;
-		if (!HAM_Mission.s_aPlayerBodies)
+		if (kind == KIND_PATROL || !HAM_Mission.s_aPlayerBodies)
 			return false;
 
 		bool inBand = false;
@@ -318,11 +661,7 @@ class HAM_Interzone
 				continue;
 
 			float dist = vector.DistanceXZ(anchor.m_vPos, sample);
-			float playerClear = PLAYER_ZONE;
-			if (kind == KIND_PATROL)
-				playerClear = PATROL_PLAYER_ZONE;
-
-			if (anchor.m_bHeld && dist < playerClear)
+			if (anchor.m_bHeld && dist < PLAYER_ZONE)
 				return false;
 
 			if (!anchor.m_bHeld && dist < ENEMY_ZONE)

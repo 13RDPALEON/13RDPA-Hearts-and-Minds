@@ -1,0 +1,44 @@
+$grp GenericEntity : "{8B4B8BF44162B24F}Prefabs/Compositions/Slotted/SlotFlatSmall/Antenna_S_US_01.et" {
+ Ugoldar_Tour_UgoldarBaseRadio_R200 {
+  coords 5974.035 9.303 3113.396
+ }
+ Hamertin_Tour_RadiodeHamertin_R200 {
+  coords 3219.995 266.591 6747.567
+ }
+ Ulfid_Tour_FarddeUlfid_R200 {
+  coords 1650.525 110.719 7396.865
+ }
+ Hamertin_Tour_RadioNorddeHamertin_R200 {
+  coords 4326.48 448.688 6272.091
+ }
+ Cain_Tour_PlagedeCain_R300 {
+  coords 4400.554 2.487 8148.061
+ }
+ Ulfid_Tour_TourDeLaMine_R200 {
+  coords 5550.407 1.964 8209.319
+ }
+ Ugold_Tour_CampMilitaireDeUgold_R400 {
+  coords 5660.638 421.506 6846.87
+  {
+   GenericEntity : "{55893B29FB8C4D74}Prefabs/Compositions/Slotted/SlotFlatSmall/MortarPlacement_S_US_01.et" {
+    coords -57.251 -0.204 24.215
+   }
+  }
+ }
+ Udarnik_Tour_HauteurDeUdarnik_R300 {
+  coords 4964.035 253.203 4398.712
+ }
+ Komsomo_Tour_VillageDeKomso_R300 {
+  coords 9260.736 93.489 9499.706
+ }
+ Rowan_Tour_IleDeRowan_R300 {
+  coords 9423.245 20.238 12533.658
+  angles 0 78.091 0
+ }
+ Rowan_Tour_BoisDeRowan_R300 {
+  coords 10615.652 129.858 10300.276
+ }
+ LeRocher_Tour_PortDeKamensk_R300 {
+  coords 11850.306 3.727 10951.258
+ }
+}

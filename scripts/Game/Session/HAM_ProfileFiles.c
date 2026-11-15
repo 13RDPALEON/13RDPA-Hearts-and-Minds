@@ -301,7 +301,7 @@ class HAM_JsonQueue
 			file.WriteLine(body);
 			file.Close();
 			if (frontSave == 1)
-				HAM_Save.OnJsonSaved();
+				HAM_Save.OnJsonSaved(body);
 		}
 
 		if (!s_aPath || s_aPath.IsEmpty())

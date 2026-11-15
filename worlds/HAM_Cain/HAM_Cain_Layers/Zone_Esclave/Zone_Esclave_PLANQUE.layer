@@ -1,4 +1,42 @@
-GenericEntity Udarnik_Planque_UdarnikWest_R200 : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_base.et" {
- Flags 0x100000 0
- coords 3801.861 5.024 3738.642
+$grp GenericEntity : "{31CE12B3D1F6789E}Prefabs/Structures/Military/Flags/FlagPole_01/FlagPole_01_base.et" {
+ Udarnik_Planque_UdarnikWest_R200 {
+  Flags 0x100000 0
+  coords 3801.861 5.024 3738.642
+ }
+ Ugoldar_Planque_UgoldarWest_R200 {
+  Flags 0x100000 0
+  coords 6515.242 24.668 3709.261
+ }
+ Ugold_Planque_UgoldWest_R400 {
+  Flags 0x100000 0
+  coords 6084.18 418.514 6241.288
+ }
+ Soumont_Planque_SoumontWest_R400 {
+  Flags 0x100000 0
+  coords 5049.709 410.467 5309.485
+ }
+ Gorshkov_Planque_VilleDeGorshkov_R400 {
+  Flags 0x100000 0
+  coords 8452.417 21.219 6494.947
+ }
+ Komsomo_Planque_VilleDeKomsomo_R400 {
+  Flags 0x100000 0
+  coords 8597.298 3.938 10176.605
+ }
+ Rowan_Planque_VilleDeRowan_R400 {
+  Flags 0x100000 0
+  coords 9838.98 56.536 9483.446
+ }
+ LeRocher_Planque_VilleDuRocher_R300 {
+  Flags 0x100000 0
+  coords 11390.128 86.537 10511.521
+ }
+ LeRocher_Planque_VilleDeKamensk_R300 {
+  Flags 0x100000 0
+  coords 11904.275 6.363 10770.85
+ }
+ LeRocher_Planque_CentrevilleDeKamensk_R300 {
+  Flags 0x100000 0
+  coords 11832.164 9.505 10639.734
+ }
 }

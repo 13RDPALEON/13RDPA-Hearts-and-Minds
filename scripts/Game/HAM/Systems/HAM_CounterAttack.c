@@ -128,6 +128,9 @@ class HAM_CounterAttack
 				break;
 
 			vector roadStart = RoadNear(start);
+			if (!HAM_Util.VehicleSpot(roadStart))
+				continue;
+
 			vector roadEnd;
 			if (!HAM_Util.RoadPoint(targetPos, 300, roadEnd))
 				roadEnd = targetPos;
@@ -287,7 +290,7 @@ class HAM_CounterAttack
 		for (int step = 0; step < 8; step++)
 		{
 			vector candidate = HAM_Util.Ground(to + away * (dist + step * 150));
-			if (HAM_Util.IsWater(candidate))
+			if (!HAM_Util.FieldSpot(candidate))
 				continue;
 
 			if (!SpawnAllowed(candidate))
@@ -306,7 +309,7 @@ class HAM_CounterAttack
 		for (int attempt = 0; attempt < 6; attempt++)
 		{
 			vector spot = HAM_Util.DryAround(start, 0, INFANTRY_SCATTER);
-			if (SpawnAllowed(spot))
+			if (SpawnAllowed(spot) && HAM_Util.FieldSpot(spot))
 				return spot;
 		}
 
@@ -324,7 +327,7 @@ class HAM_CounterAttack
 			if (!HAM_Util.RoadPoint(sample, 80, road))
 				continue;
 
-			if (!SpawnAllowed(road))
+			if (!SpawnAllowed(road) || !HAM_Util.VehicleSpot(road))
 				continue;
 
 			return road;

@@ -29,7 +29,22 @@ class HAM_Util
 			return false;
 
 		float ground = world.GetSurfaceY(pos[0], pos[2]);
-		return WaterCovers(world, pos, ground, 2) || WaterCovers(world, pos, ground, 12) || WaterCovers(world, pos, ground, 40) || WaterCovers(world, pos, ground, 120);
+		if (WaterCovers(world, pos, ground, 2) || WaterCovers(world, pos, ground, 12) || WaterCovers(world, pos, ground, 40) || WaterCovers(world, pos, ground, 120))
+			return true;
+
+		vector high = pos;
+		high[1] = ground + 80;
+		if (high[1] < 80)
+			high[1] = 80;
+
+		vector surface;
+		EWaterSurfaceType waterType;
+		vector transformWS[4];
+		vector obb;
+		if (!ChimeraWorldUtils.TryGetWaterSurface(world, high, surface, waterType, transformWS, obb))
+			return false;
+
+		return surface[1] > ground + 0.15;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -62,6 +77,95 @@ class HAM_Util
 			return false;
 
 		return surface[1] > ground - 0.4;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Patrouille à pied : au sec, à au moins 10 m du bord d'un bâtiment.
+	static bool FootSpot(vector pos)
+	{
+		if (IsWater(pos))
+			return false;
+
+		return !SiteBuilding(pos, 10);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Interzone, contre-attaque, renfort : au sec, 50 m d'un bâtiment, 70 m d'un arbre.
+	static bool FieldSpot(vector pos)
+	{
+		if (IsWater(pos))
+			return false;
+
+		if (SiteBuilding(pos, 50))
+			return false;
+
+		return !TreeWithin(pos, 70);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Patrouille en véhicule : le terrain du FieldSpot, plus un anneau sec pour ne pas tomber à l'eau.
+	static bool VehicleSpot(vector pos)
+	{
+		if (IsNearWater(pos))
+			return false;
+
+		return FieldSpot(pos);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Hélicoptère : comme un véhicule, et sans grosse pente.
+	static bool AirSpot(vector pos)
+	{
+		if (!VehicleSpot(pos))
+			return false;
+
+		return SlopeAt(pos, 24) <= 0.10;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Vrai si de l'eau est à moins de radius mètres.
+	static bool WaterWithin(vector pos, float radius)
+	{
+		if (IsWater(pos))
+			return true;
+
+		for (int step = 0; step < 8; step++)
+		{
+			vector dir = Vector(step * 45.0, 0, 0).AnglesToVector();
+			if (IsWater(pos + dir * radius))
+				return true;
+		}
+
+		return false;
+	}
+
+	protected static bool s_bTreeHit;
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool TreeWithin(vector pos, float radius)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return false;
+
+		s_bTreeHit = false;
+		world.QueryEntitiesBySphere(pos, radius, SeeTree);
+		return s_bTreeHit;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SeeTree(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return true;
+
+		string name = ent.GetPrefabData().GetPrefabName();
+		name.ToLower();
+		if (!name.Contains("tree") && !name.Contains("pine") && !name.Contains("spruce") && !name.Contains("oak") && !name.Contains("birch"))
+			return true;
+
+		s_bTreeHit = true;
+		return false;
 	}
 
 	protected static int s_iDrySlot;
@@ -122,6 +226,9 @@ class HAM_Util
 		vector pos = Ground(center + Vector(Math.Cos(angle) * radius, 0, Math.Sin(angle) * radius));
 		if (IsWater(pos))
 			pos = Ground(center + Vector(Math.Cos(angle) * (radius + gap), 0, Math.Sin(angle) * (radius + gap)));
+
+		if (IsWater(pos) && !IsWater(center))
+			return center;
 
 		return pos;
 	}
@@ -373,7 +480,7 @@ class HAM_Util
 		return worst;
 	}
 
-	//! Aire d'hélicoptère : sec, pente faible, aucun arbre dans 50 m.
+	//! Aire d'hélicoptère : au sec, 50 m d'un bâtiment, 70 m d'un arbre, pente faible.
 	static bool FindHeliPad(vector center, out vector spot)
 	{
 		spot = Ground(center);
@@ -400,16 +507,7 @@ class HAM_Util
 	//------------------------------------------------------------------------------------------------
 	protected static bool HeliPadOk(vector pos)
 	{
-		if (IsNearWater(pos))
-			return false;
-
-		if (SlopeAt(pos, 24) > 0.10)
-			return false;
-
-		if (!OutOfBuildings(pos))
-			return false;
-
-		return !HeliHasTree(pos);
+		return AirSpot(pos);
 	}
 
 	//------------------------------------------------------------------------------------------------

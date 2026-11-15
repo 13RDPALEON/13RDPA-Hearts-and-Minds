@@ -252,6 +252,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 	protected string m_sDetailPrefab;
 	protected string m_sListPrefab;
 	protected int m_iListIndex;
+	protected bool m_bSelectAll;
 	protected int m_iRankIndex;
 	protected bool m_bDetailIsBag;
 	protected ref array<string> m_aPrefab;
@@ -349,7 +350,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 		float listTop = 172;
 		float rowH = 40;
-		float footer = 56;
+		float footer = 100;
 		float avail = panelH - listTop - footer;
 		float fitH = avail / PAGE_SIZE;
 		if (fitH < rowH)
@@ -364,6 +365,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			BindButton("Item" + row.ToString());
 		}
 
+		Place("SelectAllBtn", 16, panelH - 92, listW, 36);
 		Place("Prev", 16, panelH - 48, 140, 36);
 		Place("Next", 168, panelH - 48, 140, 36);
 		Place("Close", panelW - 176, panelH - 48, 150, 36);
@@ -396,6 +398,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		Place("ResetBtn", cardX + 140, fieldY + 112, 140, 34);
 		Place("BackBtn", cardX + 290, fieldY + 112, 120, 34);
 
+		BindButton("SelectAllBtn");
 		BindButton("SearchBtn");
 		BindButton("CatPrev");
 		BindButton("CatNext");
@@ -606,6 +609,17 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			return true;
 		}
 
+		if (name == "SelectAllBtn")
+		{
+			if (!IsFilterMode() || m_aPrefab.IsEmpty())
+				return true;
+
+			m_bSelectAll = !m_bSelectAll;
+			PaintRows();
+			RefreshSelectAll();
+			return true;
+		}
+
 		if (name == "SaveBtn")
 		{
 			if (IsFilterMode())
@@ -654,6 +668,15 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void ApplyFilter()
 	{
+		if (m_bSelectAll)
+		{
+			ExcludeCurrentList();
+			m_bSelectAll = false;
+			RefreshSelectAll();
+			PaintRows();
+			return;
+		}
+
 		if (m_sListPrefab.IsEmpty() || m_iListIndex < 0 || m_iListIndex >= m_aShown.Count())
 			return;
 
@@ -675,8 +698,61 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			HAM_ArsenalBoardStore.SetShown(prefab, next);
 		}
 
-		Rebuild();
+		if (next)
+			m_aShown.Set(m_iListIndex, 1);
+		else
+			m_aShown.Set(m_iListIndex, 0);
+
+		string label = m_aLabel[m_iListIndex];
+		label.Replace("    Inclus", "");
+		label.Replace("    Exclus", "");
+		if (next)
+			label = label + "    Inclus";
+		else
+			label = label + "    Exclus";
+
+		m_aLabel.Set(m_iListIndex, label);
+		PaintRows();
 		ShowListPreview();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Exclut toute la liste affichée, toutes pages, recherche et catégorie comprises.
+	protected void ExcludeCurrentList()
+	{
+		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		for (int i = 0; i < m_aPrefab.Count(); i++)
+		{
+			string prefab = m_aPrefab[i];
+			if (IsVehicleMode())
+			{
+				if (player)
+					player.HAM_VehicleBoardAskSetShown(prefab, false);
+
+				HAM_VehicleBoardStore.SetShown(prefab, false);
+			}
+			else
+			{
+				if (player)
+					player.HAM_ArsenalBoardAskSetShown(prefab, false);
+
+				HAM_ArsenalBoardStore.SetShown(prefab, false);
+			}
+
+			m_aShown.Set(i, 0);
+			string label = m_aLabel[i];
+			label.Replace("    Inclus", "");
+			label.Replace("    Exclus", "");
+			m_aLabel.Set(i, label + "    Exclus");
+		}
+	}
+
+	protected void RefreshSelectAll()
+	{
+		if (m_bSelectAll)
+			SetText("SelectAllText", "Liste sélectionnée");
+		else
+			SetText("SelectAllText", "Tout sélectionner");
 	}
 
 	protected void OpenDetail(string prefab, int index)
@@ -786,6 +862,8 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			RebuildVehicles();
 			return;
 		}
+		m_bSelectAll = false;
+		RefreshSelectAll();
 		m_aPrefab.Clear();
 		m_aLabel.Clear();
 		m_aShown.Clear();
@@ -1015,9 +1093,16 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 			btn.SetVisible(true);
 			if (label)
-				label.SetText(m_aLabel[index]);
+			{
+				if (m_bSelectAll)
+					label.SetText(m_aLabel[index] + "  · sélection");
+				else
+					label.SetText(m_aLabel[index]);
+			}
 
-			if (IsFilterMode())
+			if (m_bSelectAll)
+				btn.SetColor(new Color(0.22, 0.28, 0.48, 1));
+			else if (IsFilterMode())
 			{
 				if (m_aShown[index] != 0)
 					btn.SetColor(new Color(0.05, 0.28, 0.14, 1));
@@ -1042,6 +1127,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		SetNamedVisible("CatNext", true);
 		SetNamedVisible("Prev", true);
 		SetNamedVisible("Next", true);
+		SetNamedVisible("SelectAllBtn", IsFilterMode());
 		for (int i = 0; i < PAGE_SIZE; i++)
 			SetNamedVisible("Item" + i.ToString(), true);
 
@@ -1088,6 +1174,7 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		SetNamedVisible("CatNext", false);
 		SetNamedVisible("Prev", false);
 		SetNamedVisible("Next", false);
+		SetNamedVisible("SelectAllBtn", false);
 		for (int i = 0; i < PAGE_SIZE; i++)
 			SetNamedVisible("Item" + i.ToString(), false);
 
@@ -1254,6 +1341,8 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void RebuildVehicles()
 	{
+		m_bSelectAll = false;
+		RefreshSelectAll();
 		m_aPrefab.Clear();
 		m_aLabel.Clear();
 		m_aShown.Clear();

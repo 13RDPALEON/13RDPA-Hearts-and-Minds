@@ -1,4 +1,26 @@
-GenericEntity Udarnik_Essence_BaseEstDeUdarnik_R200 : "{0AF1C4C9C7EF05F3}Prefabs/Compositions/Slotted/SlotFlatSmall/FuelStorage_S_US_01.et" {
- coords 5337.222 64.969 3370.426
- angles 0 66.087 0
+$grp GenericEntity : "{0AF1C4C9C7EF05F3}Prefabs/Compositions/Slotted/SlotFlatSmall/FuelStorage_S_US_01.et" {
+ Udarnik_Essence_BaseEstDeUdarnik_R200 {
+  coords 5337.222 64.969 3370.426
+  angles 0 66.087 0
+ }
+ Ugoldar_Essence_PortdUgoldare_R200 {
+  coords 6648.376 2.648 3404.199
+  angles 0 -46.197 0
+ }
+ Ulfid_Carburant_CheckpointdeUlfid_R200 {
+  coords 2699.387 221.312 6991.725
+  angles 0 171.848 0
+ }
+ Cain_Carburant_Caincentre_R300 {
+  coords 6120.542 39.246 7976.936
+  angles 0 174.163 0
+ }
+ Soumont_Carburant_ScierieDeSoumont_R200 {
+  coords 5375.938 403.065 5299.106
+  angles 0 177.756 0
+ }
+ Gorshkov_Carburant_RafinerieDeGorshkov_R300 {
+  coords 8307.77 46.906 6714.747
+  angles 0 -171.45 0
+ }
 }

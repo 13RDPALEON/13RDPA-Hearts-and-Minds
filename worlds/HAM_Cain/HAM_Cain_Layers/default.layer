@@ -1216,8 +1216,6 @@ SCR_CampaignFactionManager CampaignFactionManager1 : "{F1AC26310BAE3788}Prefabs/
     }
     SCR_EntityCatalogMultiList "{5C68A0E9B9AA3C2D}" : "{37D5B75AAC3E72EA}Configs/EntityCatalog/USSR/Groups_EntityCatalog_USSR.conf" {
     }
-    SCR_EntityCatalog "{5C68A0E9A51460AB}" : "{DDF17C8C140BD1F2}Configs/EntityCatalog/USSR/WeaponTripod_EntityCatalog_USSR.conf" {
-    }
     SCR_EntityCatalogMultiList "{5C68A0E9AFE1E631}" {
      m_aMultiLists {
       SCR_EntityCatalogMultiListEntry "{5C68AD5F148714C4}" {
@@ -1545,8 +1543,6 @@ SCR_CampaignFactionManager CampaignFactionManager1 : "{F1AC26310BAE3788}Prefabs/
        }
       }
      }
-    }
-    SCR_EntityCatalog "{5C9EDDD378BA3298}" : "{B4CA6761AC935808}Configs/EntityCatalog/USSR/SupplyContainerItems_EntityCatalog_USSR.conf" {
     }
    }
   }

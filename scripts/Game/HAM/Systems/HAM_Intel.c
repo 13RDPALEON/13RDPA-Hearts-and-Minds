@@ -50,6 +50,7 @@ class HAM_CivilianWave
 	float m_fSpin;
 	bool m_bReleased;
 	ref array<SCR_AIGroup> m_aGroups = {};
+	ref array<IEntity> m_aBodies = {};
 	float m_fOrderAt;
 	vector m_vAnchor;
 	bool m_bAnchor;
@@ -82,7 +83,6 @@ class HAM_Intel
 	protected static ref array<ref HAM_MineFavor> s_aMineFavors;
 	protected static int s_iIedTask;
 	protected static ref array<ref HAM_CivilianWave> s_aWaves;
-	protected static bool s_bTraffic;
 	protected static int s_iTrafficLeft;
 	protected static int s_iTrafficFails;
 	protected static ref array<vector> s_aTrafficSpots;
@@ -108,7 +108,6 @@ class HAM_Intel
 		s_aMineFavors = null;
 		s_iIedTask = 0;
 		s_aWaves = null;
-		s_bTraffic = false;
 		s_iTrafficLeft = 0;
 		s_iTrafficFails = 0;
 		s_aTrafficSpots = null;
@@ -154,11 +153,9 @@ class HAM_Intel
 	static void Tick()
 	{
 		Ensure();
-		if (!s_bTraffic)
-			StartTraffic();
-
 		HAM_Settings settings = HAM_Settings.Get();
 		array<IEntity> bodies = HAM_Mission.s_aPlayerBodies;
+		TickTraffic(bodies, settings);
 		foreach (HAM_Cell cell : HAM_Mission.s_aCells)
 		{
 			HAM_IntelCellState state = StateOf(cell);
@@ -294,23 +291,32 @@ class HAM_Intel
 		if (!state || name.IsEmpty())
 			return;
 
-		float nearest = HAM_Util.NearestDistance(bodies, center);
+		float activate = settings.ActivationOf(zoneDef);
+		float leave = settings.DespawnOf(zoneDef);
+		if (leave < activate)
+			leave = activate;
+
+		float nearest = float.MAX;
+		if (bodies && !bodies.IsEmpty())
+			nearest = HAM_Util.NearestDistance(bodies, center);
+
 		bool listed = state.m_aCivilianPoints.Contains(name);
 		if (listed)
 		{
-			if (bodies && !bodies.IsEmpty() && nearest > settings.DespawnOf(zoneDef))
+			if (!bodies || bodies.IsEmpty() || nearest > leave)
 			{
-				ClearCivilianAnchor(state, name, center, reach + 80);
+				ClearCivilianAnchor(state, name);
 				return;
 			}
 
-			if (LivingCiviliansNear(state, center, reach + 80) > 0)
+			if (AnchorHasLiving(name))
 				return;
 
+			DropEmptyGroups(name);
 			state.m_aCivilianPoints.RemoveItem(name);
 		}
 
-		if (nearest > settings.ActivationOf(zoneDef))
+		if (nearest > activate)
 			return;
 
 		state.m_aCivilianPoints.Insert(name);
@@ -331,6 +337,7 @@ class HAM_Intel
 		wave.m_fSpin = Math.RandomFloat(0, Math.PI2);
 		wave.m_iLeft = 0;
 		wave.m_aGroups = {};
+		wave.m_aBodies = {};
 		for (int civilianIndex = 0; civilianIndex < count; civilianIndex++)
 		{
 			float floor = 8;
@@ -357,60 +364,207 @@ class HAM_Intel
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static int LivingCivilians(HAM_IntelCellState state, HAM_Point point)
-	{
-		if (!point)
-			return 0;
-
-		float keep = point.Radius() + 80;
-		return LivingCiviliansNear(state, point.Pos(), keep);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static int LivingCiviliansNear(HAM_IntelCellState state, vector center, float keep)
-	{
-		if (!state)
-			return 0;
-
-		int count = 0;
-		foreach (IEntity civilian : state.m_aCivilians)
-		{
-			if (!civilian || HAM_Util.IsDead(civilian))
-				continue;
-
-			if (vector.DistanceXZ(civilian.GetOrigin(), center) > keep)
-				continue;
-
-			count++;
-		}
-
-		return count;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	protected static void ClearCivilianPoint(HAM_IntelCellState state, HAM_Point point)
 	{
 		if (!point)
 			return;
 
-		ClearCivilianAnchor(state, point.m_Def.m_sName, point.Pos(), point.Radius() + 80);
+		ClearCivilianAnchor(state, point.m_Def.m_sName);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static void ClearCivilianAnchor(HAM_IntelCellState state, string name, vector center, float keep)
+	//! Les groupes vides partent. Les corps suivis restent jusqu'au départ du joueur.
+	protected static void DropEmptyGroups(string name)
+	{
+		if (!s_aWaves || name.IsEmpty())
+			return;
+
+		foreach (HAM_CivilianWave wave : s_aWaves)
+		{
+			if (!wave || wave.m_sKey != name || WaveHasLiving(wave))
+				continue;
+
+			array<SCR_AIGroup> groups = {};
+			if (wave.m_aGroups)
+			{
+				foreach (SCR_AIGroup solo : wave.m_aGroups)
+				{
+					if (solo && groups.Find(solo) < 0)
+						groups.Insert(solo);
+				}
+
+				wave.m_aGroups.Clear();
+			}
+
+			if (wave.m_Group && groups.Find(wave.m_Group) < 0)
+				groups.Insert(wave.m_Group);
+
+			wave.m_Group = null;
+			HAM_Util.DeleteGroups(groups);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Vivants de cette ancre, où qu'ils aient marché. La petite sphère du centre ne compte pas.
+	protected static bool AnchorHasLiving(string name)
+	{
+		if (!s_aWaves || name.IsEmpty())
+			return false;
+
+		foreach (HAM_CivilianWave wave : s_aWaves)
+		{
+			if (wave && wave.m_sKey == name && WaveHasLiving(wave))
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool WaveHasLiving(HAM_CivilianWave wave)
+	{
+		if (!wave)
+			return false;
+
+		if (wave.m_aBodies)
+		{
+			foreach (IEntity body : wave.m_aBodies)
+			{
+				if (body && !HAM_Util.IsDead(body))
+					return true;
+			}
+		}
+
+		if (HAM_Util.AliveCount(wave.m_Group) > 0)
+			return true;
+
+		if (!wave.m_aGroups)
+			return false;
+
+		foreach (SCR_AIGroup solo : wave.m_aGroups)
+		{
+			if (HAM_Util.AliveCount(solo) > 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool WaveStillTracked(HAM_CivilianWave wave)
+	{
+		if (!wave)
+			return false;
+
+		if (wave.m_Group)
+			return true;
+
+		if (wave.m_aGroups)
+		{
+			foreach (SCR_AIGroup solo : wave.m_aGroups)
+			{
+				if (solo)
+					return true;
+			}
+		}
+
+		if (!wave.m_aBodies)
+			return false;
+
+		foreach (IEntity body : wave.m_aBodies)
+		{
+			if (body)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void RememberAgent(SCR_AIGroup group, notnull array<IEntity> known, notnull array<IEntity> livingAgents)
+	{
+		if (!group)
+			return;
+
+		array<AIAgent> agents = {};
+		group.GetAgents(agents);
+		foreach (AIAgent agent : agents)
+		{
+			if (!agent)
+				continue;
+
+			IEntity body = agent.GetControlledEntity();
+			if (!body)
+				continue;
+
+			if (known.Find(body) < 0)
+				known.Insert(body);
+
+			if (!HAM_Util.IsDead(body) && livingAgents.Find(body) < 0)
+				livingAgents.Insert(body);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Groupes, vivants et corps suivis de cette ancre. La distance au centre ne les épargne pas.
+	protected static void ClearCivilianAnchor(HAM_IntelCellState state, string name)
 	{
 		if (!state)
 			return;
 
+		array<IEntity> known = {};
+		array<IEntity> livingAgents = {};
+		array<SCR_AIGroup> groups = {};
+		if (s_aWaves)
+		{
+			foreach (HAM_CivilianWave wave : s_aWaves)
+			{
+				if (!wave || wave.m_sKey != name)
+					continue;
+
+				if (wave.m_aBodies)
+				{
+					foreach (IEntity body : wave.m_aBodies)
+					{
+						if (body && known.Find(body) < 0)
+							known.Insert(body);
+					}
+				}
+
+				if (wave.m_aGroups)
+				{
+					foreach (SCR_AIGroup solo : wave.m_aGroups)
+					{
+						if (!solo || groups.Find(solo) >= 0)
+							continue;
+
+						groups.Insert(solo);
+						RememberAgent(solo, known, livingAgents);
+					}
+				}
+
+				if (wave.m_Group && groups.Find(wave.m_Group) < 0)
+				{
+					groups.Insert(wave.m_Group);
+					RememberAgent(wave.m_Group, known, livingAgents);
+				}
+			}
+		}
+
+		HAM_Util.DeleteGroups(groups);
+		foreach (IEntity knownBody : known)
+		{
+			if (!knownBody || livingAgents.Find(knownBody) >= 0)
+				continue;
+
+			HAM_Util.Delete(knownBody);
+		}
+
 		for (int i = state.m_aCivilians.Count() - 1; i >= 0; i--)
 		{
 			IEntity civilian = state.m_aCivilians[i];
-			if (civilian && vector.DistanceXZ(civilian.GetOrigin(), center) > keep)
-				continue;
-
-			state.m_aCivilians.Remove(i);
-			if (civilian && !HAM_Util.IsDead(civilian))
-				HAM_Util.Delete(civilian);
+			if (!civilian || known.Find(civilian) >= 0)
+				state.m_aCivilians.Remove(i);
 		}
 
 		state.m_aCivilianPoints.RemoveItem(name);
@@ -462,6 +616,9 @@ class HAM_Intel
 				continue;
 
 			wave.m_State.m_aCivilians.Insert(body);
+			if (wave.m_aBodies && wave.m_aBodies.Find(body) < 0)
+				wave.m_aBodies.Insert(body);
+
 			wave.m_iSpawned++;
 		}
 
@@ -497,10 +654,10 @@ class HAM_Intel
 			floor = 6;
 
 		vector spot = HAM_Util.CivilianSpot(wave.m_vCenter, floor, reach);
-		if (HAM_Util.IsNearWater(spot) || !HAM_Util.OutOfBuildings(spot))
+		if (!HAM_Util.FootSpot(spot))
 			spot = HAM_Util.CivilianSpot(wave.m_vCenter, reach, reach + 25);
 
-		if (HAM_Util.IsNearWater(spot) || !HAM_Util.OutOfBuildings(spot))
+		if (!HAM_Util.FootSpot(spot))
 		{
 			if (wave.m_iLeft > 0)
 				GetGame().GetCallqueue().CallLater(SpawnNextCivilian, 400, false, wave);
@@ -514,6 +671,12 @@ class HAM_Intel
 		{
 			HAM_Util.PlaceUpright(civilian, spot);
 			wave.m_State.m_aCivilians.Insert(civilian);
+			if (!wave.m_aBodies)
+				wave.m_aBodies = {};
+
+			if (wave.m_aBodies.Find(civilian) < 0)
+				wave.m_aBodies.Insert(civilian);
+
 			wave.m_iSpawned++;
 			JoinCivilianGroup(civilian, wave.m_Group);
 			HAM_Util.PlaceUpright(civilian, spot);
@@ -537,14 +700,16 @@ class HAM_Intel
 		if (!wave || !wave.m_Group || !wave.m_State)
 			return;
 
-		float keep = wave.m_fRadius + 80;
-		foreach (IEntity civilian : wave.m_State.m_aCivilians)
+		if (wave.m_aBodies)
 		{
-			if (!civilian || vector.DistanceXZ(civilian.GetOrigin(), wave.m_vCenter) > keep)
-				continue;
+			foreach (IEntity civilian : wave.m_aBodies)
+			{
+				if (!civilian || HAM_Util.IsDead(civilian))
+					continue;
 
-			JoinCivilianGroup(civilian, wave.m_Group);
-			AllowPatrolMove(civilian);
+				JoinCivilianGroup(civilian, wave.m_Group);
+				AllowPatrolMove(civilian);
+			}
 		}
 
 		UnstackWave(wave);
@@ -596,7 +761,7 @@ class HAM_Intel
 		for (int step = 0; step < 8 && given < 3; step++)
 		{
 			vector spot = HAM_Util.CivilianSpot(wave.m_vCenter, 30, reach);
-			if (HAM_Util.IsNearWater(spot))
+			if (!HAM_Util.FootSpot(spot))
 				continue;
 
 			HAM_Util.SnapToNavmesh(group, spot);
@@ -610,8 +775,11 @@ class HAM_Intel
 		if (given < 1)
 		{
 			vector spot = HAM_Util.DryAround(origin, 40, reach);
-			HAM_Util.SnapToNavmesh(group, spot);
-			HAM_Util.Order(group, HAM_Units.WP_MOVE, spot, 10);
+			if (HAM_Util.FootSpot(spot))
+			{
+				HAM_Util.SnapToNavmesh(group, spot);
+				HAM_Util.Order(group, HAM_Units.WP_MOVE, spot, 10);
+			}
 		}
 
 		wave.m_vAnchor = origin;
@@ -759,11 +927,15 @@ class HAM_Intel
 		for (int i = s_aWaves.Count() - 1; i >= 0; i--)
 		{
 			HAM_CivilianWave wave = s_aWaves[i];
-			if (!wave || !wave.m_Group)
+			if (!wave || !WaveStillTracked(wave))
 			{
 				s_aWaves.Remove(i);
 				continue;
 			}
+
+			// Les corps restent suivis jusqu'au départ du joueur, même hors de la zone.
+			if (!WaveHasLiving(wave) || !wave.m_Group)
+				continue;
 
 			if (!wave.m_bReleased)
 			{
@@ -771,23 +943,7 @@ class HAM_Intel
 				continue;
 			}
 
-			if (LivingCiviliansNear(wave.m_State, wave.m_vCenter, wave.m_fRadius + 80) < 1)
-			{
-				s_aWaves.Remove(i);
-				continue;
-			}
-
-			if (wave.m_State)
-			{
-				foreach (IEntity body : wave.m_State.m_aCivilians)
-				{
-					if (!body || HAM_Util.IsDead(body))
-						continue;
-
-					JoinCivilianGroup(body, wave.m_Group);
-				}
-			}
-
+			RejoinWaveBodies(wave);
 			HAM_Util.KeepAwake(wave.m_Group);
 			array<AIWaypoint> waypoints = {};
 			int pending = wave.m_Group.GetWaypoints(waypoints);
@@ -796,6 +952,33 @@ class HAM_Intel
 
 			WakeCivilianGroup(wave.m_Group);
 			OrderCivilianPatrol(wave);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Raccroche un civil de cette vague qui a quitté son groupe. Pas ceux des autres ancres.
+	protected static void RejoinWaveBodies(HAM_CivilianWave wave)
+	{
+		if (!wave || !wave.m_aBodies || !wave.m_Group)
+			return;
+
+		foreach (IEntity body : wave.m_aBodies)
+		{
+			if (!body || HAM_Util.IsDead(body))
+				continue;
+
+			AIControlComponent control = AIControlComponent.Cast(body.FindComponent(AIControlComponent));
+			if (control)
+			{
+				AIAgent agent = control.GetControlAIAgent();
+				if (!agent)
+					agent = control.GetAIAgent();
+
+				if (agent && agent.GetParentGroup())
+					continue;
+			}
+
+			JoinCivilianGroup(body, wave.m_Group);
 		}
 	}
 
@@ -960,31 +1143,174 @@ class HAM_Intel
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static void StartTraffic()
+	protected static float s_fCivilReach = -1;
+	protected static float s_fCivilLeave = -1;
+	protected static float s_fNextTraffic;
+
+	//------------------------------------------------------------------------------------------------
+	protected static void CivilDistances(HAM_Settings settings, out float reach, out float leave)
 	{
-		s_bTraffic = true;
-		int count = HAM_Settings.Get().m_iCivilianVehicles;
-		if (count < 1 || !HAM_Mission.s_aPoints)
-			return;
-
-		s_aTrafficSpots = {};
-		foreach (HAM_Point point : HAM_Mission.s_aPoints)
+		if (s_fCivilReach < 0)
 		{
-			if (point)
-				s_aTrafficSpots.Insert(point.Pos());
+			HAM_MapPoint probe = new HAM_MapPoint();
+			probe.m_eRole = HAM_ERole.CIVILIANS;
+			s_fCivilReach = settings.ActivationOf(probe);
+			s_fCivilLeave = settings.DespawnOf(probe);
+			if (s_fCivilLeave < s_fCivilReach + 100)
+				s_fCivilLeave = s_fCivilReach + 100;
 		}
 
-		foreach (HAM_Deposit deposit : HAM_Mission.s_aDeposits)
-		{
-			if (deposit)
-				s_aTrafficSpots.Insert(deposit.Pos());
-		}
+		reach = s_fCivilReach;
+		leave = s_fCivilLeave;
+	}
 
-		if (s_aTrafficSpots.Count() < 2)
+	//------------------------------------------------------------------------------------------------
+	//! Les voitures civiles naissent dans le rayon d'activation et partent au-delà du rayon de disparition.
+	protected static void TickTraffic(array<IEntity> bodies, HAM_Settings settings)
+	{
+		float reach;
+		float leave;
+		CivilDistances(settings, reach, leave);
+		DropFarTraffic(bodies, leave);
+		if (!bodies || bodies.IsEmpty() || settings.m_iCivilianVehicles < 1)
 			return;
 
-		s_iTrafficLeft = count;
-		GetGame().GetCallqueue().CallLater(SpawnNextTraffic, 2000, false);
+		if (HAM_Util.Now() < s_fNextTraffic)
+			return;
+
+		if (TrafficNear(bodies, leave) >= settings.m_iCivilianVehicles)
+			return;
+
+		IEntity body = bodies.GetRandomElement();
+		if (!body)
+			return;
+
+		s_fNextTraffic = HAM_Util.Now() + 6;
+		SpawnTrafficNear(body.GetOrigin(), reach);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static int TrafficNear(array<IEntity> bodies, float leave)
+	{
+		if (!s_aRoadCars)
+			return 0;
+
+		int count = 0;
+		foreach (HAM_RoadCar car : s_aRoadCars)
+		{
+			if (!car || !car.m_Vehicle || HAM_Util.IsDead(car.m_Vehicle))
+				continue;
+
+			if (HAM_Util.NearestDistance(bodies, car.m_Vehicle.GetOrigin()) <= leave)
+				count++;
+		}
+
+		return count;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void DropFarTraffic(array<IEntity> bodies, float leave)
+	{
+		if (!s_aRoadCars)
+			return;
+
+		for (int i = s_aRoadCars.Count() - 1; i >= 0; i--)
+		{
+			HAM_RoadCar car = s_aRoadCars[i];
+			if (!car || !car.m_Vehicle || HAM_Util.IsDead(car.m_Vehicle))
+			{
+				s_aRoadCars.Remove(i);
+				continue;
+			}
+
+			if (TrafficHasPlayer(car.m_Vehicle))
+				continue;
+
+			if (bodies && !bodies.IsEmpty() && HAM_Util.NearestDistance(bodies, car.m_Vehicle.GetOrigin()) <= leave)
+				continue;
+
+			ReleaseTraffic(car);
+			s_aRoadCars.Remove(i);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool TrafficHasPlayer(Vehicle vehicle)
+	{
+		if (!vehicle)
+			return false;
+
+		SCR_BaseCompartmentManagerComponent compartments = SCR_BaseCompartmentManagerComponent.Cast(vehicle.FindComponent(SCR_BaseCompartmentManagerComponent));
+		if (!compartments)
+			return false;
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		array<IEntity> occupants = {};
+		compartments.GetOccupants(occupants);
+		foreach (IEntity occupant : occupants)
+		{
+			if (occupant && players && players.GetPlayerIdFromControlledEntity(occupant) > 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReleaseTraffic(HAM_RoadCar car)
+	{
+		if (!car || !car.m_Vehicle)
+			return;
+
+		SCR_BaseCompartmentManagerComponent compartments = SCR_BaseCompartmentManagerComponent.Cast(car.m_Vehicle.FindComponent(SCR_BaseCompartmentManagerComponent));
+		if (compartments)
+		{
+			SCR_AIGroup crew = HAM_Garrison.CrewGroup(compartments);
+			if (crew)
+				HAM_Util.DeleteGroup(crew);
+		}
+
+		HAM_Util.Delete(car.m_Vehicle);
+		car.m_Vehicle = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void SpawnTrafficNear(vector origin, float reach)
+	{
+		vector road;
+		if (!FindTrafficRoad(origin, reach, road))
+			return;
+
+		array<vector> route = {};
+		int stops = Math.RandomInt(2, 4);
+		for (int step = 0; step < stops; step++)
+		{
+			vector sample = HAM_Util.RandomAround(origin, 40, reach);
+			vector stop;
+			if (!HAM_Util.RoadPoint(sample, 80, stop) || !HAM_Util.VehicleSpot(stop))
+				continue;
+
+			if (vector.DistanceXZ(stop, road) < 40)
+				continue;
+
+			route.Insert(stop);
+		}
+
+		if (route.IsEmpty())
+			route.Insert(road);
+
+		ResourceName prefab = TrafficPrefab(Math.RandomInt(0, 4));
+		Vehicle vehicle = HAM_Garrison.SpawnCrewedVehicle(prefab, road, Math.RandomFloat(0, 360), false, route, HAM_Units.WP_MOVE, 30, null, false, ResourceName.Empty);
+		if (!vehicle)
+			return;
+
+		if (!s_aRoadCars)
+			s_aRoadCars = {};
+
+		HAM_RoadCar car = new HAM_RoadCar();
+		car.m_Vehicle = vehicle;
+		s_aRoadCars.Insert(car);
+		HAM_Util.Info(string.Format("Circulation civile : %1", HAM_Util.PrefabFileName(prefab)));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -994,7 +1320,7 @@ class HAM_Intel
 		if (Math.RandomFloat01() < 0.5)
 		{
 			vector road;
-			if (HAM_Util.RoadPoint(pos, 150, road) && HAM_Util.OutOfBuildings(road))
+			if (HAM_Util.RoadPoint(pos, 150, road) && HAM_Util.VehicleSpot(road))
 			{
 				array<vector> route = {};
 				route.Insert(HAM_Util.RandomAround(road, 400, 900));
@@ -1018,7 +1344,7 @@ class HAM_Intel
 		for (int i = 0; i < count; i++)
 		{
 			vector spot = HAM_Util.CivilianSpot(pos, 8, 40);
-			if (HAM_Util.IsNearWater(spot) || !HAM_Util.OutOfBuildings(spot))
+			if (!HAM_Util.FieldSpot(spot))
 				continue;
 
 			SCR_AIGroup solo = CivilianGroup(spot, 1);
@@ -1041,75 +1367,20 @@ class HAM_Intel
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static void SpawnNextTraffic()
-	{
-		if (s_iTrafficLeft < 1 || !s_aTrafficSpots || s_aTrafficSpots.Count() < 2)
-			return;
-
-		vector road;
-		if (!FindTrafficRoad(road))
-		{
-			s_iTrafficFails++;
-			if (s_iTrafficFails > 24)
-			{
-				s_iTrafficLeft = 0;
-				HAM_Util.Info("Circulation civile : plus de route assez éloignée");
-				return;
-			}
-
-			GetGame().GetCallqueue().CallLater(SpawnNextTraffic, 2000, false);
-			return;
-		}
-
-		s_iTrafficFails = 0;
-		s_iTrafficLeft--;
-		if (!s_aTrafficRoads)
-			s_aTrafficRoads = {};
-
-		s_aTrafficRoads.Insert(road);
-		array<vector> route = {};
-		int stops = Math.RandomInt(3, 6);
-		for (int step = 0; step < stops; step++)
-		{
-			vector sample = HAM_Util.RandomAround(s_aTrafficSpots.GetRandomElement(), 60, 1600);
-			vector stop;
-			if (!HAM_Util.RoadPoint(sample, 260, stop) || HAM_Util.IsWater(stop))
-				continue;
-
-			if (vector.DistanceXZ(stop, road) < 120)
-				continue;
-
-			route.Insert(stop);
-		}
-
-		if (route.IsEmpty())
-			route.Insert(HAM_Util.RandomAround(road, 400, 1400));
-
-		ResourceName prefab = TrafficPrefab(Math.RandomInt(0, 4));
-		Vehicle vehicle = HAM_Garrison.SpawnCrewedVehicle(prefab, road, Math.RandomFloat(0, 360), false, route, HAM_Units.WP_MOVE, 30, null, false, ResourceName.Empty);
-		if (vehicle)
-		{
-			if (!s_aRoadCars)
-				s_aRoadCars = {};
-
-			HAM_RoadCar car = new HAM_RoadCar();
-			car.m_Vehicle = vehicle;
-			s_aRoadCars.Insert(car);
-			HAM_Util.Info(string.Format("Circulation civile : %1", HAM_Util.PrefabFileName(prefab)));
-		}
-
-		if (s_iTrafficLeft > 0)
-			GetGame().GetCallqueue().CallLater(SpawnNextTraffic, 5000 + Math.RandomInt(0, 4000), false);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static bool FindTrafficRoad(out vector road)
+	protected static bool FindTrafficRoad(vector origin, float reach, out vector road)
 	{
 		road = "0 0 0";
+		float outer = reach;
+		if (outer < 80)
+			outer = 80;
+
 		for (int attempt = 0; attempt < 8; attempt++)
 		{
-			vector sample = HAM_Util.RandomAround(s_aTrafficSpots.GetRandomElement(), 80, 1100);
-			if (!HAM_Util.RoadPoint(sample, 240, road) || HAM_Util.IsWater(road))
+			vector sample = HAM_Util.RandomAround(origin, 40, outer);
+			if (!HAM_Util.RoadPoint(sample, 80, road) || !HAM_Util.VehicleSpot(road))
+				continue;
+
+			if (vector.DistanceXZ(road, origin) > outer)
 				continue;
 
 			if (TrafficRoadTaken(road))
@@ -1138,7 +1409,7 @@ class HAM_Intel
 
 		foreach (HAM_RoadCar car : s_aRoadCars)
 		{
-			if (car && car.m_Vehicle && vector.DistanceXZ(car.m_Vehicle.GetOrigin(), road) < 140)
+			if (car && car.m_Vehicle && vector.DistanceXZ(car.m_Vehicle.GetOrigin(), road) < 40)
 				return true;
 		}
 

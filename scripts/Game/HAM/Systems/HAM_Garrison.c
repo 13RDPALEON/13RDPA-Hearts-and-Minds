@@ -241,6 +241,28 @@ class HAM_Garrison
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Ligne du QG : ennemie tant qu'une cellule collée au QG est encore au front.
+	protected static bool LineSpawnsEnemies(HAM_Line line)
+	{
+		if (!line)
+			return false;
+
+		if (line.m_Cell)
+			return CellSpawnsEnemies(line.m_Cell);
+
+		if (!line.m_Def || line.m_Def.m_sCell != HAM_Mission.HQ_NAME || !HAM_Mission.s_aCells)
+			return false;
+
+		foreach (HAM_Cell cell : HAM_Mission.s_aCells)
+		{
+			if (cell && cell.m_bTouchesHq && CellSpawnsEnemies(cell))
+				return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static void TickPoint(HAM_Point point, array<IEntity> bodies, HAM_Settings settings)
 	{
 		float nearest = HAM_Util.NearestDistance(bodies, point.Pos());
@@ -351,6 +373,9 @@ class HAM_Garrison
 				break;
 
 			vector pos = HAM_Util.DryAround(center, 5, Math.Max(15, radius * 0.5));
+			if (!HAM_Util.FootSpot(pos))
+				continue;
+
 			SCR_AIGroup group = HAM_Util.SpawnFullGroup(prefab, pos, 0);
 			if (!group)
 				continue;
@@ -410,6 +435,9 @@ class HAM_Garrison
 		if (step.m_iKind == 1)
 		{
 			vector pos = HAM_Util.DryAround(step.m_vCenter, 5, Math.Max(15, step.m_fRadius * 0.5));
+			if (!HAM_Util.FootSpot(pos))
+				return;
+
 			SCR_AIGroup group = HAM_Util.SpawnFullGroup(step.m_Prefab, pos, 0);
 			if (!group || !step.m_aGroups)
 				return;
@@ -428,8 +456,8 @@ class HAM_Garrison
 
 		if (step.m_iKind == 3 && step.m_Line)
 		{
-			vector start = HAM_Util.DryAround(step.m_Line.Pos(), 0, step.m_Line.m_Def.m_fRadius);
-			if (!ClearOfHeldZones(start))
+			vector start = PatrolSample(step.m_Line.Pos(), step.m_Line.m_Def.m_fRadius);
+			if (HAM_Util.IsWater(start) || !HAM_Util.FootSpot(start) || !ClearOfHeldZones(start))
 				return;
 
 			SCR_AIGroup patrol = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_RIFLE, start, 0);
@@ -468,7 +496,7 @@ class HAM_Garrison
 				return;
 
 			vector start = HAM_Util.DryAround(step.m_Point.Pos(), step.m_Point.Radius() * 0.5, step.m_fRadius);
-			if (!ClearOfHeldZones(start))
+			if (!HAM_Util.FootSpot(start) || !ClearOfHeldZones(start))
 				return;
 
 			SCR_AIGroup patrol = HAM_Util.SpawnFullGroup(HAM_Units.ZoneFootGroup(step.m_Point.m_Def), start, 0);
@@ -509,7 +537,7 @@ class HAM_Garrison
 			return;
 		}
 
-		bool spawns = CellSpawnsEnemies(line.m_Cell);
+		bool spawns = LineSpawnsEnemies(line);
 		if (!spawns || nearest > settings.DespawnOf(line.m_Def))
 		{
 			bool cleaned = LineZoneCleaned(line);
@@ -538,9 +566,10 @@ class HAM_Garrison
 		if (line.m_bSpawnedOnce || !settings.m_bPatrolsEnabled)
 			return;
 
-		line.m_bSpawnedOnce = true;
-		line.m_bActive = true;
-		vector start = HAM_Util.DryAround(line.Pos(), 0, line.m_Def.m_fRadius);
+		if (HAM_Util.IsWater(HAM_Util.Ground(line.Pos())))
+			return;
+
+		bool inside = nearest <= line.m_Def.m_fRadius;
 		if (Math.RandomFloat01() < settings.m_fPatrolVehicleShare)
 		{
 			ResourceName vehiclePrefab = HAM_Units.EnemyPatrolVehicle();
@@ -551,7 +580,7 @@ class HAM_Garrison
 				{
 					vector roadStart;
 					vector sample = HAM_Util.RandomAround(line.Pos(), 0, line.m_Def.m_fRadius);
-					if (!HAM_Util.RoadPoint(sample, 150, roadStart) || HAM_Util.IsNearWater(roadStart))
+					if (!HAM_Util.RoadPoint(sample, 150, roadStart) || !HAM_Util.VehicleSpot(roadStart))
 						continue;
 
 					if (!VehicleClearOfPlayers(roadStart) || !ClearOfHeldZones(roadStart))
@@ -561,7 +590,7 @@ class HAM_Garrison
 					for (int r = 0; r < 4; r++)
 					{
 						vector roadPoint;
-						if (HAM_Util.RoadPoint(HAM_Util.RandomAround(line.Pos(), 0, line.m_Def.m_fRadius), 200, roadPoint) && !HAM_Util.IsWater(roadPoint))
+						if (HAM_Util.RoadPoint(HAM_Util.RandomAround(line.Pos(), 0, line.m_Def.m_fRadius), 200, roadPoint) && HAM_Util.VehicleSpot(roadPoint))
 							route.Insert(roadPoint);
 					}
 
@@ -580,17 +609,22 @@ class HAM_Garrison
 			}
 
 			if (vehiclePlaced)
+			{
+				line.m_bSpawnedOnce = true;
+				line.m_bActive = true;
 				return;
+			}
 		}
 
 		int groups = settings.PatrolUnitsOf(line.m_Def);
+		bool placedGroup = false;
 		for (int i = 0; i < groups; i++)
 		{
-			if (s_iActivePatrols >= settings.m_iPatrolMaxActive)
+			if (!inside && s_iActivePatrols >= settings.m_iPatrolMaxActive)
 				break;
 
-			vector spot = HAM_Util.DryAround(line.Pos(), 0, line.m_Def.m_fRadius);
-			if (!ClearOfHeldZones(spot))
+			vector spot = PatrolSample(line.Pos(), line.m_Def.m_fRadius);
+			if (HAM_Util.IsWater(spot) || !HAM_Util.FootSpot(spot) || !ClearOfHeldZones(spot))
 				continue;
 
 			SCR_AIGroup group = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_RIFLE, spot, 0);
@@ -601,8 +635,27 @@ class HAM_Garrison
 			RegisterEnemy(group);
 			GivePatrolRoute(group, line);
 			s_iActivePatrols++;
+			placedGroup = true;
 			HAM_Util.Debug(string.Format("Patrouille à pied : %1, %2 hommes (%3 actives)", line.m_Def.m_sName, group.GetNumberOfMembersToSpawn(), s_iActivePatrols));
 		}
+
+		if (!placedGroup)
+			return;
+
+		line.m_bSpawnedOnce = true;
+		line.m_bActive = true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Un essai dans le rayon. S'il est dans l'eau, il est annulé : on ne le décale pas vers le sec.
+	protected static vector PatrolSample(vector center, float radius)
+	{
+		float angle = Math.RandomFloat(0, Math.PI2);
+		float dist = 0;
+		if (radius > 0)
+			dist = Math.RandomFloat(0, radius);
+
+		return HAM_Util.Ground(center + Vector(Math.Cos(angle) * dist, 0, Math.Sin(angle) * dist));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -617,7 +670,10 @@ class HAM_Garrison
 
 		for (int i = 0; i < 4; i++)
 		{
-			vector spot = HAM_Util.DryAround(line.Pos(), 0, line.m_Def.m_fRadius);
+			vector spot = PatrolSample(line.Pos(), line.m_Def.m_fRadius);
+			if (HAM_Util.IsWater(spot) || !HAM_Util.FootSpot(spot))
+				continue;
+
 			HAM_Util.SnapToNavmesh(group, spot);
 			HAM_Util.Order(group, HAM_Units.WP_PATROL, spot, 15);
 		}
@@ -652,7 +708,7 @@ class HAM_Garrison
 	protected static void TickCqb(HAM_Line line, array<IEntity> bodies, HAM_Settings settings)
 	{
 		float nearest = HAM_Util.NearestDistance(bodies, line.Pos());
-		float activation = Math.Min(settings.ActivationOf(line.m_Def), line.m_Def.m_fRadius + 350);
+		float activation = settings.ActivationOf(line.m_Def);
 		if (HAM_Mission.SlaveHolds(line.m_Cell, line.Pos()))
 		{
 			HAM_Util.DeleteGroups(line.m_aGroups);
@@ -1094,7 +1150,10 @@ class HAM_Garrison
 		house.GetBounds(mins, maxs);
 		float spanX = Math.AbsFloat(maxs[0] - mins[0]);
 		float spanZ = Math.AbsFloat(maxs[2] - mins[2]);
-		return spanX >= 4.5 && spanZ >= 4.5 && spanX * spanZ >= 20.0;
+		if (spanX < 4.5 || spanZ < 4.5 || spanX * spanZ < 20.0)
+			return false;
+
+		return !HAM_Util.WaterWithin(house.GetOrigin(), 50);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1273,7 +1332,7 @@ class HAM_Garrison
 		for (int attempt = 0; attempt < 8; attempt++)
 		{
 			vector sample = HAM_Util.RandomAround(places.GetRandomElement(), 40, 500);
-			if (!HAM_Util.RoadPoint(sample, 280, road) || HAM_Util.IsWater(road) || HAM_Util.IsNearWater(road))
+			if (!HAM_Util.RoadPoint(sample, 280, road) || !HAM_Util.VehicleSpot(road))
 				continue;
 
 			if (!VehicleClearOfPlayers(road) || !ClearOfHeldZones(road))
@@ -1301,7 +1360,7 @@ class HAM_Garrison
 		{
 			vector roadStop;
 			vector sample = HAM_Util.RandomAround(places.GetRandomElement(), 30, 450);
-			if (!HAM_Util.RoadPoint(sample, 280, roadStop) || HAM_Util.IsWater(roadStop))
+			if (!HAM_Util.RoadPoint(sample, 280, roadStop) || !HAM_Util.VehicleSpot(roadStop))
 				continue;
 
 			if (vector.DistanceXZ(roadStop, road) < 80)
@@ -1320,7 +1379,7 @@ class HAM_Garrison
 
 	//------------------------------------------------------------------------------------------------
 	protected static const float VEHICLE_PLAYER_CLEAR = 400;
-	protected static const float HELD_PATROL_CLEAR = 2000;
+	protected static const float HELD_PATROL_MARGIN = 25;
 
 	//------------------------------------------------------------------------------------------------
 	//! Le point d'apparition d'une patrouille de véhicules normale est à au moins 400 m de chaque joueur.
@@ -1339,10 +1398,10 @@ class HAM_Garrison
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Même écart que les patrouilles interzone : pas d'apparition à moins de 2 km d'une zone tenue, QG compris.
+	//! Pas d'apparition dans le rayon d'une zone tenue. Une cellule voisine déjà prise ne bloque plus tout le secteur.
 	protected static bool ClearOfHeldZones(vector pos)
 	{
-		if (HAM_Mission.s_HqPoint && vector.DistanceXZ(pos, HAM_Mission.s_HqPoint.m_vPos) < HELD_PATROL_CLEAR)
+		if (HAM_Mission.s_HqPoint && vector.DistanceXZ(pos, HAM_Mission.s_HqPoint.m_vPos) < HAM_Mission.s_HqPoint.m_fRadius + HELD_PATROL_MARGIN)
 			return false;
 
 		if (!HAM_Mission.s_aPoints)
@@ -1357,7 +1416,8 @@ class HAM_Garrison
 			if (role != HAM_ERole.MASTER && role != HAM_ERole.SLAVE && role != HAM_ERole.HQ && role != HAM_ERole.ENEMY_HQ)
 				continue;
 
-			if (vector.DistanceXZ(pos, point.Pos()) < HELD_PATROL_CLEAR)
+			float clear = point.Radius() + HELD_PATROL_MARGIN;
+			if (vector.DistanceXZ(pos, point.Pos()) < clear)
 				return false;
 		}
 
@@ -1440,7 +1500,7 @@ class HAM_Garrison
 		for (int attempt = 0; attempt < 12 && !found; attempt++)
 		{
 			vector sample = HAM_Util.RandomAround(point.Pos(), point.Radius() * 0.5, reach);
-			if (!HAM_Util.RoadPoint(sample, 250, roadStart) || HAM_Util.IsNearWater(roadStart))
+			if (!HAM_Util.RoadPoint(sample, 250, roadStart) || !HAM_Util.VehicleSpot(roadStart))
 				continue;
 
 			if (!VehicleClearOfPlayers(roadStart) || !ClearOfHeldZones(roadStart))
@@ -1456,7 +1516,7 @@ class HAM_Garrison
 		for (int r = 0; r < 4; r++)
 		{
 			vector roadPoint;
-			if (HAM_Util.RoadPoint(HAM_Util.RandomAround(point.Pos(), 0, reach + 200), 250, roadPoint) && !HAM_Util.IsWater(roadPoint))
+			if (HAM_Util.RoadPoint(HAM_Util.RandomAround(point.Pos(), 0, reach + 200), 250, roadPoint) && HAM_Util.VehicleSpot(roadPoint))
 				route.Insert(roadPoint);
 		}
 
@@ -1856,6 +1916,8 @@ class HAM_Garrison
 			for (int attempt = 0; attempt < 8; attempt++)
 			{
 				vector candidate = HAM_Util.DryAround(point.Pos(), point.Radius() * 0.3, point.Radius());
+				if (!HAM_Util.FootSpot(candidate))
+					continue;
 				if (HAM_Util.AnyNear(bodies, candidate, 600))
 					continue;
 
@@ -1893,6 +1955,8 @@ class HAM_Garrison
 		for (int i = 0; i < 4; i++)
 		{
 			vector spot = HAM_Util.DryAround(center, 0, radius);
+			if (!HAM_Util.FootSpot(spot))
+				continue;
 			HAM_Util.SnapToNavmesh(group, spot);
 			HAM_Util.Order(group, HAM_Units.WP_PATROL, spot, 15);
 		}
@@ -1953,21 +2017,27 @@ class HAM_Garrison
 		bool threatened = HAM_CounterAttack.EnemyNear(pos, settings.m_fActivationDistance);
 		if (!cell.m_bFriendlyActive && (nearest <= settings.m_fActivationDistance || threatened))
 		{
-			cell.m_bFriendlyActive = true;
 			int units = Math.Min(cell.m_Stock.m_iMen, settings.m_iFriendlyMaxUnits);
 			int guard = 0;
 			while (units > 0 && guard < 8)
 			{
 				guard++;
+				vector spot = HAM_Util.DryAround(pos, 5, 30);
+				if (!HAM_Util.FootSpot(spot))
+					continue;
+
 				int size = Math.Min(units, settings.m_iMaxGroupSize);
-				units -= size;
-				SCR_AIGroup group = HAM_Util.SpawnGroup(HAM_Units.PlayerGarrisonGroup(), HAM_Util.DryAround(pos, 5, 30), size);
+				SCR_AIGroup group = HAM_Util.SpawnGroup(HAM_Units.PlayerGarrisonGroup(), spot, size);
 				if (!group)
 					continue;
 
+				units -= size;
 				HAM_Util.Order(group, HAM_Units.WP_DEFEND, pos, Math.Max(30, cell.m_Master.Radius() * 0.5));
 				cell.m_aFriendly.Insert(group);
 			}
+
+			if (!cell.m_aFriendly.IsEmpty())
+				cell.m_bFriendlyActive = true;
 
 			return;
 		}
@@ -2047,9 +2117,37 @@ class HAM_Garrison
 		if (HAM_Util.AliveCountAll(master.m_aGroups) < 1)
 			return;
 
-		int spawned = SpawnEnemyUnits(master.m_Def, master.Pos(), master.Radius(), 1, master.m_aGroups);
-		if (spawned < 1)
+		vector spot;
+		bool found = false;
+		float reach = master.Radius();
+		if (reach < 40)
+			reach = 40;
+
+		for (int attempt = 0; attempt < 12 && !found; attempt++)
+		{
+			vector candidate = HAM_Util.DryAround(master.Pos(), 20, reach);
+			if (!HAM_Util.FieldSpot(candidate))
+				continue;
+
+			spot = candidate;
+			found = true;
+		}
+
+		if (!found)
 			return;
+
+		ResourceName prefab = HAM_Units.ZoneFootGroup(master.m_Def);
+		if (prefab.IsEmpty())
+			return;
+
+		SCR_AIGroup group = HAM_Util.SpawnFullGroup(prefab, spot, 0);
+		if (!group)
+			return;
+
+		HAM_Util.Order(group, HAM_Units.WP_DEFEND, master.Pos(), Math.Max(25, reach * 0.6));
+		master.m_aGroups.Insert(group);
+		RegisterEnemy(group);
+		int spawned = group.GetNumberOfMembersToSpawn();
 
 		HAM_Util.Info(string.Format("Renfort : %1, %2 hommes", master.m_Def.m_sName, spawned));
 	}
@@ -2235,11 +2333,11 @@ class HAM_Garrison
 		if (Math.RandomFloat01() < settings.m_fPatrolVehicleShare)
 		{
 			vector road;
-			if (HAM_Util.RoadPoint(pos, 150, road) && !HAM_Util.IsNearWater(road) && HAM_Util.OutOfBuildings(road))
+			if (HAM_Util.RoadPoint(pos, 150, road) && HAM_Util.VehicleSpot(road))
 			{
 				array<vector> route = {};
 				vector nextRoad;
-				if (HAM_Util.RoadPoint(HAM_Util.RandomAround(pos, 80, 200), 200, nextRoad) && !HAM_Util.IsNearWater(nextRoad))
+				if (HAM_Util.RoadPoint(HAM_Util.RandomAround(pos, 80, 200), 200, nextRoad) && HAM_Util.VehicleSpot(nextRoad))
 					route.Insert(nextRoad);
 				else
 					route.Insert(road);
@@ -2260,9 +2358,9 @@ class HAM_Garrison
 		}
 
 		vector start = HAM_Util.DryAround(pos, 0, 100);
-		if (HAM_Util.IsNearWater(start) || !HAM_Util.OutOfBuildings(start))
+		if (!HAM_Util.FieldSpot(start))
 		{
-			if (!HAM_Util.FindSite(pos, 4, start) || HAM_Util.IsNearWater(start))
+			if (!HAM_Util.FindSite(pos, 4, start) || !HAM_Util.FieldSpot(start))
 				return false;
 		}
 
@@ -2276,7 +2374,7 @@ class HAM_Garrison
 		for (int i = 0; i < 4; i++)
 		{
 			vector spot = HAM_Util.DryAround(pos, 0, 100);
-			if (HAM_Util.IsNearWater(spot) || !HAM_Util.OutOfBuildings(spot))
+			if (!HAM_Util.FieldSpot(spot))
 				continue;
 
 			HAM_Util.SnapToNavmesh(group, spot);

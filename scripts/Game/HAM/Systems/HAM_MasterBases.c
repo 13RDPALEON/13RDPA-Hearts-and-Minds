@@ -158,6 +158,7 @@ class HAM_MasterLinkComponent : ScriptComponent
 			{
 				HAM_MasterLinkComponent.SetEntityFaction(prop, factionKey);
 				HAM_MasterBases.OpenBuilt(prop, factionKey);
+				HAM_MasterBases.KeepSingleDeployPoint(prop, m_sCell);
 			}
 			else
 			{
@@ -229,6 +230,8 @@ class HAM_MasterBases
 	protected static const ResourceName GARAGE_LIGHT = "{5753634EAFFBA2F6}Prefabs/Props/Military/Compositions/US/VehicleService_US.et";
 	protected static const ResourceName GARAGE_HEAVY = "{2FE44206E527DA4C}Prefabs/Props/Military/Compositions/US/VehicleService_US_Medium.et";
 	protected static const ResourceName REPAIR_RAMP = "{74FAABE8512145EF}Prefabs/Structures/Industrial/Repair/RampVehicle_01/RampVehicle_01_metal.et";
+	protected static const float PREFAB_SEARCH = 200;
+	protected static const float PREFAB_DOUBLE = 40;
 	protected static ref map<string, float> s_mExplainAt;
 
 	//------------------------------------------------------------------------------------------------
@@ -348,6 +351,7 @@ class HAM_MasterBases
 				if (cell.m_Master.m_bPlayer)
 					Adopt(cell, true);
 
+				KeepZoneSpawns(cell, existingLink.GetOwner());
 				continue;
 			}
 
@@ -532,25 +536,63 @@ class HAM_MasterBases
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Le préfab de poste a déjà son point de déploiement. Celui de la base, sans nom, est en trop.
-	protected static void DropBaseSpawn(IEntity baseEntity)
+	//! Le point du Conflit est l'enfant SCR_CampaignSpawnPointGroup de la base.
+	//! Le poste de commandement en apporte un second (E_SpawnPoint) : on le retire.
+	static void KeepSingleDeployPoint(IEntity root, string name)
 	{
-		if (!baseEntity)
+		NameDeployPoints(root, name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Base déjà en jeu (reprise) : un seul point, celui du Conflit, même si le poste est à part.
+	protected static void KeepZoneSpawns(HAM_Cell cell, IEntity baseEntity)
+	{
+		if (!cell)
 			return;
 
-		array<IEntity> drop = {};
-		IEntity child = baseEntity.GetChildren();
-		while (child)
+		NameDeployPoints(baseEntity, cell.m_sName);
+
+		array<IEntity> posts = {};
+		CollectCommandPosts(cell.Pos(), posts);
+		foreach (IEntity post : posts)
+			SchedulePostStrip(post, cell.m_sName);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Le préfab éditable fait naître son point après la pose. On repasse quand il est là.
+	protected static void SchedulePostStrip(IEntity post, string name)
+	{
+		NameDeployPoints(post, name);
+		GetGame().GetCallqueue().CallLater(NameDeployPoints, 1600, false, post, name);
+		GetGame().GetCallqueue().CallLater(NameDeployPoints, 4000, false, post, name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static ref array<IEntity> s_aCommandPosts;
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SeeCommandPost(IEntity ent)
+	{
+		if (IsCommandPost(ent))
+			s_aCommandPosts.Insert(ent);
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void CollectCommandPosts(vector pos, notnull array<IEntity> posts)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return;
+
+		s_aCommandPosts = {};
+		world.QueryEntitiesBySphere(pos, 120, SeeCommandPost);
+		foreach (IEntity post : s_aCommandPosts)
 		{
-			IEntity next = child.GetSibling();
-			if (child.FindComponent(SCR_SpawnPoint))
-				drop.Insert(child);
-
-			child = next;
+			if (post)
+				posts.Insert(post);
 		}
-
-		foreach (IEntity spawn : drop)
-			HAM_Util.Delete(spawn);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -654,7 +696,8 @@ class HAM_MasterBases
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! La persistance du jeu a déjà remis ce prefab. On garde le plus proche et on le retire de sa sauvegarde.
+	//! Prefab déjà posé dans le rayon de la zone. On garde le plus proche du centre.
+	//! Un second exemplaire n'est retiré que s'il est collé à celui qu'on garde (doublon de persistance).
 	protected static IEntity TakeExisting(ResourceName prefab, vector pos, float radius)
 	{
 		BaseWorld world = GetGame().GetWorld();
@@ -667,27 +710,35 @@ class HAM_MasterBases
 		if (!s_aSamePrefab || s_aSamePrefab.IsEmpty())
 			return null;
 
-		IEntity best = s_aSamePrefab[0];
-		float bestSq = vector.DistanceSqXZ(best.GetOrigin(), pos);
-		for (int i = 1; i < s_aSamePrefab.Count(); i++)
+		IEntity best = null;
+		float bestSq = 0;
+		foreach (IEntity ent : s_aSamePrefab)
 		{
-			IEntity ent = s_aSamePrefab[i];
 			if (!ent)
 				continue;
 
 			float distSq = vector.DistanceSqXZ(ent.GetOrigin(), pos);
-			if (distSq < bestSq)
+			if (!best || distSq < bestSq)
 			{
-				HAM_Util.Forget(best);
-				HAM_Util.Delete(best);
 				best = ent;
 				bestSq = distSq;
 			}
-			else
-			{
-				HAM_Util.Forget(ent);
-				HAM_Util.Delete(ent);
-			}
+		}
+
+		if (!best)
+			return null;
+
+		float doubleSq = PREFAB_DOUBLE * PREFAB_DOUBLE;
+		foreach (IEntity ent : s_aSamePrefab)
+		{
+			if (!ent || ent == best)
+				continue;
+
+			if (vector.DistanceSqXZ(ent.GetOrigin(), best.GetOrigin()) > doubleSq)
+				continue;
+
+			HAM_Util.Forget(ent);
+			HAM_Util.Delete(ent);
 		}
 
 		HAM_Util.Forget(best);
@@ -699,7 +750,7 @@ class HAM_MasterBases
 	{
 		vector pos = cell.Pos();
 		int radius = Math.Round(cell.m_Master.Radius());
-		IEntity post = KeepComposition(COMMAND_POST, COMMAND_POST_PLAYER, pos, 0, 16, "poste " + cell.m_sName);
+		IEntity post = KeepComposition(COMMAND_POST, COMMAND_POST_PLAYER, pos, pos, 0, 16, "poste " + cell.m_sName);
 		IEntity logic = FindPrefabBase(post);
 		if (logic)
 			HAM_Util.Delete(logic);
@@ -736,7 +787,6 @@ class HAM_MasterBases
 		}
 
 		HAM_Mission.DisableBasePatrols(base);
-		DropBaseSpawn(baseEntity);
 		PlaceType(cell, link);
 		if (base)
 		{
@@ -750,65 +800,64 @@ class HAM_MasterBases
 		HAM_MasterLinkComponent.SetEntityFaction(post, factionKey);
 		NameDeployPoints(baseEntity, cell.m_sName);
 		if (post)
-		{
-			NameDeployPoints(post, cell.m_sName);
-			// Le poste recrée ses pièces après la pose. Le point de réapparition n'existe qu'alors.
-			GetGame().GetCallqueue().CallLater(NameDeployPoints, 1600, false, post, cell.m_sName);
-			GetGame().GetCallqueue().CallLater(NameDeployPoints, 4000, false, post, cell.m_sName);
-		}
+			SchedulePostStrip(post, cell.m_sName);
 
 		Print(string.Format("[13RDPA H&M] Base maître posée : %1 (%2)", cell.m_sName, cell.m_Master.m_Def.TypeLabel()), LogLevel.NORMAL);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Un seul point de réapparition par base maître : celui du poste de commandement,
-	//! le plus proche de l'origine du poste s'il y en a plusieurs. La caserne et le reste
-	//! de cette base sont coupés. Les points hors de cette hiérarchie ne sont pas touchés.
+	//! Un seul point de réapparition : le SCR_CampaignSpawnPointGroup de la base Conflit.
+	//! Le menu liste les points par faction. Couper « enabled » les laisse affichés.
+	//! Le poste ajoute le sien (E_SpawnPoint). On lui retire faction et affiliation,
+	//! sans supprimer la pièce : le préfab éditable et sa sauvegarde la réfèrent.
 	protected static void NameDeployPoints(IEntity root, string name)
 	{
-		if (!root || name.IsEmpty())
+		if (!root || root.IsDeleted())
 			return;
 
-		NameDeployNode(root, name);
+		if (!name.IsEmpty())
+			NameDeployNode(root, name);
+
+		SCR_CampaignMilitaryBaseComponent base = SCR_CampaignMilitaryBaseComponent.Cast(root.FindComponent(SCR_CampaignMilitaryBaseComponent));
+		SCR_SpawnPoint kept;
+		if (base)
+			kept = base.GetSpawnPoint();
 
 		array<SCR_SpawnPoint> points = {};
 		CollectBaseSpawns(root, points);
-		if (points.IsEmpty())
-			return;
 
-		vector post = HeadquartersOrigin(root);
-		SCR_SpawnPoint kept;
-		float best = -1;
+		bool sawCampaign = false;
+		array<SCR_SpawnPoint> extra = {};
 		foreach (SCR_SpawnPoint point : points)
 		{
-			if (!point || !SpawnInHeadquarters(point))
+			if (!point || point.IsDeleted())
 				continue;
 
-			float dist = vector.Distance(point.GetOrigin(), post);
-			if (best >= 0 && dist >= best)
-				continue;
-
-			best = dist;
-			kept = point;
-		}
-
-		foreach (SCR_SpawnPoint point : points)
-		{
-			if (!point)
-				continue;
-
-			if (point == kept)
+			if (point == kept || SCR_CampaignSpawnPointGroup.Cast(point))
 			{
+				sawCampaign = true;
 				point.SetSpawnPointEnabled_S(true);
-				point.SetSpawnPointName(name);
 				continue;
 			}
 
-			point.SetSpawnPointEnabled_S(false);
+			extra.Insert(point);
 		}
 
-		if (!kept)
-			Print(string.Format("[13RDPA H&M] %1 : aucun point de réapparition dans le poste de commandement.", name), LogLevel.WARNING);
+		foreach (SCR_SpawnPoint point : extra)
+		{
+			if (!point || point.IsDeleted())
+				continue;
+
+			point.SetSpawnPointEnabled_S(false);
+			FactionAffiliationComponent mark = FactionAffiliationComponent.Cast(point.FindComponent(FactionAffiliationComponent));
+			if (mark)
+				mark.SetAffiliatedFaction(null);
+
+			point.SetFactionKey(string.Empty);
+		}
+
+		if (base && !kept && !sawCampaign && !name.IsEmpty())
+			Print(string.Format("[13RDPA H&M] %1 : la base Conflit n'a pas de point de réapparition.", name), LogLevel.WARNING);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -827,53 +876,6 @@ class HAM_MasterBases
 			CollectBaseSpawns(child, points);
 			child = child.GetSibling();
 		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static vector HeadquartersOrigin(IEntity root)
-	{
-		IEntity post = FindPrefabNode(root, "Headquarters_");
-		if (post)
-			return post.GetOrigin();
-
-		return root.GetOrigin();
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static IEntity FindPrefabNode(IEntity node, string token)
-	{
-		if (!node)
-			return null;
-
-		if (node.GetPrefabData() && node.GetPrefabData().GetPrefabName().Contains(token))
-			return node;
-
-		IEntity child = node.GetChildren();
-		while (child)
-		{
-			IEntity found = FindPrefabNode(child, token);
-			if (found)
-				return found;
-
-			child = child.GetSibling();
-		}
-
-		return null;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static bool SpawnInHeadquarters(SCR_SpawnPoint point)
-	{
-		IEntity node = point;
-		while (node)
-		{
-			if (node.GetPrefabData() && node.GetPrefabData().GetPrefabName().Contains("Headquarters_"))
-				return true;
-
-			node = node.GetParent();
-		}
-
-		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1107,7 +1109,7 @@ class HAM_MasterBases
 		if (type == HAM_EMasterType.FUEL)
 		{
 			ClearCustomFuel(pos);
-			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos + Vector(16, 0, 0), 90, 8, cell.m_sName);
+			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos, pos + Vector(16, 0, 0), 90, 8, cell.m_sName);
 			if (link)
 				link.RememberProp(fuel);
 
@@ -1115,7 +1117,7 @@ class HAM_MasterBases
 		}
 		else if (type == HAM_EMasterType.CAMP)
 		{
-			IEntity barracks = KeepComposition(BARRACKS, BARRACKS_PLAYER, pos + Vector(22, 0, 14), 0, 18, cell.m_sName);
+			IEntity barracks = KeepComposition(BARRACKS, BARRACKS_PLAYER, pos, pos + Vector(22, 0, 14), 0, 18, cell.m_sName);
 			if (link)
 				link.RememberProp(barracks);
 
@@ -1123,27 +1125,36 @@ class HAM_MasterBases
 			ScheduleBarracksCap(barracks, cell.m_Master.m_bPlayer);
 		}
 		else if (type == HAM_EMasterType.RADIO)
-			PlaceProp(link, ANTENNA, pos + Vector(14, 0, 6), 0, 6);
+			PlaceProp(link, ANTENNA, pos, pos + Vector(14, 0, 6), 0, 6);
 		else if (type == HAM_EMasterType.HIDEOUT)
 			cell.m_Master.m_Cache = PlaceHideout(cell.Pos(), cell.m_Master.Radius(), cell.m_sName);
 		else if (type == HAM_EMasterType.BASE)
 		{
-			PlaceProp(link, GARAGE_LIGHT, pos + Vector(16, 0, 8), 90, 8);
-			PlaceProp(link, GARAGE_HEAVY, pos + Vector(16, 0, -10), 90, 12);
-			PlaceProp(link, REPAIR_RAMP, pos + Vector(28, 0, 0), 0, 14);
+			PlaceProp(link, GARAGE_LIGHT, pos, pos + Vector(16, 0, 8), 90, 8);
+			PlaceProp(link, GARAGE_HEAVY, pos, pos + Vector(16, 0, -10), 90, 12);
+			PlaceProp(link, REPAIR_RAMP, pos, pos + Vector(28, 0, 0), 0, 14);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Un seul préfab pour les deux camps. S'il y en a déjà un, US ou USSR, on le garde et on jette le double.
-	protected static IEntity KeepComposition(ResourceName prefab, ResourceName other, vector pos, float yaw, float footprint, string label)
+	//! Un seul préfab pour les deux camps, cherché autour du centre de zone.
+	//! Le double de l'autre camp n'est jeté que s'il est collé à celui qu'on garde.
+	protected static IEntity KeepComposition(ResourceName prefab, ResourceName other, vector zone, vector pos, float yaw, float footprint, string label)
 	{
-		IEntity kept = TakeExisting(prefab, pos, 40);
-		IEntity twin = TakeExisting(other, pos, 40);
+		IEntity kept = TakeExisting(prefab, zone, PREFAB_SEARCH);
+		IEntity twin = TakeExisting(other, zone, PREFAB_SEARCH);
 		if (kept && twin)
 		{
-			HAM_Util.Forget(twin);
-			HAM_Util.Delete(twin);
+			float doubleSq = PREFAB_DOUBLE * PREFAB_DOUBLE;
+			if (vector.DistanceSqXZ(kept.GetOrigin(), twin.GetOrigin()) <= doubleSq)
+			{
+				HAM_Util.Forget(twin);
+				HAM_Util.Delete(twin);
+			}
+			else if (vector.DistanceSqXZ(twin.GetOrigin(), zone) < vector.DistanceSqXZ(kept.GetOrigin(), zone))
+			{
+				kept = twin;
+			}
 		}
 		else if (!kept)
 		{
@@ -1157,9 +1168,9 @@ class HAM_MasterBases
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static IEntity PlaceProp(HAM_MasterLinkComponent link, ResourceName prefab, vector pos, float yaw, float footprint)
+	protected static IEntity PlaceProp(HAM_MasterLinkComponent link, ResourceName prefab, vector zone, vector pos, float yaw, float footprint)
 	{
-		IEntity prop = TakeExisting(prefab, pos, 40);
+		IEntity prop = TakeExisting(prefab, zone, PREFAB_SEARCH);
 		if (!prop)
 			prop = HAM_Util.SpawnLevelled(prefab, Fit(pos, footprint, prefab), yaw);
 		if (link)
@@ -1188,7 +1199,7 @@ class HAM_MasterBases
 		if (type == HAM_EMasterType.FUEL)
 		{
 			ClearCustomFuel(pos);
-			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos + Vector(16, 0, 0), 90, 8, slave.m_Def.m_sName);
+			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos, pos + Vector(16, 0, 0), 90, 8, slave.m_Def.m_sName);
 			if (fuel)
 				slave.m_aTypeProps.Insert(fuel);
 
@@ -1196,7 +1207,7 @@ class HAM_MasterBases
 		}
 		else if (type == HAM_EMasterType.CAMP)
 		{
-			IEntity barracks = KeepComposition(BARRACKS, BARRACKS_PLAYER, pos + Vector(22, 0, 14), 0, 18, slave.m_Def.m_sName);
+			IEntity barracks = KeepComposition(BARRACKS, BARRACKS_PLAYER, pos, pos + Vector(22, 0, 14), 0, 18, slave.m_Def.m_sName);
 			if (barracks)
 				slave.m_aTypeProps.Insert(barracks);
 
@@ -1207,16 +1218,16 @@ class HAM_MasterBases
 			slave.m_Cache = PlaceHideout(pos, slave.Radius(), slave.m_Def.m_sName);
 		else if (type == HAM_EMasterType.BASE)
 		{
-			RememberSlave(slave, GARAGE_LIGHT, pos + Vector(16, 0, 8), 90, 8);
-			RememberSlave(slave, GARAGE_HEAVY, pos + Vector(16, 0, -10), 90, 12);
-			RememberSlave(slave, REPAIR_RAMP, pos + Vector(28, 0, 0), 0, 14);
+			RememberSlave(slave, GARAGE_LIGHT, pos, pos + Vector(16, 0, 8), 90, 8);
+			RememberSlave(slave, GARAGE_HEAVY, pos, pos + Vector(16, 0, -10), 90, 12);
+			RememberSlave(slave, REPAIR_RAMP, pos, pos + Vector(28, 0, 0), 0, 14);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static void RememberSlave(HAM_Point slave, ResourceName prefab, vector pos, float yaw, float footprint)
+	protected static void RememberSlave(HAM_Point slave, ResourceName prefab, vector zone, vector pos, float yaw, float footprint)
 	{
-		IEntity prop = TakeExisting(prefab, pos, 40);
+		IEntity prop = TakeExisting(prefab, zone, PREFAB_SEARCH);
 		if (!prop)
 			prop = HAM_Util.SpawnLevelled(prefab, Fit(pos, footprint, slave.m_Def.m_sName), yaw);
 		if (prop)
@@ -1495,6 +1506,8 @@ class HAM_MasterBases
 		HAM_MasterLinkComponent.SetEntityFaction(ent, factionKey);
 		bool player = factionKey == HAM_Units.PLAYER_FACTION;
 		WalkBarracks(ent, player);
+		if (IsCommandPost(ent))
+			NameDeployPoints(ent, string.Empty);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1536,7 +1549,7 @@ class HAM_MasterBases
 		string name = child.GetPrefabData().GetPrefabName();
 		foreach (IEntity live : linked)
 		{
-			if (!live || live == child || !live.GetPrefabData())
+			if (!live || live.IsDeleted() || live == child || !live.GetPrefabData())
 				continue;
 
 			if (live.GetPrefabData().GetPrefabName() == name)
@@ -1842,6 +1855,13 @@ modded class SCR_CampaignMilitaryBaseComponent
 	[RplProp()]
 	protected string m_sHAM_ZoneName;
 
+	// Portée plancher imposée par H&M. RecalculateRadioRange ne doit pas la redescendre.
+	protected float m_fHAM_RadioFloor;
+
+	// La clé posée par SetEncryptionKey ne part pas toujours au client. On la réplique à part.
+	[RplProp(onRplName: "HAM_ApplyRadioKey")]
+	protected string m_sHAM_RadioKey;
+
 	void HAM_SetName(string name)
 	{
 		m_sBaseName = name;
@@ -1884,6 +1904,142 @@ modded class SCR_CampaignMilitaryBaseComponent
 		super.EOnInit(owner);
 		if (HAM_MasterBases.MapHidden(this))
 			HAM_MasterBases.ApplyMapVisibility(this, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Étend la radio de la base et envoie portée + clé aux clients. Ne raccourcit jamais.
+	void HAM_PublishRadio(float range, string key)
+	{
+		if (!HAM_Mission.IsActive() || !Replication.IsServer())
+			return;
+
+		if (range < m_fRadioRange)
+			range = m_fRadioRange;
+
+		if (range < m_fHAM_RadioFloor)
+			range = m_fHAM_RadioFloor;
+
+		if (range < 100)
+			return;
+
+		m_fHAM_RadioFloor = range;
+		if (m_RadioComponent)
+		{
+			m_RadioComponent.SetPower(true);
+			if (!key.IsEmpty())
+			{
+				m_RadioComponent.SetEncryptionKey(key);
+				m_sHAM_RadioKey = key;
+			}
+
+			BaseTransceiver transceiver = m_RadioComponent.GetTransceiver(0);
+			if (transceiver && transceiver.GetRange() < range)
+				transceiver.SetRange(range);
+		}
+
+		bool rangeChanged = m_fRadioRange != range;
+		m_fRadioRange = range;
+		Replication.BumpMe();
+		if (rangeChanged)
+			OnRadioRangeChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Côté client : la portée du préfab (1 km) restait en place, le QG à 3 km ne suffisait pas
+	//! pour répondre, et la base passait « hors de portée ».
+	void HAM_ApplyRadioKey()
+	{
+		if (!m_RadioComponent)
+			return;
+
+		if (!m_sHAM_RadioKey.IsEmpty())
+			m_RadioComponent.SetEncryptionKey(m_sHAM_RadioKey);
+
+		if (m_fRadioRange <= 0)
+			return;
+
+		BaseTransceiver transceiver = m_RadioComponent.GetTransceiver(0);
+		if (transceiver && transceiver.GetRange() < m_fRadioRange)
+			transceiver.SetRange(m_fRadioRange);
+
+		m_RadioComponent.SetPower(true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnRadioRangeChanged()
+	{
+		if (HAM_Mission.IsActive())
+			HAM_ApplyRadioKey();
+
+		super.OnRadioRangeChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void RecalculateRadioRange()
+	{
+		float floor = 0;
+		if (HAM_Mission.IsActive())
+			floor = m_fHAM_RadioFloor;
+
+		super.RecalculateRadioRange();
+
+		if (floor <= m_fRadioRange)
+			return;
+
+		Faction faction = GetFaction();
+		if (!faction || !HAM_Units.IsPlayerFaction(faction.GetFactionKey()))
+			return;
+
+		HAM_PublishRadio(floor, m_sHAM_RadioKey);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static ref array<SCR_CampaignMilitaryBaseComponent> s_aHAM_RetainSpawn;
+
+	//------------------------------------------------------------------------------------------------
+	//! Ancien QG encore tenu : le point reste au camp joueur même sans le passe-droit « est QG ».
+	static void HAM_RetainSpawn(SCR_CampaignMilitaryBaseComponent base)
+	{
+		if (!base)
+			return;
+
+		if (!s_aHAM_RetainSpawn)
+			s_aHAM_RetainSpawn = {};
+
+		if (s_aHAM_RetainSpawn.Find(base) < 0)
+			s_aHAM_RetainSpawn.Insert(base);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected void HandleSpawnPointFaction()
+	{
+		super.HandleSpawnPointFaction();
+
+		if (!HAM_Mission.IsActive() || !m_SpawnPoint || m_bIsHQ)
+			return;
+
+		if (!s_aHAM_RetainSpawn || s_aHAM_RetainSpawn.Find(this) < 0)
+			return;
+
+		SCR_CampaignFaction holder = GetCampaignFaction();
+		if (!holder || holder.GetFactionKey() != HAM_Units.PLAYER_FACTION)
+			return;
+
+		if (m_eCaptureState != SCR_EBaseCaptureState.NONE)
+			return;
+
+		if (!GetOwner())
+			return;
+
+		ChimeraWorld world = GetOwner().GetWorld();
+		if (world && world.GetServerTimestamp().Less(m_fRespawnAvailableSince))
+			return;
+
+		if (m_SpawnPoint.GetFactionKey() != HAM_Units.PLAYER_FACTION)
+			m_SpawnPoint.SetFactionKey(HAM_Units.PLAYER_FACTION);
+
+		if (!m_SpawnPoint.IsSpawnPointEnabled())
+			m_SpawnPoint.SetSpawnPointEnabled_S(true);
 	}
 }
 
