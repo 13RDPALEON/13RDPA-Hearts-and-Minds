@@ -116,29 +116,69 @@ modded class SCR_CampaignMilitaryBaseManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! « Radio hors de portée » à côté du micro, et le bandeau au respawn.
-	//! Les deux lisent cette fonction sur le client. Le graphe de couverture n'arrive pas
-	//! toujours sur le dédié : être à portée d'une base joueur suffit.
+	//! « Hors de portée du signal » à côté du micro. Le client dédié n'a souvent
+	//! ni la faction de la base, ni la liste du gestionnaire. On lit les bases du monde.
 	override bool IsEntityInFactionRadioSignal(notnull IEntity entity, notnull Faction faction)
 	{
 		if (!HAM_Mission.IsActive() || !faction || !HAM_Units.IsPlayerFaction(faction.GetFactionKey()))
 			return super.IsEntityInFactionRadioSignal(entity, faction);
 
-		vector pos = entity.GetOrigin();
-		foreach (SCR_CampaignMilitaryBaseComponent base : m_aBases)
+		if (HAM_HearsFriendlyRadio(entity.GetOrigin(), faction.GetFactionKey()))
+			return true;
+
+		return super.IsEntityInFactionRadioSignal(entity, faction);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HAM_HearsFriendlyRadio(vector pos, string factionKey)
+	{
+		SCR_MilitaryBaseSystem system = SCR_MilitaryBaseSystem.GetInstance();
+		if (system)
 		{
-			if (!base || !base.GetOwner() || base.GetFaction() != faction)
+			array<SCR_MilitaryBaseComponent> bases = {};
+			system.GetBases(bases);
+			foreach (SCR_MilitaryBaseComponent listed : bases)
+			{
+				SCR_CampaignMilitaryBaseComponent base = SCR_CampaignMilitaryBaseComponent.Cast(listed);
+				if (!base || !base.GetOwner())
+					continue;
+
+				Faction owner = base.GetFaction();
+				string ownerKey = "";
+				if (owner)
+					ownerKey = owner.GetFactionKey();
+
+				// Sur le client, la faction de la base arrive souvent vide. L'ennemi, lui, est déjà US.
+				if (ownerKey == HAM_Units.ENEMY_FACTION)
+					continue;
+
+				float range = base.GetRadioRange();
+				if (range < 1000)
+					range = 1000;
+
+				if (vector.DistanceXZ(pos, base.GetOwner().GetOrigin()) <= range)
+					return true;
+			}
+		}
+
+		array<SCR_SpawnPoint> points = SCR_SpawnPoint.GetSpawnPoints();
+		if (!points)
+			return false;
+
+		foreach (SCR_SpawnPoint point : points)
+		{
+			if (!point)
 				continue;
 
-			float range = base.GetRadioRange();
-			if (range < 1000)
-				range = 1000;
+			string pointKey = point.GetFactionKey();
+			if (pointKey == HAM_Units.ENEMY_FACTION)
+				continue;
 
-			if (vector.DistanceXZ(pos, base.GetOwner().GetOrigin()) <= range)
+			if (vector.DistanceXZ(pos, point.GetOrigin()) <= 500)
 				return true;
 		}
 
-		return super.IsEntityInFactionRadioSignal(entity, faction);
+		return false;
 	}
 }
 
