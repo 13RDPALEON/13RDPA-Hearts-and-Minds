@@ -21,13 +21,35 @@ modded class SCR_CampaignBuildingProviderComponent
 	//! Couvre toute l'île depuis n'importe quel point.
 	static const float HAM_FREE_BUILDING_RADIUS = 20000;
 
+	//! Cercle dessiné et déclencheur à l'ouverture de la pelle. Le droit de construire reste le rayon libre.
+	static const float HAM_BUILD_ZONE_DRAW = 150;
+
+	protected static bool s_bDrawRadius;
+
+	//------------------------------------------------------------------------------------------------
+	static void BeginDrawRadius()
+	{
+		s_bDrawRadius = true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void EndDrawRadius()
+	{
+		s_bDrawRadius = false;
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Les fournisseurs non rattachés à une base (camions de construction) gardent leur rayon :
 	//! le Conflit balaie toutes les entités de ce rayon à chaque ouverture.
 	override float GetBuildingRadius()
 	{
 		if (HAM_Mission.IsActive() && GetMilitaryBaseComponent())
+		{
+			if (s_bDrawRadius)
+				return HAM_BUILD_ZONE_DRAW;
+
 			return HAM_FREE_BUILDING_RADIUS;
+		}
 
 		return super.GetBuildingRadius();
 	}
@@ -110,6 +132,9 @@ modded class SCR_CampaignBuildingAreaMeshComponent
 	//------------------------------------------------------------------------------------------------
 	protected float HAM_MeshRadiusInsideWorld(float radius)
 	{
+		if (radius > SCR_CampaignBuildingProviderComponent.HAM_BUILD_ZONE_DRAW)
+			radius = SCR_CampaignBuildingProviderComponent.HAM_BUILD_ZONE_DRAW;
+
 		IEntity ent = GetOwner();
 		if (!ent || radius <= 0 || !GetGame())
 			return radius;
@@ -136,8 +161,87 @@ modded class SCR_CampaignBuildingAreaMeshComponent
 			room = 25;
 
 		if (radius > room)
-			return room;
+			radius = room;
+
+		if (radius > SCR_CampaignBuildingProviderComponent.HAM_BUILD_ZONE_DRAW)
+			return SCR_CampaignBuildingProviderComponent.HAM_BUILD_ZONE_DRAW;
 
 		return radius;
+	}
+}
+
+//------------------------------------------------------------------------------------------------
+// Une tranchée terminée remonte chaque objet du contour, puis chaque buisson dans un rayon
+// égal à la distance du premier enfant. Un contour ou des coordonnées cuites trop grands
+// balayent l'île et bloquent la frame.
+//------------------------------------------------------------------------------------------------
+modded class ACE_Trenches_BuildingCompositionComponent
+{
+	//! Une fois par composition posée, pas à chaque image de creusement.
+	override protected void SetIsCompositionSpawned()
+	{
+		if (Replication.IsServer())
+		{
+			IEntity owner = GetOwner();
+			string prefab = "?";
+			vector pos = vector.Zero;
+			if (owner)
+			{
+				pos = owner.GetOrigin();
+				if (owner.GetPrefabData())
+					prefab = HAM_Util.PrefabFileName(owner.GetPrefabData().GetPrefabName());
+			}
+
+			Print(string.Format("[13RDPA H&M] Tranchée posée : %1 à %2", prefab, pos), LogLevel.NORMAL);
+		}
+
+		super.SetIsCompositionSpawned();
+	}
+
+	override protected void SnapItemsInOutline()
+	{
+		IEntity owner = GetOwner();
+		if (!owner)
+			return;
+
+		IEntity outlineEntity = owner.GetChildren();
+		if (!outlineEntity)
+			return;
+
+		vector mins;
+		vector maxs;
+		outlineEntity.GetBounds(mins, maxs);
+		vector size = maxs - mins;
+		if (size[0] > 80 || size[2] > 80 || size[1] > 30)
+		{
+			Print(string.Format("[13RDPA H&M] Tranchée : contour trop grand (%1), objets non remontés.", size), LogLevel.WARNING);
+			return;
+		}
+
+		super.SnapItemsInOutline();
+	}
+}
+
+//------------------------------------------------------------------------------------------------
+modded class SCR_CampaignBuildingLayoutComponent
+{
+	override protected void DestroyFoliage()
+	{
+		IEntity owner = GetOwner();
+		if (!owner)
+			return;
+
+		IEntity child = owner.GetChildren();
+		if (!child)
+			return;
+
+		float reach = vector.Distance(child.GetOrigin(), owner.GetOrigin());
+		if (reach > 40)
+		{
+			Print(string.Format("[13RDPA H&M] Tranchée : végétation non détruite, premier élément à %1 m", reach), LogLevel.WARNING);
+			return;
+		}
+
+		super.DestroyFoliage();
 	}
 }

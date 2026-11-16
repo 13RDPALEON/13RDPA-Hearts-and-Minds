@@ -158,14 +158,26 @@ modded class SCR_ArsenalComponent
 		if (!catalog)
 			return false;
 
+		// GetAllArsenalItems lit déjà chaque faction, puis le catalogue commun.
 		array<SCR_ArsenalItem> gathered = {};
 		catalog.GetAllArsenalItems(gathered, -1, -1, -1, requiresDisplayType);
 
 		filteredArsenalItems.Clear();
+		ref map<ResourceName, int> seen = new map<ResourceName, int>();
 		foreach (SCR_ArsenalItem item : gathered)
 		{
-			if (item)
-				filteredArsenalItems.Insert(item);
+			if (!item)
+				continue;
+
+			ResourceName name = item.GetItemResourceName();
+			int ignored = 0;
+			if (!name.IsEmpty() && seen.Find(name, ignored))
+				continue;
+
+			if (!name.IsEmpty())
+				seen.Set(name, 1);
+
+			filteredArsenalItems.Insert(item);
 		}
 
 		return !filteredArsenalItems.IsEmpty();

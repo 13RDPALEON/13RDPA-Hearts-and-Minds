@@ -24,6 +24,8 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 		super.OnPostInit(owner);
 		HAM_Mission.RegisterComponent(this);
 		GetGame().GetCallqueue().CallLater(HAM_Mission.Boot, 60000, false);
+		if (!System.IsConsoleApp())
+			HAM_ClientWatch.Start();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -83,6 +85,7 @@ class HAM_MissionComponent : SCR_BaseGameModeComponent
 	//! Les marqueurs gardent leur widget : ils doivent partir avec le monde, pas après le jeu.
 	override void OnDelete(IEntity owner)
 	{
+		HAM_ClientWatch.Stop();
 		HAM_ClientMarkers.Release();
 		super.OnDelete(owner);
 	}
@@ -149,6 +152,10 @@ class HAM_Mission
 	protected static ref array<IEntity> s_aSupplyArmPending;
 	protected static ref array<string> s_aReassertQueued;
 	protected static bool s_bArmingSupply;
+	protected static int s_iZoneKept;
+	protected static int s_iZoneMade;
+	protected static int s_iZoneMissing;
+	protected static bool s_bBasePosWarned;
 
 	//------------------------------------------------------------------------------------------------
 	static void RegisterComponent(HAM_MissionComponent component)
@@ -337,6 +344,7 @@ class HAM_Mission
 		HAM_RadioLink.ScheduleAnswer();
 		RefreshMatchScore();
 		Print(string.Format("[13RDPA H&M] Front démarré sur %1 : %2 cellules, %3 points, %4 dépôts, %5 lignes", key, s_aCells.Count(), s_aPoints.Count(), s_aDeposits.Count(), s_aLines.Count()), LogLevel.NORMAL);
+		Print("[13RDPA H&M] Sanction de passage du front désactivée", LogLevel.NORMAL);
 		HAM_Credit.CheckDefeat();
 	}
 
@@ -580,29 +588,51 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Premier boot : crée les prefabs. Boots suivants : reprend ceux qui existent encore.
+	//! Les prefabs déjà posés dans le monde gardent leur place. On n'en cherche pas un « mieux » posé.
 	protected static void PlaceZonePrefabs()
 	{
+		ResetZonePrefabCount();
 		HAM_Save.BeginSystemPlace();
-		HAM_ZoneComponent.DeleteRole(HAM_ERole.MASTER);
-		HAM_ZoneComponent.DeleteRole(HAM_ERole.HQ);
 		foreach (HAM_Point point : s_aPoints)
 		{
 			if (point.IsMaster())
 			{
-				point.m_Prop = null;
+				HAM_ZoneComponent masterZone = HAM_ZoneComponent.Find(point.m_Def.m_sName, point.m_Def.m_eRole);
+				if (!masterZone)
+					masterZone = HAM_ZoneComponent.FindNear(point.Pos(), 200, point.m_Def.m_eRole);
+
+				if (masterZone)
+				{
+					point.m_Prop = masterZone.GetOwner();
+					CountZonePrefab(false);
+				}
+				else
+				{
+					MissZonePrefab();
+				}
+
 				continue;
 			}
 
 			if (point.m_Def.m_eType == HAM_EMasterType.SUPPLY_VANILLA)
 			{
 				vector spot = point.Pos();
-				ClearOldSupplyProps(spot);
 				IEntity cache = ReuseNear(spot, "253C2F12F79B289D");
 				if (!cache)
-					cache = HAM_Util.SpawnLevelled(HAM_Units.SUPPLY_CACHE_US, spot, 0);
+					cache = ExistingSupply(spot);
+				if (!cache)
+				{
+					cache = HAM_Util.Spawn(HAM_Units.SUPPLY_CACHE_US, spot, 0);
+					if (cache)
+						CountZonePrefab(true);
+					else
+						FailZonePrefab("cache ravitaillement " + point.m_Def.m_sName);
+				}
 				else
+				{
 					HAM_Util.Forget(cache);
+					CountZonePrefab(false);
+				}
 
 				point.m_Prop = cache;
 				string supplyFaction = HAM_Units.ENEMY_FACTION;
@@ -626,7 +656,7 @@ class HAM_Mission
 						depositZone.SetZone(point.m_Def.m_sName, HAM_ERole.DEPOSIT);
 				}
 				else
-					actions = PlaceProp(HAM_Units.ZONE_DEPOSIT, point.m_Def.m_sName, HAM_ERole.DEPOSIT, point.Pos(), 25);
+					actions = PlaceProp(HAM_Units.ZONE_DEPOSIT, point.m_Def.m_sName, HAM_ERole.DEPOSIT, point.Pos());
 				point.m_Prop = actions;
 				if (s_aDeposits)
 				{
@@ -640,7 +670,7 @@ class HAM_Mission
 				continue;
 			}
 
-			point.m_Prop = PlaceProp(HAM_Units.ZONE_SLAVE, point.m_Def.m_sName, point.m_Def.m_eRole, point.Pos(), 25);
+			point.m_Prop = PlaceProp(HAM_Units.ZONE_SLAVE, point.m_Def.m_sName, point.m_Def.m_eRole, point.Pos());
 		}
 
 		foreach (HAM_Deposit deposit : s_aDeposits)
@@ -648,7 +678,7 @@ class HAM_Mission
 			if (deposit.m_Def.m_eType == HAM_EMasterType.SUPPLY_PERSONAL)
 				continue;
 
-			deposit.m_Prop = PlaceProp(HAM_Units.ZONE_DEPOSIT, deposit.m_Def.m_sName, HAM_ERole.DEPOSIT, deposit.Pos(), 25);
+			deposit.m_Prop = PlaceProp(HAM_Units.ZONE_DEPOSIT, deposit.m_Def.m_sName, HAM_ERole.DEPOSIT, deposit.Pos());
 		}
 
 		vector hqPos = s_HqPoint.m_vPos;
@@ -657,6 +687,7 @@ class HAM_Mission
 
 		PlaceArsenalBoard(hqPos);
 		HAM_MasterBases.PlaceAll();
+		LogZonePrefabSummary();
 		GetGame().GetCallqueue().CallLater(HAM_Save.SpawnBuilt, 2500, false);
 		GetGame().GetCallqueue().CallLater(HAM_Save.ApplyBaseSupplies, 4000, false, 0);
 		GetGame().GetCallqueue().CallLater(HAM_Save.ApplyCampaignSupplies, 4000, false, 0);
@@ -761,12 +792,28 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static void ClearOldSupplyProps(vector spot)
+	//! Dépôt déjà dans la zone : on le garde là où il est.
+	protected static IEntity ExistingSupply(vector spot)
 	{
 		s_aOldSupply = {};
-		GetGame().GetWorld().QueryEntitiesBySphere(spot, 20, SeeOldSupply);
-		foreach (IEntity old : s_aOldSupply)
-			HAM_Util.Delete(old);
+		GetGame().GetWorld().QueryEntitiesBySphere(spot, 200, SeeOldSupply);
+
+		IEntity best;
+		float bestSq;
+		foreach (IEntity ent : s_aOldSupply)
+		{
+			if (!ent)
+				continue;
+
+			float distSq = vector.DistanceSqXZ(ent.GetOrigin(), spot);
+			if (!best || distSq < bestSq)
+			{
+				best = ent;
+				bestSq = distSq;
+			}
+		}
+
+		return best;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1312,7 +1359,6 @@ class HAM_Mission
 		SCR_EditableEntityCore core = SCR_EditableEntityCore.Cast(SCR_EditableEntityCore.GetInstance(SCR_EditableEntityCore));
 		IEntity keep;
 		float keepSq;
-		array<IEntity> extras = {};
 		if (core)
 		{
 			set<SCR_EditableEntityComponent> entities = new set<SCR_EditableEntityComponent>();
@@ -1330,53 +1376,47 @@ class HAM_Mission
 					continue;
 
 				float distSq = vector.DistanceSqXZ(ent.GetOrigin(), hqPos);
-				if (!keep)
-				{
-					keep = ent;
-					keepSq = distSq;
-				}
-				else if (distSq < keepSq)
-				{
-					extras.Insert(keep);
-					keep = ent;
-					keepSq = distSq;
-				}
-				else
-					extras.Insert(ent);
+				if (keep && distSq >= keepSq)
+					continue;
+
+				keep = ent;
+				keepSq = distSq;
 			}
-		}
-
-		foreach (IEntity extra : extras)
-		{
-			if (!extra)
-				continue;
-
-			HAM_Util.Forget(extra);
-			HAM_Util.Delete(extra);
 		}
 
 		if (keep)
 		{
 			HAM_Util.Forget(keep);
+			CountZonePrefab(false);
 			return;
 		}
 
-		HAM_Util.Spawn(HAM_Units.ARSENAL_BOARD, HAM_Util.FreeSpot(hqPos + Vector(18, 0, 6), 8), 0);
+		IEntity board = HAM_Util.Spawn(HAM_Units.ARSENAL_BOARD, hqPos + Vector(18, 0, 6), 0);
+		if (board)
+			CountZonePrefab(true);
+		else
+			FailZonePrefab("panneau arsenal");
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static IEntity PlaceProp(ResourceName prefab, string zoneName, HAM_ERole role, vector pos, float spread)
+	protected static IEntity PlaceProp(ResourceName prefab, string zoneName, HAM_ERole role, vector pos)
 	{
 		HAM_ZoneComponent existing = HAM_ZoneComponent.Find(zoneName, role);
 		if (existing && existing.GetOwner())
 		{
 			HAM_Util.Forget(existing.GetOwner());
+			CountZonePrefab(false);
 			return existing.GetOwner();
 		}
 
-		IEntity prop = HAM_Util.Spawn(prefab, HAM_Util.FreeSpot(pos, spread), Math.RandomFloat(0, 360));
+		IEntity prop = HAM_Util.Spawn(prefab, pos, 0);
 		if (!prop)
+		{
+			FailZonePrefab(zoneName + " " + HAM_Util.PrefabFileName(prefab));
 			return null;
+		}
+
+		CountZonePrefab(true);
 
 		HAM_ZoneComponent zone = HAM_ZoneComponent.Cast(prop.FindComponent(HAM_ZoneComponent));
 		if (zone)
@@ -1866,12 +1906,54 @@ class HAM_Mission
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected static void ResetZonePrefabCount()
+	{
+		s_iZoneKept = 0;
+		s_iZoneMade = 0;
+		s_iZoneMissing = 0;
+	}
+
+	static void CountZonePrefab(bool created)
+	{
+		if (created)
+			s_iZoneMade = s_iZoneMade + 1;
+		else
+			s_iZoneKept = s_iZoneKept + 1;
+	}
+
+	protected static void MissZonePrefab()
+	{
+		s_iZoneMissing = s_iZoneMissing + 1;
+	}
+
+	static void FailZonePrefab(string label)
+	{
+		s_iZoneMissing = s_iZoneMissing + 1;
+		Print(string.Format("[13RDPA H&M] Prefab de zone non créé : %1", label), LogLevel.WARNING);
+	}
+
+	protected static void LogZonePrefabSummary()
+	{
+		Print(string.Format("[13RDPA H&M] Prefabs de zone repris sur place : %1, créés : %2, absents : %3", s_iZoneKept, s_iZoneMade, s_iZoneMissing), LogLevel.NORMAL);
+	}
+
 	static vector BasePos(string baseName)
 	{
 		if (baseName == HQ_NAME)
 		{
 			if (s_HqBase)
 				return s_HqBase.GetOwner().GetOrigin();
+
+			if (!s_HqPoint)
+			{
+				if (!s_bBasePosWarned)
+				{
+					s_bBasePosWarned = true;
+					Print("[13RDPA H&M] BasePos : QG sans point (s_HqPoint nul), vecteur nul renvoyé", LogLevel.WARNING);
+				}
+
+				return vector.Zero;
+			}
 
 			return s_HqPoint.m_vPos;
 		}

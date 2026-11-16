@@ -176,7 +176,9 @@ class HAM_ParadropComponent : ScriptComponent
 	}
 
 	//! victim : corps du kill (GetVictimEntity) si GetPlayerControlledEntity est déjà null.
-	static void Abandon(int playerId, IEntity victim = null)
+	//! clearPick : faux quand le joueur vient de valider un nouveau saut, pour ne pas
+	//! effacer ce choix avec le message d'abandon de l'essai précédent.
+	static void Abandon(int playerId, IEntity victim = null, bool clearPick = true)
 	{
 		if (!Replication.IsServer())
 			return;
@@ -184,6 +186,12 @@ class HAM_ParadropComponent : ScriptComponent
 		HAM_ParadropSession session = FindSession(playerId);
 		if (!session)
 			return;
+
+		string pick = "efface le point";
+		if (!clearPick)
+			pick = "garde le point";
+
+		Print(string.Format("[HAM Paradrop] abandon joueur %1, %2", playerId, pick), LogLevel.NORMAL);
 
 		// Invalide Release/MoveToPlane/CompleteFinish encore en queue (epoch).
 		CancelPending(playerId);
@@ -217,6 +225,9 @@ class HAM_ParadropComponent : ScriptComponent
 		session.m_iState = HAM_EParadropState.NONE;
 		s_aSessions.RemoveItem(session);
 
+		if (!clearPick)
+			return;
+
 		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 		if (player)
 			player.HAM_ParadropClearPick();
@@ -245,21 +256,25 @@ class HAM_ParadropComponent : ScriptComponent
 			return;
 
 		// Nouvelle demande : toujours repartir propre (mort, saut coincé, 2e tentative).
+		// Ne pas renvoyer l'annulation au client : c'est lui qui vient de valider.
 		if (FindSession(playerId))
-			Abandon(playerId);
+			Abandon(playerId, null, false);
 
-		if (!s_Plane)
-			s_Instance.SpawnPlane();
-
-		if (!s_Plane)
+		if (!EnsurePlane())
+		{
+			Print("[HAM Paradrop] avion absent, saut refusé", LogLevel.WARNING);
 			return;
+		}
 
 		IEntity body = LivingBody(playerId);
 		if (!body)
 			return;
 
 		if (!body.FindComponent(HAM_Para_FreeFallComponent))
+		{
+			Print(string.Format("[HAM Paradrop] joueur %1 sans composant de chute, saut refusé", playerId), LogLevel.WARNING);
 			return;
+		}
 
 		HAM_ParadropSession session = new HAM_ParadropSession(playerId);
 		s_aSessions.Insert(session);
@@ -516,15 +531,32 @@ class HAM_ParadropComponent : ScriptComponent
 		return manager.GetPlayerControlledEntity(playerId);
 	}
 
+	protected static bool EnsurePlane()
+	{
+		if (s_Plane)
+			return true;
+
+		if (!s_Instance)
+			return false;
+
+		s_Instance.SpawnPlane();
+		return s_Plane != null;
+	}
+
 	static void MoveToPlane(int playerId, int epoch)
 	{
-		if (!s_Plane)
-			return;
-
 		HAM_ParadropSession session = FindSession(playerId);
 		if (!session || session.m_iEpoch != epoch || session.m_iState != HAM_EParadropState.PLANE)
 			return;
 
+		if (!EnsurePlane())
+		{
+			Print(string.Format("[HAM Paradrop] joueur %1 non emmené : avion absent", playerId), LogLevel.WARNING);
+			Abandon(playerId);
+			return;
+		}
+
+		Print(string.Format("[HAM Paradrop] MoveToPlane joueur %1", playerId), LogLevel.NORMAL);
 		MovePlayer(playerId, PlaneCenter());
 		Engine(playerId, true);
 	}
@@ -551,9 +583,11 @@ class HAM_ParadropPick
 	protected static bool s_bPicking;
 	protected static bool s_bHasPoint;
 	protected static bool s_bConfirmOpen;
+	protected static bool s_bInCancel;
 	protected static float s_fBeganAt;
 	protected static float s_fX;
 	protected static float s_fZ;
+	protected static ref HAM_ParadropConfirmDialog s_Dialog;
 
 	static void Begin()
 	{
@@ -572,15 +606,33 @@ class HAM_ParadropPick
 
 	static void Cancel()
 	{
+		if (s_bInCancel)
+			return;
+
+		bool active = s_bPicking || s_bConfirmOpen || s_bHasPoint;
+		s_bInCancel = true;
+		if (active)
+			Print(string.Format("[HAM Paradrop] confirmation annulée, joueur %1", SCR_PlayerController.GetLocalPlayerId()), LogLevel.NORMAL);
+
 		s_bPicking = false;
 		s_bHasPoint = false;
 		s_bConfirmOpen = false;
+		HAM_ParadropConfirmDialog dialog = s_Dialog;
+		s_Dialog = null;
+		if (dialog)
+			dialog.HAM_Dismiss();
+
+		s_bInCancel = false;
 	}
 
 	//! Ignore un ClearPick serveur retardé après un nouveau Begin (mort puis re-saut).
+	//! Une question déjà ouverte n'est pas fermée : le joueur est en train de valider.
 	static void CancelStale()
 	{
-		if (s_bPicking && GetGame().GetWorld().GetWorldTime() - s_fBeganAt < 2500)
+		if (s_bConfirmOpen)
+			return;
+
+		if (s_bPicking && GetGame().GetWorld().GetWorldTime() - s_fBeganAt < 8000)
 			return;
 
 		Cancel();
@@ -597,7 +649,14 @@ class HAM_ParadropPick
 			return;
 
 		s_bConfirmOpen = true;
-		new HAM_ParadropConfirmDialog();
+		Print(string.Format("[HAM Paradrop] confirmation ouverte, joueur %1, %2", SCR_PlayerController.GetLocalPlayerId(), PointText()), LogLevel.NORMAL);
+		s_Dialog = new HAM_ParadropConfirmDialog(s_fX, s_fZ);
+	}
+
+	static void NoteDialogGone(HAM_ParadropConfirmDialog dialog)
+	{
+		if (s_Dialog == dialog)
+			s_Dialog = null;
 	}
 
 	static void CloseConfirm()
@@ -631,14 +690,24 @@ class HAM_ParadropPick
 
 	static void Confirm()
 	{
-		if (!s_bPicking || !s_bHasPoint)
+		if (!s_bHasPoint)
 			return;
 
-		float x = s_fX;
-		float z = s_fZ;
+		Submit(s_fX, s_fZ);
+	}
+
+	//! Le point est celui affiché dans la question, même si la carte s'est fermée entre-temps.
+	static void Submit(float x, float z)
+	{
+		Print(string.Format("[HAM Paradrop] confirmation validée, joueur %1, %2 / %3", SCR_PlayerController.GetLocalPlayerId(), Math.Round(x), Math.Round(z)), LogLevel.NORMAL);
 		s_bPicking = false;
 		s_bConfirmOpen = false;
 		s_bHasPoint = false;
+		HAM_ParadropConfirmDialog dialog = s_Dialog;
+		s_Dialog = null;
+		if (dialog)
+			dialog.HAM_Dismiss();
+
 		SCR_PlayerController player = SCR_PlayerController.Cast(GetGame().GetPlayerController());
 		if (player)
 			player.HAM_ParadropAsk(x, z);
@@ -682,8 +751,9 @@ modded class SCR_PlayerController
 		if (body)
 			replication = RplComponent.Cast(body.FindComponent(RplComponent));
 
-		bool owner = !replication || replication.IsOwner();
-		if (owner)
+		// Sans corps, ou si ce contrôleur n'est pas le propriétaire, le déplacement
+		// doit partir chez le joueur. Le traiter comme local avalait le téléport.
+		if (body && (!replication || replication.IsOwner()))
 			HAM_DoParadropMove(x, y, z);
 		else
 			Rpc(HAM_RpcParadropMove, x, y, z);

@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------------------------
-// Une patrouille UH-1H par zone camp, ville, base ou dépôt personnel.
+// Une patrouille AH-1S par zone ennemie du front, quel que soit son type.
 // Le waypoint de patrouille du jeu est créé en l'air. Personne ne le pose dans le monde.
 //------------------------------------------------------------------------------------------------
 
 class HAM_Helicopter
 {
-	protected static ref map<string, bool> s_mSpawned;
+	protected static ref map<string, Vehicle> s_mSpawned;
 
 	//------------------------------------------------------------------------------------------------
 	static void ResetSession()
@@ -21,21 +21,36 @@ class HAM_Helicopter
 			return;
 
 		if (!s_mSpawned)
-			s_mSpawned = new map<string, bool>();
+			s_mSpawned = new map<string, Vehicle>();
 
 		foreach (HAM_Point point : HAM_Mission.s_aPoints)
 		{
 			if (!Wants(point))
 				continue;
 
-			if (s_mSpawned.Contains(point.m_Def.m_sName))
+			string name = point.m_Def.m_sName;
+			float nearest = HAM_Util.NearestDistance(bodies, point.Pos());
+			float leave = settings.DespawnOf(point.m_Def);
+			float activate = settings.ActivationOf(point.m_Def);
+			if (leave < activate)
+				leave = activate;
+
+			if (s_mSpawned.Contains(name))
+			{
+				Vehicle live = s_mSpawned.Get(name);
+				if (live && nearest <= leave)
+					continue;
+
+				Retire(live);
+				s_mSpawned.Remove(name);
+			}
+
+			if (nearest > activate)
 				continue;
 
-			if (HAM_Util.NearestDistance(bodies, point.Pos()) > settings.m_fActivationDistance)
-				continue;
-
-			if (Launch(point, settings))
-				s_mSpawned.Set(point.m_Def.m_sName, true);
+			Vehicle helicopter = Launch(point, settings);
+			if (helicopter)
+				s_mSpawned.Set(name, helicopter);
 		}
 	}
 
@@ -48,28 +63,46 @@ class HAM_Helicopter
 		if (!point.m_Cell || point.m_Cell.IsComplete() || !HAM_Mission.IsFront(point.m_Cell))
 			return false;
 
-		HAM_EMasterType type = point.m_Def.m_eType;
-		if (type == HAM_EMasterType.CAMP)
-			return true;
-
-		if (type == HAM_EMasterType.CITY)
-			return true;
-
-		if (type == HAM_EMasterType.BASE)
-			return true;
-
-		if (type == HAM_EMasterType.SUPPLY_PERSONAL)
-			return true;
-
-		return false;
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static bool Launch(HAM_Point point, HAM_Settings settings)
+	protected static void Retire(Vehicle helicopter)
+	{
+		if (!helicopter)
+			return;
+
+		SCR_BaseCompartmentManagerComponent compartments = SCR_BaseCompartmentManagerComponent.Cast(helicopter.FindComponent(SCR_BaseCompartmentManagerComponent));
+		SCR_AIGroup crew;
+		if (compartments)
+			crew = HAM_Garrison.CrewGroup(compartments);
+
+		HAM_Util.Delete(helicopter);
+		if (crew)
+			HAM_Util.DeleteGroup(crew);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ApplyAltitude(Vehicle helicopter, HAM_Settings settings)
+	{
+		AERO_HeliAutopilotComponent autopilot = AERO_HeliAutopilotComponent.Cast(helicopter.FindComponent(AERO_HeliAutopilotComponent));
+		if (!autopilot)
+			return;
+
+		float low = settings.m_fHeliAltitudeMin;
+		float high = settings.m_fHeliAltitudeMax;
+		if (high < low)
+			high = low;
+
+		autopilot.SetAlturaCrucero(Math.RandomFloat(low, high));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static Vehicle Launch(HAM_Point point, HAM_Settings settings)
 	{
 		vector pad;
 		if (!HAM_Util.FindHeliPad(point.Pos(), pad))
-			return false;
+			return null;
 
 		vector origin = point.Pos();
 		array<vector> route = {};
@@ -82,9 +115,10 @@ class HAM_Helicopter
 		route.Insert(origin);
 		Vehicle helicopter = HAM_Garrison.SpawnAirPatrol(pad, route, radius);
 		if (!helicopter)
-			return false;
+			return null;
 
+		ApplyAltitude(helicopter, settings);
 		HAM_Util.Info(string.Format("Patrouille hélicoptère : %1", point.m_Def.m_sName));
-		return true;
+		return helicopter;
 	}
 }

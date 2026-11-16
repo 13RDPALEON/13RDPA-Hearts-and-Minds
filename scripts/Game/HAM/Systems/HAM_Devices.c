@@ -644,9 +644,7 @@ class HAM_Devices
 			}
 
 			float nearest = HAM_Util.NearestDistance(bodies, line.Pos());
-			float activation = settings.m_fActivationDistance;
-			if (line.m_Def.m_fRadius + 600 > activation)
-				activation = line.m_Def.m_fRadius + 600;
+			float activation = settings.ActivationOf(line.m_Def);
 			if (nearest > activation)
 				continue;
 
@@ -709,13 +707,10 @@ class HAM_Devices
 		}
 
 		float nearest = HAM_Util.NearestDistance(bodies, line.Pos());
-		float activation = settings.m_fActivationDistance;
-		if (line.m_Def.m_fRadius + 600 > activation)
-			activation = line.m_Def.m_fRadius + 600;
-
-		float despawn = settings.m_fDespawnDistance;
-		if (despawn < activation + 100)
-			despawn = activation + 100;
+		float activation = settings.ActivationOf(line.m_Def);
+		float despawn = settings.DespawnOf(line.m_Def);
+		if (despawn < activation)
+			despawn = activation;
 
 		if (nearest > despawn)
 		{

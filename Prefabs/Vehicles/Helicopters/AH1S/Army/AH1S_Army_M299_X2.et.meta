@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{3DCD9B4E992FA77A}Prefabs/Vehicles/Helicopters/AH1S/Army/AH1S_Army_M299_X2.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

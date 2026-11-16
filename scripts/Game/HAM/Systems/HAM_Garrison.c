@@ -67,6 +67,7 @@ class HAM_SpawnStep
 	float m_fRadius;
 	int m_iSize;
 	int m_iWanted;
+	int m_iTries;
 	ref array<SCR_AIGroup> m_aGroups;
 	HAM_Point m_Point;
 	HAM_Line m_Line;
@@ -198,7 +199,6 @@ class HAM_Garrison
 		foreach (HAM_Point countPoint : HAM_Mission.s_aPoints)
 		{
 			HAM_Util.PruneGroups(countPoint.m_aPatrols);
-			s_iActivePatrols += countPoint.m_aPatrols.Count();
 			s_iVehiclePatrols += ActiveVehicles(countPoint);
 		}
 
@@ -474,12 +474,23 @@ class HAM_Garrison
 		if (step.m_iKind == 4 && step.m_Point)
 		{
 			HAM_Settings settings = HAM_Settings.Get();
-			if (s_iVehiclePatrols >= settings.m_iVehiclePatrolMax || ActiveVehicles(step.m_Point) >= settings.VehiclesOf(step.m_Point.m_Def))
+			if (ActiveVehicles(step.m_Point) >= settings.VehiclesOf(step.m_Point.m_Def))
 				return;
 
 			if (SpawnZoneVehicle(step.m_Point, step.m_fRadius, settings))
+			{
 				s_iVehiclePatrols++;
+				return;
+			}
 
+			if (step.m_iTries >= 6)
+			{
+				HAM_Util.Info(string.Format("Véhicule introuvable autour de %1", step.m_Point.m_Def.m_sName));
+				return;
+			}
+
+			step.m_iTries++;
+			EnqueueSpawn(step);
 			return;
 		}
 
@@ -492,7 +503,7 @@ class HAM_Garrison
 		if (step.m_iKind == 5 && step.m_Point)
 		{
 			HAM_Settings settings = HAM_Settings.Get();
-			if (s_iActivePatrols >= settings.m_iPatrolMaxActive || step.m_Point.m_aPatrols.Count() >= settings.PatrolUnitsOf(step.m_Point.m_Def))
+			if (step.m_Point.m_aPatrols.Count() >= settings.PatrolUnitsOf(step.m_Point.m_Def))
 				return;
 
 			vector start = HAM_Util.DryAround(step.m_Point.Pos(), step.m_Point.Radius() * 0.5, step.m_fRadius);
@@ -506,8 +517,7 @@ class HAM_Garrison
 			step.m_Point.m_aPatrols.Insert(patrol);
 			RegisterEnemy(patrol);
 			GiveRoute(patrol, step.m_Point.Pos(), step.m_fRadius);
-			s_iActivePatrols++;
-			HAM_Util.Info(string.Format("Patrouille à pied : %1, %2 hommes (%3 sur la carte)", step.m_Point.m_Def.m_sName, patrol.GetNumberOfMembersToSpawn(), s_iActivePatrols));
+			HAM_Util.Info(string.Format("Patrouille à pied : %1, %2 hommes (%3 sur la zone)", step.m_Point.m_Def.m_sName, patrol.GetNumberOfMembersToSpawn(), step.m_Point.m_aPatrols.Count()));
 		}
 	}
 
@@ -546,7 +556,10 @@ class HAM_Garrison
 				int alive = HAM_Util.AliveCountAll(line.m_aGroups);
 				HAM_Util.DeleteGroups(line.m_aGroups);
 				if (!cleaned && alive > 0)
+				{
 					line.m_bSpawnedOnce = false;
+					line.m_fNextSpawn = HAM_Util.Now() + settings.m_fPatrolIntervalSeconds;
+				}
 			}
 
 			ReleaseLineVehicles(line);
@@ -564,6 +577,9 @@ class HAM_Garrison
 			return;
 
 		if (line.m_bSpawnedOnce || !settings.m_bPatrolsEnabled)
+			return;
+
+		if (line.m_fNextSpawn > HAM_Util.Now())
 			return;
 
 		if (HAM_Util.IsWater(HAM_Util.Ground(line.Pos())))
@@ -617,6 +633,9 @@ class HAM_Garrison
 		}
 
 		int groups = settings.PatrolUnitsOf(line.m_Def);
+		if (groups > settings.m_iPatrolGroupsPerLine)
+			groups = settings.m_iPatrolGroupsPerLine;
+
 		bool placedGroup = false;
 		for (int i = 0; i < groups; i++)
 		{
@@ -1197,7 +1216,12 @@ class HAM_Garrison
 	protected static void TickZone(HAM_Point point, array<IEntity> bodies, HAM_Settings settings)
 	{
 		float nearest = HAM_Util.NearestDistance(bodies, point.Pos());
-		if (nearest > settings.m_fDespawnDistance)
+		float activate = settings.ActivationOf(point.m_Def);
+		float leave = settings.DespawnOf(point.m_Def);
+		if (leave < activate)
+			leave = activate;
+
+		if (nearest > leave)
 		{
 			ClearZone(point);
 			return;
@@ -1205,7 +1229,7 @@ class HAM_Garrison
 
 		KeepGroupsMoving(point.m_aPatrols, point.Pos(), Math.Max(point.Radius(), ZONE_PATROL_RADIUS));
 
-		if (point.m_bPlayer || !CellSpawnsEnemies(point.m_Cell) || nearest > settings.m_fActivationDistance)
+		if (point.m_bPlayer || !CellSpawnsEnemies(point.m_Cell) || nearest > activate)
 			return;
 
 		if (!point.m_bCqbPlaced && settings.m_bCqbEnabled)
@@ -1229,7 +1253,8 @@ class HAM_Garrison
 		if (point.m_Cell && !point.m_Cell.IsMasterPlayer() && !point.m_Cell.m_bArmorPatrol && point.m_Cell.m_Master)
 		{
 			point.m_Cell.m_bArmorPatrol = true;
-			for (int armor = 0; armor < 2; armor++)
+			int between = settings.m_iVehiclePatrolMax;
+			for (int armor = 0; armor < between; armor++)
 			{
 				HAM_SpawnStep armorStep = new HAM_SpawnStep();
 				armorStep.m_iKind = 6;
@@ -1244,9 +1269,6 @@ class HAM_Garrison
 		point.m_bZoneSpawned = true;
 		float reach = Math.Max(point.Radius(), ZONE_PATROL_RADIUS);
 		int foot = settings.PatrolUnitsOf(point.m_Def);
-		if (foot > settings.m_iPatrolMaxActive)
-			foot = settings.m_iPatrolMaxActive;
-
 		for (int i = 0; i < foot; i++)
 		{
 			HAM_SpawnStep step = new HAM_SpawnStep();
@@ -1257,9 +1279,6 @@ class HAM_Garrison
 		}
 
 		int cars = settings.VehiclesOf(point.m_Def);
-		if (cars > settings.m_iVehiclePatrolMax)
-			cars = settings.m_iVehiclePatrolMax;
-
 		for (int v = 0; v < cars; v++)
 		{
 			HAM_SpawnStep step = new HAM_SpawnStep();
@@ -1296,7 +1315,7 @@ class HAM_Garrison
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Deux véhicules armés par maître, sur les routes entre ses zones. Une zone nettoyée ne les revoit plus.
+	//! Véhicules armés par maître, sur les routes entre ses zones. Le nombre est vehicles.patrolMax. Une zone nettoyée ne les revoit plus.
 	protected static void SpawnMasterArmor(HAM_Point master)
 	{
 		if (!master || !master.m_Cell || master.m_bPlayer)
@@ -1491,16 +1510,18 @@ class HAM_Garrison
 	protected static bool SpawnZoneVehicle(HAM_Point point, float reach, HAM_Settings settings)
 	{
 		HAM_ZoneTune tune = settings.TuneFor(point.m_Def);
-		ResourceName prefab = HAM_Units.EnemyZoneVehicle(tune.m_iArmor, tune.m_iCar);
+		ResourceName prefab = HAM_Units.EnemyZoneVehicle(tune.m_iArmor, tune.m_iBtr, tune.m_iCar);
 		if (prefab.IsEmpty())
 			return false;
 
 		vector roadStart;
 		bool found = false;
-		for (int attempt = 0; attempt < 12 && !found; attempt++)
+		// 400 m des joueurs. On cherche aussi dans la zone : les routes y sont, pas seulement dehors.
+		float outer = reach + 700;
+		for (int attempt = 0; attempt < 40 && !found; attempt++)
 		{
-			vector sample = HAM_Util.RandomAround(point.Pos(), point.Radius() * 0.5, reach);
-			if (!HAM_Util.RoadPoint(sample, 250, roadStart) || !HAM_Util.VehicleSpot(roadStart))
+			vector sample = HAM_Util.RandomAround(point.Pos(), 0, outer);
+			if (!HAM_Util.RoadPoint(sample, 320, roadStart) || !HAM_Util.VehicleSpot(roadStart))
 				continue;
 
 			if (!VehicleClearOfPlayers(roadStart) || !ClearOfHeldZones(roadStart))
@@ -2409,14 +2430,21 @@ class HAM_Garrison
 
 		UnlockCrewSlots(compartments);
 		bool heavy = false;
+		bool tank = false;
 		if (vehicle.GetPrefabData())
-			heavy = vehicle.GetPrefabData().GetPrefabName().Contains("LAV25");
+		{
+			string prefabName = vehicle.GetPrefabData().GetPrefabName();
+			heavy = prefabName.Contains("LAV25");
+			tank = prefabName.Contains("M1A1");
+		}
 
 		SCR_AIGroup crew = null;
 		SCR_AIGroup extra = null;
 		if (enemy)
 		{
-			if (heavy)
+			if (tank)
+				crew = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_FIRE, pos, 0);
+			else if (heavy)
 				crew = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_LAT, pos, 0);
 			else
 			{
@@ -2454,6 +2482,8 @@ class HAM_Garrison
 			pending.m_Crew = crew;
 			pending.m_CrewExtra = extra;
 			pending.m_iCrewSeats = BoardSeatCount(compartments);
+			if (tank && pending.m_iCrewSeats > 3)
+				pending.m_iCrewSeats = 3;
 		}
 		if (route)
 		{
@@ -2517,7 +2547,13 @@ class HAM_Garrison
 			if (pending.m_bAir)
 			{
 				if (pending.m_Crew)
-					SeatAgents(pending.m_Vehicle, compartments, pending.m_Crew, 1, false);
+				{
+					int seatKind = 1;
+					if (!pending.m_CrewExtra)
+						seatKind = 0;
+
+					SeatAgents(pending.m_Vehicle, compartments, pending.m_Crew, seatKind, false);
+				}
 
 				if (pending.m_CrewExtra)
 				{
@@ -3318,19 +3354,19 @@ class HAM_Garrison
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Hélicoptère au sol. Un groupe transport prend les places pilote, l'autre les tourelles.
+	//! AH-1S au sol. Le groupe REAPER de deux pilotes prend le siège pilote puis la tourelle.
 	static Vehicle SpawnAirPatrol(vector pos, notnull array<vector> route, float radius)
 	{
 		Ensure();
-		Vehicle vehicle = Vehicle.Cast(HAM_Util.Spawn(HAM_Units.VEHICLE_UH1H, pos + Vector(0, 0.5, 0), Math.RandomFloat(0, 360)));
+		Vehicle vehicle = Vehicle.Cast(HAM_Util.Spawn(HAM_Units.EnemyHelicopter(), pos + Vector(0, 0.5, 0), Math.RandomFloat(0, 360)));
 		if (!vehicle)
 			return null;
 
 		s_mScriptVehicles.Set(vehicle, true);
 		vehicle.SetFlags(EntityFlags.ACTIVE, false);
 		vector beside = pos + Vector(6, 0, 0);
-		SCR_AIGroup pilots = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_TRANSPORT, beside, 0);
-		SCR_AIGroup gunners = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_TRANSPORT, beside + Vector(0, 0, 4), 0);
+		SCR_AIGroup pilots = HAM_Util.SpawnFullGroup(HAM_Units.GROUP_HELI_PILOTS, beside, 0);
+		SCR_AIGroup gunners = null;
 		if (!pilots)
 		{
 			HAM_Util.Delete(vehicle);

@@ -1466,67 +1466,9 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 			widget.SetFlags(WidgetFlags.IGNORE_CURSOR);
 	}
 
-	protected bool IsInventoryItemPrefab(string prefab)
-	{
-		if (prefab.IsEmpty())
-			return false;
-
-		if (prefab.Contains("sélection"))
-			return false;
-
-		Resource resource = Resource.Load(prefab);
-		if (!resource || !resource.IsValid())
-			return false;
-
-		BaseContainer current = SCR_BaseContainerTools.FindEntitySource(resource);
-		if (!current)
-			return false;
-
-		int guard = 0;
-		while (current && guard < 12)
-		{
-			guard = guard + 1;
-			IEntitySource source = IEntitySource.Cast(current);
-			if (source)
-			{
-				typename entityType = source.GetClassName().ToType();
-				if (entityType)
-				{
-					if (entityType.IsInherited(Vehicle))
-						return false;
-
-					if (entityType.IsInherited(SCR_ChimeraCharacter))
-						return false;
-				}
-
-				int count = source.GetComponentCount();
-				for (int i = 0; i < count; i++)
-				{
-					IEntityComponentSource component = source.GetComponent(i);
-					if (!component)
-						continue;
-
-					typename kind = component.GetClassName().ToType();
-					if (!kind)
-						continue;
-
-					if (kind.IsInherited(CharacterControllerComponent))
-						return false;
-
-					if (kind.IsInherited(BaseCompartmentManagerComponent))
-						return false;
-				}
-			}
-
-			current = current.GetAncestor();
-		}
-
-		return true;
-	}
-
 	protected void ShowItemPreview(string prefab)
 	{
-		// Tout sélectionner et la sélection multiple repeignent les lignes. Ils ne relancent pas l'aperçu.
+		// La sélection multiple repeint toute la page. On ne lance pas un aperçu par ligne.
 		if (m_bHoldPreview || m_bMultiSelect)
 			return;
 
@@ -1537,14 +1479,8 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 		if (!preview)
 			return;
 
-		if (IsVehicleMode())
-		{
-			preview.SetVisible(false);
-			return;
-		}
-
-		// Véhicule, personnage, nom vide ou prefab illisible : ne pas appeler le gestionnaire.
-		if (!IsInventoryItemPrefab(prefab))
+		Resource resource = Resource.Load(prefab);
+		if (prefab.IsEmpty() || !resource || !resource.IsValid())
 		{
 			preview.SetVisible(false);
 			return;

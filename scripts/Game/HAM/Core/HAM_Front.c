@@ -1,34 +1,19 @@
 //------------------------------------------------------------------------------------------------
-// Ligne de front : révélation, sanction derrière le front, prise maître puis esclaves,
+// Ligne de front : révélation, prise maître puis esclaves,
 // cellule entière, reprise ennemie de n'importe quelle zone tenue, fin de partie.
 //------------------------------------------------------------------------------------------------
 
 class HAM_Front
 {
-	protected static ref map<int, float> s_mForbiddenSince;
-
 	//------------------------------------------------------------------------------------------------
 	static void ResetSession()
 	{
-		s_mForbiddenSince = null;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	static void Tick(float dt)
 	{
-		array<int> ids = HAM_Mission.s_aPlayerIds;
 		array<IEntity> bodies = HAM_Mission.s_aPlayerBodies;
-		if (!s_mForbiddenSince)
-			s_mForbiddenSince = new map<int, float>();
-
-		for (int i = 0; i < ids.Count(); i++)
-		{
-			IEntity body = bodies[i];
-			if (!body)
-				continue;
-
-			CheckPlayer(ids[i], body, HAM_Mission.CellAt(body.GetOrigin()));
-		}
 
 		foreach (HAM_Point point : HAM_Mission.s_aPoints)
 		{
@@ -37,59 +22,6 @@ class HAM_Front
 			else
 				UpdateCapture(point, dt, bodies);
 		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static void CheckPlayer(int playerId, IEntity body, HAM_Cell cell)
-	{
-		bool forbidden = cell && !cell.IsMasterPlayer() && !HAM_Mission.IsFront(cell);
-		if (!forbidden)
-		{
-			s_mForbiddenSince.Remove(playerId);
-			return;
-		}
-
-		HAM_Settings settings = HAM_Settings.Get();
-		if (!settings.m_bSanctionEnabled || IsExempt(playerId))
-			return;
-
-		float now = HAM_Util.Now();
-		float since;
-		if (!s_mForbiddenSince.Find(playerId, since))
-		{
-			s_mForbiddenSince.Set(playerId, now);
-			int grace = Math.Round(settings.m_fSanctionGraceSeconds);
-			HAM_Net.NotifyPlayer(playerId, "Ligne de front", string.Format("Tu es derrière la ligne de front. Fais demi-tour : retour forcé au QG dans %1 s.", grace), 8);
-			return;
-		}
-
-		if (now - since < settings.m_fSanctionGraceSeconds)
-			return;
-
-		s_mForbiddenSince.Remove(playerId);
-		Sanction(playerId);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static bool IsExempt(int playerId)
-	{
-		PlayerManager players = GetGame().GetPlayerManager();
-		if (!players)
-			return false;
-
-		return players.HasPlayerRole(playerId, EPlayerRole.GAME_MASTER);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static void Sanction(int playerId)
-	{
-		HAM_Settings settings = HAM_Settings.Get();
-		vector spot = HAM_Util.FreeSpot(HAM_Mission.DesignatedHqPos() + Vector(0, 0, 12), 25);
-		HAM_Net.TeleportPlayer(playerId, spot);
-		HAM_Mission.AddGlobalRep(-settings.m_iRepFrontlinePenalty, "passage du front");
-
-		string name = GetGame().GetPlayerManager().GetPlayerName(playerId);
-		HAM_Mission.Notify("Ligne de front", name + " est passé derrière la ligne de front : renvoyé au QG, la réputation baisse.", 8);
 	}
 
 	//------------------------------------------------------------------------------------------------

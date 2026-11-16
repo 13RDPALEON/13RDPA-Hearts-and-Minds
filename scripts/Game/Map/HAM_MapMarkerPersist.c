@@ -149,9 +149,13 @@ class HAM_MapMarkerPersist
 		marker.SetMarkerOwnerID(s_iRestoreOwner);
 	}
 
-	//! Marqueur joueur partagé : visible par tous, déplaçable et supprimable par tous.
+	//! Marqueur posé par un joueur : visible par tous, déplaçable et supprimable par tous.
+	//! Les marques d'IA (repérage, tirs) n'ont pas de propriétaire : elles restent à la faction qui a vu la cible.
 	static bool IsSharedMarker(SCR_MapMarkerBase marker)
 	{
+		if (!marker || marker.GetMarkerOwnerID() <= 0)
+			return false;
+
 		return ShouldPersist(marker);
 	}
 

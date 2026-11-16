@@ -206,8 +206,7 @@ class HAM_VehicleBuildTri
 
 	//------------------------------------------------------------------------------------------------
 	//! 1 camion, 2 APC, 3 char lourd, 0 : on ne déplace pas (voiture, hélico, inconnu).
-	//! Le garage moyen a trois onglets. Un T-14 porte à la fois camion, APC et blindage,
-	//! un K-17 porte camion et APC : sans ce tri, le même véhicule est dans deux onglets.
+	//! Un blindé peut porter plusieurs étiquettes. Sans ce tri, le même véhicule est dans deux onglets.
 	static int GarageKind(string prefab)
 	{
 		if (prefab.IsEmpty())
@@ -222,7 +221,7 @@ class HAM_VehicleBuildTri
 		if (low.Contains("helicopter") || low.Contains("/heli") || low.Contains("aircraft") || low.Contains("/plane") || low.Contains("/air/") || low.Contains("/boat"))
 			return 0;
 
-		bool apc = low.Contains("k17") || low.Contains("k4386") || low.Contains("k-4386") || low.Contains("lav25") || low.Contains("lav-25") || low.Contains("/lav") || low.Contains("vpk") || low.Contains("btr") || low.Contains("stryker") || low.Contains("typhoon") || low.Contains("brdm") || low.Contains("bmp") || low.Contains("/bmd") || low.Contains("bmd_") || low.Contains("m113") || low.Contains("bradley") || low.Contains("kurganets");
+		bool apc = low.Contains("btr") || low.Contains("stryker") || low.Contains("brdm") || low.Contains("bmp") || low.Contains("/bmd") || low.Contains("bmd_") || low.Contains("m113") || low.Contains("bradley");
 		if (apc)
 			return 2;
 
@@ -230,7 +229,7 @@ class HAM_VehicleBuildTri
 		if (truck)
 			return 1;
 
-		if (low.Contains("/tracked/") || low.Contains("/t14") || low.Contains("t-14") || low.Contains("2s1") || low.Contains("2s3") || low.Contains("2s19") || low.Contains("m1a1") || low.Contains("m1a2") || low.Contains("abrams"))
+		if (low.Contains("/tracked/") || low.Contains("m1a1") || low.Contains("m1a2") || low.Contains("abrams"))
 			return 3;
 
 		return 0;
@@ -269,6 +268,16 @@ modded class SCR_CampaignBuildingEditorComponent
 			return;
 
 		super.AddRemoveFactionLabel(faction, addLabel);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Le déclencheur client prend GetBuildingRadius. Pendant cette ouverture seulement, le rayon
+	//! renvoyé est le cercle dessiné : un déclencheur de 20 km fige le joueur qui sort la pelle.
+	override protected void EOnEditorActivate()
+	{
+		SCR_CampaignBuildingProviderComponent.BeginDrawRadius();
+		super.EOnEditorActivate();
+		SCR_CampaignBuildingProviderComponent.EndDrawRadius();
 	}
 }
 
@@ -425,7 +434,7 @@ modded class SCR_ContentBrowserEditorComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Les chars RHS n'ont pas l'étiquette VEHICLE_TANK : l'onglet char les laisse de côté.
+	//! Un prefab qui correspond à l'onglet sans en porter l'étiquette est quand même ajouté.
 	protected bool HAM_AddGarageKind(int kind)
 	{
 		bool added = false;

@@ -4,6 +4,8 @@
 
 class HAM_Util
 {
+	protected static bool s_bConvoyFallback;
+
 	//------------------------------------------------------------------------------------------------
 	//! Trace détaillée du front, seulement avec "debug": true dans le JSON de réglages.
 	static void Debug(string message)
@@ -103,20 +105,24 @@ class HAM_Util
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Patrouille en véhicule : le terrain du FieldSpot, plus un anneau sec pour ne pas tomber à l'eau.
+	//! Véhicule sur une route : au sec, hors d'un bâtiment et hors d'un tronc.
+	//! Une route de village longe des maisons et des arbres ; les écarter de 50 m empêchait tout spawn.
 	static bool VehicleSpot(vector pos)
 	{
-		if (IsNearWater(pos))
+		if (IsWater(pos) || WaterWithin(pos, 12))
 			return false;
 
-		return FieldSpot(pos);
+		if (SiteBuilding(pos, 6))
+			return false;
+
+		return !TreeWithin(pos, 4);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Hélicoptère : comme un véhicule, et sans grosse pente.
+	//! Hélicoptère en terrain dégagé : champ, loin de l'eau, pente faible.
 	static bool AirSpot(vector pos)
 	{
-		if (!VehicleSpot(pos))
+		if (!FieldSpot(pos) || IsNearWater(pos))
 			return false;
 
 		return SlopeAt(pos, 24) <= 0.10;
@@ -351,6 +357,23 @@ class HAM_Util
 		return path.Substring(slash + 1, path.Length() - slash - 1);
 	}
 
+	//! Identifiant joueur et nom affiché. Jamais l'identité Steam.
+	static string PlayerTag(int playerId)
+	{
+		if (!GetGame() || playerId <= 0)
+			return playerId.ToString();
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!players)
+			return playerId.ToString();
+
+		string name = players.GetPlayerName(playerId);
+		if (name.IsEmpty())
+			return playerId.ToString();
+
+		return string.Format("%1 %2", playerId, name);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Temps du monde en secondes.
 	static float Now()
@@ -480,20 +503,31 @@ class HAM_Util
 		return worst;
 	}
 
-	//! Aire d'hélicoptère : au sec, 50 m d'un bâtiment, 70 m d'un arbre, pente faible.
+	//! Aire d'hélicoptère. D'abord un champ dégagé, puis une clairière hors bâtiment, hors eau et hors arbres proches.
+	//! Pas de repli sur le centre : il tombait dans la maison, l'eau ou le feuillage.
 	static bool FindHeliPad(vector center, out vector spot)
 	{
-		spot = Ground(center);
-		if (HeliPadOk(spot))
+		if (FindHeliRing(center, true, spot))
 			return true;
 
-		for (float ring = 40; ring <= 480; ring += 40)
+		return FindHeliRing(center, false, spot);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool FindHeliRing(vector center, bool strict, out vector spot)
+	{
+		spot = Ground(center);
+		if (HeliPadFits(spot, strict))
+			return true;
+
+		float spin = Math.RandomFloat(0, Math.PI2);
+		for (float ring = 40; ring <= 640; ring += 40)
 		{
 			for (int step = 0; step < 12; step++)
 			{
-				float angle = Math.PI2 * step / 12;
+				float angle = spin + Math.PI2 * step / 12;
 				vector candidate = Ground(center + Vector(Math.Cos(angle) * ring, 0, Math.Sin(angle) * ring));
-				if (!HeliPadOk(candidate))
+				if (!HeliPadFits(candidate, strict))
 					continue;
 
 				spot = candidate;
@@ -505,9 +539,46 @@ class HAM_Util
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected static bool HeliPadOk(vector pos)
+	protected static bool HeliPadFits(vector pos, bool strict)
 	{
-		return AirSpot(pos);
+		if (strict)
+			return AirSpot(pos);
+
+		if (IsWater(pos) || IsNearWater(pos))
+			return false;
+
+		if (SiteBuilding(pos, 36))
+			return false;
+
+		if (TreeWithin(pos, 22))
+			return false;
+
+		if (SlopeAt(pos, 24) > 0.16)
+			return false;
+
+		return HeliVolumeClear(pos);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Le fuselage et un disque de rotor ne doivent pas traverser un mur, un toit ou un tronc.
+	protected static bool HeliVolumeClear(vector pos)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return false;
+
+		if (BodyTraceBlocked(world, pos + Vector(0, 0.8, 0), pos + Vector(0, 8, 0)))
+			return false;
+
+		vector hub = pos + Vector(0, 3.2, 0);
+		for (int step = 0; step < 8; step++)
+		{
+			vector dir = Vector(step * 45.0, 0, 0).AnglesToVector();
+			if (BodyTraceBlocked(world, hub, hub + dir * 14))
+				return false;
+		}
+
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -866,6 +937,123 @@ class HAM_Util
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Départ d'un convoi d'hommes : au moins 50 m du panneau, sol plat, sans eau, bâtiment ni arbre dans 50 m.
+	static bool ConvoyParkUsedFallback()
+	{
+		return s_bConvoyFallback;
+	}
+
+	static vector ConvoyPark(vector origin)
+	{
+		s_bConvoyFallback = false;
+		vector center = Ground(origin);
+		for (float ring = 50; ring <= 430; ring += 40)
+		{
+			for (int step = 0; step < 12; step++)
+			{
+				float angle = Math.PI2 * step / 12;
+				vector candidate = Ground(center + Vector(Math.Cos(angle) * ring, 0, Math.Sin(angle) * ring));
+				if (!ConvoyGround(candidate, center))
+					continue;
+
+				candidate[1] = candidate[1] + 0.2;
+				return candidate;
+			}
+		}
+
+		vector fallback = DryAround(center, 60, 140, 12);
+		if (vector.DistanceXZ(fallback, center) < 50)
+			fallback = Ground(center + Vector(70, 0, 40));
+
+		fallback[1] = fallback[1] + 0.2;
+		s_bConvoyFallback = true;
+		Print(string.Format("[13RDPA H&M] Convoi : pas de clairière à 50 m, emplacement de repli %1", fallback), LogLevel.WARNING);
+		return fallback;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Les camions suivants s'alignent vers la route, chacun sur le même type de sol, jamais sur le panneau.
+	static vector ConvoySlot(vector origin, vector park, vector forward, int index)
+	{
+		vector dir = forward;
+		dir[1] = 0;
+		if (dir.Length() < 1)
+			dir = park - origin;
+
+		dir[1] = 0;
+		if (dir.Length() < 1)
+			dir = Vector(1, 0, 0);
+
+		dir.Normalize();
+		vector center = Ground(origin);
+		for (int step = 0; step < 8; step++)
+		{
+			float dist = (index * 18.0) + (step * 18.0);
+			vector candidate = Ground(park + dir * dist);
+			if (!ConvoyGround(candidate, center))
+				continue;
+
+			candidate[1] = candidate[1] + 0.2;
+			return candidate;
+		}
+
+		return park;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool ConvoyGround(vector pos, vector panel)
+	{
+		if (vector.DistanceXZ(pos, panel) < 50)
+			return false;
+
+		if (WaterWithin(pos, 50))
+			return false;
+
+		if (SiteBuilding(pos, 50))
+			return false;
+
+		if (TreeWithin(pos, 50))
+			return false;
+
+		if (SiteSteep(pos, 16))
+			return false;
+
+		if (BoardWithin(pos, 50))
+			return false;
+
+		return true;
+	}
+
+	protected static bool s_bBoardHit;
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool BoardWithin(vector pos, float radius)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return false;
+
+		s_bBoardHit = false;
+		world.QueryEntitiesBySphere(pos, radius, SeeBoard);
+		return s_bBoardHit;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SeeBoard(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return true;
+
+		string name = ent.GetPrefabData().GetPrefabName();
+		name.ToLower();
+		if (!name.Contains("board") && !name.Contains("missionpost"))
+			return true;
+
+		s_bBoardHit = true;
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected static bool FindPark(vector center, out vector spot)
 	{
 		spot = center;
@@ -1009,7 +1197,7 @@ class HAM_Util
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Préfab de zone : sol le plus plat, posé droit. Les pièces ne suivent pas la pente.
+	//! Mission (IED) : posé droit. Les prefabs de zone déjà dans le monde ne passent pas par ici.
 	static IEntity SpawnLevelled(ResourceName prefab, vector pos, float yaw = 0)
 	{
 		HAM_CompositionAlign.Begin();

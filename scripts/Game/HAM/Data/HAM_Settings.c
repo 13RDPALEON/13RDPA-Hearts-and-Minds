@@ -13,6 +13,7 @@ class HAM_ZoneTune
 	float m_fDespawn;
 	int m_iVehicles;
 	int m_iArmor;
+	//! Part des chars M1 parmi les véhicules de la zone. Le champ GM 5 pointe déjà ici.
 	int m_iBtr;
 	int m_iTruck;
 	int m_iCar;
@@ -62,10 +63,11 @@ class HAM_Settings
 	float m_fReinforcementChance = 1;
 	int m_iReinforcementUnits = 4;
 
-	// patrouilles
+	// patrouilles de ligne. Les groupes autour d'une zone sont zoneTypes.*.patrolUnits.
 	bool m_bPatrolsEnabled = true;
 	int m_iPatrolGroupsPerLine = 6;
 	int m_iPatrolMaxActive = 6;
+	//! Délai avant le retour d'une ligne partie parce que les joueurs se sont éloignés.
 	float m_fPatrolIntervalSeconds = 240;
 	float m_fPatrolVehicleShare = 0.3;
 	int m_iPatrolUnits = 4;
@@ -73,7 +75,7 @@ class HAM_Settings
 	//! IA actives en même temps sur la carte ; 0 rend la limite du jeu de base (128).
 	int m_iActiveAiLimit = 2000;
 
-	// véhicules ennemis autour de chaque point du front
+	// Véhicules armés entre les zones d'une même cellule. Le nombre autour d'une zone est zoneTypes.*.vehicles.
 	int m_iVehiclePatrolMax = 4;
 
 	// patrouille d'hélicoptère
@@ -150,6 +152,7 @@ class HAM_Settings
 	int m_iRepTier1 = 1000;
 	int m_iRepTier2 = 2000;
 	int m_iRepTier3 = 3000;
+	//! Ancien malus de franchissement. Le renvoi et la pénalité ne sont plus appliqués.
 	int m_iRepFrontlinePenalty = 40;
 	int m_iRepCivilianKillPenalty = 15;
 	float m_fRepPerEnemyKill = 0.25;
@@ -198,7 +201,7 @@ class HAM_Settings
 	int m_iIntelPerCell = 2;
 	float m_fIntelBuildingRadius = 250;
 
-	// civils d'une zone ennemie qui n'est ni un camp ni une base
+	//! Civils si le type de zone n'a pas de clé civilians. 0 sur le type veut dire aucun.
 	int m_iCivilianGroups = 4;
 	int m_iCivilianVehicles = 16;
 
@@ -236,7 +239,7 @@ class HAM_Settings
 		tune.m_fDespawn = despawn;
 		tune.m_iVehicles = vehicles;
 		tune.m_iArmor = armor + btr;
-		tune.m_iBtr = 0;
+		tune.m_iBtr = 30;
 		tune.m_iTruck = 0;
 		tune.m_iCar = car;
 		tune.m_iCivilians = civilians;
@@ -459,12 +462,20 @@ class HAM_Settings
 			tune.m_iArmor = RI(ctx, "percentArmor", tune.m_iArmor) + RI(ctx, "percentBtr", 0);
 
 		tune.m_iTruck = 0;
+		int tank;
+		if (ctx.ReadValue("percentTank", tank))
+			tune.m_iBtr = tank;
+
 		int car;
 		if (ctx.ReadValue("percentM1025", car))
 			tune.m_iCar = car;
 		else
 			tune.m_iCar = RI(ctx, "percentCar", tune.m_iCar);
-		tune.m_iCivilians = RI(ctx, "civilians", tune.m_iCivilians);
+		int civilians;
+		if (ctx.ReadValue("civilians", civilians))
+			tune.m_iCivilians = civilians;
+		else
+			tune.m_iCivilians = -1;
 		tune.m_iBuildings = RI(ctx, "buildings", tune.m_iBuildings);
 		tune.m_iIeds = RI(ctx, "ieds", tune.m_iIeds);
 		tune.m_iMines = RI(ctx, "mines", tune.m_iMines);
@@ -482,6 +493,7 @@ class HAM_Settings
 		{
 			lines.Insert("      \"vehicles\": " + tune.m_iVehicles.ToString() + ",");
 			lines.Insert("      \"percentLAV\": " + tune.m_iArmor.ToString() + ",");
+			lines.Insert("      \"percentTank\": " + tune.m_iBtr.ToString() + ",");
 			lines.Insert("      \"percentM1025\": " + tune.m_iCar.ToString() + ",");
 		}
 
@@ -837,6 +849,8 @@ class HAM_Settings
 
 			if (tune.m_iPatrolUnits < 0)
 				tune.m_iPatrolUnits = m_iPatrolUnits;
+
+			tune.m_iBtr = Math.Clamp(tune.m_iBtr, 0, 100);
 		}
 	}
 

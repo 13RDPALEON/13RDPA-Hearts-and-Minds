@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------------------------
-// Fusionne, une fois par partie, les catalogues des mods dépendants dans le catalogue
-// commun (objets et véhicules). Serveur et clients : ces listes ne sont pas répliquées.
+// Fusionne, une fois par partie, les catalogues qui ne sont sur aucune faction vanilla
+// (US, URSS, FIA, CIV) dans le catalogue commun. UK est injecté ici : ce n'est pas
+// une faction de la partie. Serveur et clients : ces listes ne sont pas répliquées.
 //
 // Modèle : R.O.P.E.S charge par BaseContainerTools.LoadContainer, instancie, puis
 // MergeCatalogs. On ne modde pas SCR_ArsenalItem. SCR_EntityCatalog ne reçoit ici
@@ -419,7 +420,8 @@ modded class SCR_EntityCatalogManagerComponent
 
 			source.HAM_RetainEntries(requiredData);
 			HAM_RetainMultiLists(source, requiredData);
-			// MultiList RHS/WCS : MergeCatalogs ne lit que la liste plate.
+			// MergeCatalogs ne lit que la liste plate. Le MultiList s'aplatit ici,
+			// parce que ce chargement n'appelle pas InitCatalog.
 			source.HAM_FlattenMultiLists();
 
 			array<SCR_EntityCatalogEntry> existing = {};
@@ -503,7 +505,7 @@ modded class SCR_EntityCatalogManagerComponent
 
 			HAM_CatalogMerge.See(entry.GetPrefab());
 		}
-		// Ne pas See les multi-listes faction ici : sinon les wraps RHS/WCS
+		// Ne pas See les multi-listes ici : sinon les catalogues sans faction
 		// sont exclus de la fusion vers le catalogue commun (achat / panneaux).
 	}
 
@@ -530,26 +532,16 @@ modded class SCR_EntityCatalogManagerComponent
 	{
 	}
 
+	// Catalogues sans faction vanilla (US, URSS, FIA, CIV). UK n'est pas une faction de la partie.
+	// Les mods qui posent déjà leurs objets sur une de ces factions ne sont pas recopiés ici.
 	protected void HAM_FillCopyItems(notnull array<ResourceName> list)
 	{
-		list.Insert("{A13D0F0100000001}Configs/EntityCatalog/HAM/FFA_InventoryItems.conf");
-		list.Insert("{A13D0F0100000002}Configs/EntityCatalog/HAM/ION_InventoryItems.conf");
-		list.Insert("{A13D0F0100000003}Configs/EntityCatalog/HAM/MSV_InventoryItems.conf");
-		list.Insert("{A13D0F0100000004}Configs/EntityCatalog/HAM/USMC_InventoryItems.conf");
 		list.Insert("{A13D0F0100000021}Configs/EntityCatalog/HAM/UniHook_InventoryItems.conf");
 		list.Insert("{A13D0F0100000031}Configs/EntityCatalog/HAM/Extra_Items.conf");
-		list.Insert("{3D41FCCF73564661}Configs/EntityCatalog/HAM/Wrap_ACEBallisticsDev_ACE_InventoryItems_EntityCatalog_Equipment_US.conf");
-		list.Insert("{B38D3019E622CEF7}Configs/EntityCatalog/HAM/Wrap_ACEBallisticsDev_ACE_InventoryItems_EntityCatalog_Equipment_USSR.conf");
 		list.Insert("{880572D0AEB4F212}Configs/EntityCatalog/HAM/Wrap_ACECaptivesDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
-		list.Insert("{2793F3DAA314EB9E}Configs/EntityCatalog/HAM/Wrap_ACECoreDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
 		list.Insert("{6AFCEEE5F8E93B1C}Configs/EntityCatalog/HAM/Wrap_ACEExplosivesDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
-		list.Insert("{F25DD7FF4DD10173}Configs/EntityCatalog/HAM/ACEFacepaintDev_InventoryItems_EntityCatalog_FIA.conf");
 		list.Insert("{4E6C7FAEDF5BE64D}Configs/EntityCatalog/HAM/Wrap_ACEFacepaintDev_ACE_InventoryItems_EntityCatalog_Equipment_UK.conf");
 		list.Insert("{CCFF6D339FDA7D60}Configs/EntityCatalog/HAM/ACEFacepaintDev_UK_InventoryItems.conf");
-		list.Insert("{E012F23B4A2B69F5}Configs/EntityCatalog/HAM/Wrap_ACEFacepaintDev_ACE_InventoryItems_EntityCatalog_Equipment_US.conf");
-		list.Insert("{467370D721FE9F1C}Configs/EntityCatalog/HAM/ACEFacepaintDev_InventoryItems_EntityCatalog_US.conf");
-		list.Insert("{9B76AA11FBB8185D}Configs/EntityCatalog/HAM/Wrap_ACEFacepaintDev_ACE_InventoryItems_EntityCatalog_Equipment_USSR.conf");
-		list.Insert("{56F1CF4643A04D43}Configs/EntityCatalog/HAM/ACEFacepaintDev_InventoryItems_EntityCatalog_USSR.conf");
 		list.Insert("{721FE08EEEC1DEB5}Configs/EntityCatalog/HAM/Wrap_ACEMedicalBreathingDev_ACE_InventoryItems_EntityCatalog_Medical.conf");
 		list.Insert("{B1239FEB47B8D56C}Configs/EntityCatalog/HAM/Wrap_ACEMedicalCirculationDev_ACE_InventoryItems_EntityCatalog_Medical.conf");
 		list.Insert("{9408BA23C1972C26}Configs/EntityCatalog/HAM/Wrap_ACEMedicalCoreDev_ACE_InventoryItems_EntityCatalog_Medical.conf");
@@ -557,33 +549,10 @@ modded class SCR_EntityCatalogManagerComponent
 		list.Insert("{D0884FDADC248091}Configs/EntityCatalog/HAM/Wrap_ACETacticalLadderDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
 		list.Insert("{876FFABB1B1BACB9}Configs/EntityCatalog/HAM/Wrap_ACETacticalPeriscopeDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
 		list.Insert("{D5F716ABA505FDE5}Configs/EntityCatalog/HAM/Wrap_ACETrenchesDev_ACE_InventoryItems_EntityCatalog_Equipment_UK.conf");
-		list.Insert("{DBE4DECEF4644137}Configs/EntityCatalog/HAM/Wrap_ACETrenchesDev_ACE_InventoryItems_EntityCatalog_Equipment_US.conf");
-		list.Insert("{AA204B753B0503A2}Configs/EntityCatalog/HAM/Wrap_ACETrenchesDev_ACE_InventoryItems_EntityCatalog_Equipment_USSR.conf");
 		list.Insert("{9E4D33E8FBD40580}Configs/EntityCatalog/HAM/Wrap_ACEWeatherDev_ACE_InventoryItems_EntityCatalog_Equipment.conf");
-		list.Insert("{ED3E360BC91A460E}Configs/EntityCatalog/HAM/ANPRC_119_InventoryItems_EntityCatalog_US.conf");
-		list.Insert("{214D0A9F6455129D}Configs/EntityCatalog/HAM/BonActionAnimations_InventoryItems_EntityCatalog_FIA.conf");
-		list.Insert("{E0CA6A8A521B9C95}Configs/EntityCatalog/HAM/BonActionAnimations_InventoryItems_EntityCatalog_US.conf");
-		list.Insert("{61E4D1D2D8CDCFF3}Configs/EntityCatalog/HAM/BonActionAnimations_InventoryItems_EntityCatalog_USSR.conf");
-		list.Insert("{A8F919F260EEEE5D}Configs/EntityCatalog/HAM/RHS_StatusQuo_InventoryItems_EntityCatalog_USSR.conf");
-		list.Insert("{4DAF345A6B18FFE9}Configs/EntityCatalog/HAM/StunGrenade_InventoryItems_EntityCatalog_FIA.conf");
-		list.Insert("{97205A9A070718B4}Configs/EntityCatalog/HAM/StunGrenade_InventoryItems_EntityCatalog_US.conf");
-		list.Insert("{2D33C57D29832F5F}Configs/EntityCatalog/HAM/StunGrenade_InventoryItems_EntityCatalog_USSR.conf");
-		list.Insert("{E28152FA05949E2C}Configs/EntityCatalog/HAM/WCS_Armaments_InventoryItems_EntityCatalog_CIV.conf");
-		list.Insert("{CE106B7148506E86}Configs/EntityCatalog/HAM/WCS_Armaments_InventoryItems_EntityCatalog_US.conf");
-		list.Insert("{59B7DDB14B444BF0}Configs/EntityCatalog/HAM/WCS_Armaments_InventoryItems_EntityCatalog_USSR.conf");
-		list.Insert("{F0063345D4A51543}Configs/EntityCatalog/HAM/WCS_BMP_3_InventoryItems_EntityCatalog_USSR.conf");
-		list.Insert("{C1C507396C9A1ADF}Configs/EntityCatalog/HAM/XTRPS3_3_18_InventoryItems_EntityCatalog_US.conf");
 	}
 
 	protected void HAM_FillCopyVehicles(notnull array<ResourceName> list)
 	{
-		list.Insert("{A13D0E0100000001}Configs/EntityCatalog/HAM/RHS_GMVehicles.conf");
-		list.Insert("{A13D0F0100000011}Configs/EntityCatalog/HAM/ION_Vehicles.conf");
-		list.Insert("{A13D0F0100000012}Configs/EntityCatalog/HAM/MSV_Vehicles.conf");
-		list.Insert("{A13D0F0100000013}Configs/EntityCatalog/HAM/USMC_Vehicles.conf");
-		list.Insert("{A13D0F0100000041}Configs/EntityCatalog/HAM/Extra_Vehicles.conf");
-		list.Insert("{ADE601C46D666F34}Configs/EntityCatalog/HAM/WCS_Armaments_Vehicles_EntityCatalog_US.conf");
-		list.Insert("{EA7F75F81A83E30E}Configs/EntityCatalog/HAM/WCS_Armaments_Vehicles_EntityCatalog_USSR.conf");
-		list.Insert("{5F86A3160231784E}Configs/EntityCatalog/HAM/WCS_BMP_3_Vehicles_EntityCatalog_USSR.conf");
 	}
 }

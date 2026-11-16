@@ -761,6 +761,12 @@ modded class SCR_BaseGameMode
 	{
 		if (Replication.IsServer() && HAM_Mission.IsActive())
 		{
+			string name = "";
+			PlayerManager players = GetGame().GetPlayerManager();
+			if (players)
+				name = players.GetPlayerName(playerId);
+
+			Print(string.Format("[13RDPA H&M] Déconnexion joueur %1 (%2), groupe %3, raison %4", playerId, name, typename.EnumToString(KickCauseGroup, cause.GetGroup()), cause.GetReason()), LogLevel.NORMAL);
 			HAM_MapMarkerPersist.OnDisconnect(playerId);
 			HAM_RadioChannels.Flush(playerId);
 			HAM_ParadropComponent.Abandon(playerId);

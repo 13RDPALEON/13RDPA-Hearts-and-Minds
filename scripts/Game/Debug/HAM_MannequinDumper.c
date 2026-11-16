@@ -658,7 +658,7 @@ class HAM_MannequinDumper
 						lines.Insert(string.Format("//  on %1:", ShortName(PrefabOf(cloth))));
 						any = true;
 					}
-					lines.Insert(string.Format("//    RHS_LoadoutSlotInfo %1 { Prefab \"%2\" }", si.GetSourceName(), PrefabOf(si.GetAttachedEntity())));
+					lines.Insert(string.Format("//    LoadoutSlotInfo %1 { Prefab \"%2\" }", si.GetSourceName(), PrefabOf(si.GetAttachedEntity())));
 				}
 			}
 		}

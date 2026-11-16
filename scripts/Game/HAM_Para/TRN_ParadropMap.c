@@ -23,9 +23,24 @@ void HAM_ParadropOnMapSelect(float value, EActionTrigger reason)
 
 class HAM_ParadropConfirmDialog : SCR_ConfigurableDialogUi
 {
-	void HAM_ParadropConfirmDialog()
+	protected float m_fX;
+	protected float m_fZ;
+	protected bool m_bHAM_Closed;
+
+	void HAM_ParadropConfirmDialog(float x, float z)
 	{
+		m_fX = x;
+		m_fZ = z;
 		SCR_ConfigurableDialogUi.CreateFromPreset(SCR_CommonDialogs.DIALOGS_CONFIG, "respawn_confirmation", this);
+	}
+
+	void HAM_Dismiss()
+	{
+		if (m_bHAM_Closed)
+			return;
+
+		m_bHAM_Closed = true;
+		Close();
 	}
 
 	override void OnMenuOpen(SCR_ConfigurableDialogUiPreset preset)
@@ -44,14 +59,22 @@ class HAM_ParadropConfirmDialog : SCR_ConfigurableDialogUi
 
 	override void OnConfirm()
 	{
-		HAM_ParadropPick.CloseConfirm();
-		HAM_ParadropPick.Confirm();
+		if (m_bHAM_Closed)
+			return;
+
+		m_bHAM_Closed = true;
+		HAM_ParadropPick.NoteDialogGone(this);
+		HAM_ParadropPick.Submit(m_fX, m_fZ);
 		super.OnConfirm();
 	}
 
 	override void OnCancel()
 	{
-		// Annuler = abandonner le pick, pas seulement fermer le dialog.
+		if (m_bHAM_Closed)
+			return;
+
+		m_bHAM_Closed = true;
+		HAM_ParadropPick.NoteDialogGone(this);
 		HAM_ParadropPick.Cancel();
 		super.OnCancel();
 		MenuManager menus = GetGame().GetMenuManager();
@@ -171,9 +194,9 @@ modded class SCR_MapMenuUI
 		}
 
 		GetGame().GetInputManager().RemoveActionListener("MapSelect", EActionTrigger.UP, HAM_ParadropOnMapSelect);
-		// Fermer la carte = annuler le pick. Si le dialog Confirmer est ouvert,
-		// on clear aussi (Annuler / Esc ne doivent jamais forcer le saut).
-		if (HAM_ParadropPick.IsPicking())
+		// Fermer la carte abandonne le choix. La question « Confirmer » garde le point :
+		// l'ouvrir fermait la carte et effaçait le saut avant le clic sur Confirmer.
+		if (HAM_ParadropPick.IsPicking() && !HAM_ParadropPick.IsConfirmOpen())
 			HAM_ParadropPick.Cancel();
 
 		super.OnMenuClose();

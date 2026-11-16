@@ -14,6 +14,7 @@ class HAM_VehicleDepot
 
 	protected static bool s_bStarted;
 	protected static bool s_bBusy;
+	protected static int s_iPresetGuard;
 	protected static bool s_bRestoreDone;
 	protected static bool s_bCargoDirty;
 	protected static const int MAX_ADD_COUNT = 50;
@@ -273,39 +274,18 @@ class HAM_VehicleDepot
 			return;
 		}
 
+		int started = System.GetTickCount();
+		Print(string.Format("[13RDPA H&M Depot] vidage début, joueur %1", HAM_Util.PlayerTag(playerId)), LogLevel.NORMAL);
+
 		int done = 0;
 		s_bBusy = true;
 		InventoryStorageManagerComponent manager = ManagerOf(vehicle);
 		if (manager)
-		{
-			for (int pass = 0; pass < 12; pass++)
-			{
-			array<IEntity> items = {};
-			GatherItems(manager, items);
-			if (items.IsEmpty())
-					break;
-
-				bool removed = false;
-				foreach (IEntity item : items)
-				{
-					if (!item)
-						continue;
-
-					string prefab = PrefabOf(item);
-					int ammo = AmmoOf(item);
-					if (DeleteOne(vehicle, prefab, ammo, depot.GetOrigin()))
-					{
-						done = done + 1;
-						removed = true;
-					}
-				}
-
-				if (!removed)
-					break;
-			}
-		}
+			done = EmptyTrunk(manager, depot.GetOrigin());
 
 		s_bBusy = false;
+		int elapsed = System.GetTickCount() - started;
+		Print(string.Format("[13RDPA H&M Depot] vidage fin, joueur %1, %2 objet(s), %3 ms", HAM_Util.PlayerTag(playerId), done, elapsed), LogLevel.NORMAL);
 		Tell(playerId, "Coffre vidé : " + done.ToString());
 		PushView(playerId, vehicle);
 	}
@@ -376,6 +356,16 @@ class HAM_VehicleDepot
 			return;
 		}
 
+		int now = System.GetTickCount();
+		int since = now - s_iPresetGuard;
+		if (s_iPresetGuard != 0 && since >= 0 && since < 2000)
+		{
+			Print(string.Format("[13RDPA H&M Depot] preset refusé (garde 2 s), joueur %1, « %2 », depuis %3 ms", HAM_Util.PlayerTag(playerId), name, since), LogLevel.WARNING);
+			Tell(playerId, "Le coffre vient d'être chargé. Attends un instant.");
+			return;
+		}
+
+		s_iPresetGuard = now;
 		int row = PresetRow(name);
 		if (row < 0)
 		{
@@ -383,9 +373,21 @@ class HAM_VehicleDepot
 			return;
 		}
 
+		string pack = s_aPresetPack[row];
+		int objects = PackCount(pack);
+		Print(string.Format("[13RDPA H&M Depot] preset début, joueur %1, « %2 », %3 objet(s)", HAM_Util.PlayerTag(playerId), name, objects), LogLevel.NORMAL);
 		ClearCargo(playerId, depot, vehicle);
-		FillPack(playerId, depot, vehicle, s_aPresetPack[row], true);
-		Tell(playerId, "Preset appliqué.");
+		int placed = FillPack(playerId, depot, vehicle, pack, true);
+		if (pack.IsEmpty())
+			Tell(playerId, "Ce preset est vide.");
+		else if (placed < 1)
+			Tell(playerId, "Le coffre n'accepte pas ce preset.");
+		else
+			Tell(playerId, "Preset appliqué : " + placed.ToString() + " objet(s).");
+
+		int elapsed = System.GetTickCount() - now;
+		s_iPresetGuard = System.GetTickCount();
+		Print(string.Format("[13RDPA H&M Depot] preset fin, joueur %1, « %2 », prévu %3, posé %4, %5 ms", HAM_Util.PlayerTag(playerId), name, objects, placed, elapsed), LogLevel.NORMAL);
 		PushView(playerId, vehicle);
 	}
 
@@ -555,15 +557,16 @@ class HAM_VehicleDepot
 		return removed;
 	}
 
-	protected static void FillPack(int playerId, IEntity depot, IEntity vehicle, string pack, bool charge)
+	protected static int FillPack(int playerId, IEntity depot, IEntity vehicle, string pack, bool charge)
 	{
 		if (pack.IsEmpty())
-			return;
+			return 0;
 
 		array<string> prefabs = {};
 		array<int> ammos = {};
 		array<int> counts = {};
 		ReadPack(pack, prefabs, ammos, counts);
+		int placed = 0;
 		s_bBusy = true;
 		for (int i = 0; i < prefabs.Count(); i++)
 		{
@@ -581,22 +584,28 @@ class HAM_VehicleDepot
 				{
 					Tell(playerId, "Ravitaillement insuffisant pour finir le chargement.");
 					s_bBusy = false;
-					return;
+					return placed;
 				}
 
 				if (!SpawnOne(vehicle, prefabs[i], ammos[i], playerId))
 				{
 					if (charge)
 						Pay(depot.GetOrigin(), -bill);
+
+					continue;
 				}
+
+				placed = placed + 1;
 			}
 		}
 
 		s_bBusy = false;
+		return placed;
 	}
 
 	protected static bool SpawnOne(IEntity vehicle, string prefab, int ammo, int playerId)
 	{
+		BaseInventoryStorageComponent trunk = TrunkOf(vehicle);
 		InventoryStorageManagerComponent manager = ManagerOf(vehicle);
 		if (!manager)
 		{
@@ -610,87 +619,259 @@ class HAM_VehicleDepot
 			return false;
 		}
 
+		if (trunk)
+			OwnTrunk(manager, trunk);
+
 		array<IEntity> before = {};
-		GatherItems(manager, before);
-		bool spawned = false;
-		BaseInventoryStorageComponent trunk = TrunkOf(vehicle);
-		if (playerId != 0 && trunk)
+		if (trunk)
+			trunk.GetAll(before);
+
+		IEntity added = PutInTrunk(vehicle, manager, trunk, prefab, playerId, before);
+		if (!added)
 		{
-			IEntity user = GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId);
-			SCR_InventoryStorageManagerComponent playerInv;
-			if (user)
-				playerInv = SCR_InventoryStorageManagerComponent.Cast(user.FindComponent(SCR_InventoryStorageManagerComponent));
-
-			if (playerInv && playerInv.TrySpawnPrefabToStorage(prefab, trunk, -1, trunk.GetPurpose()))
-				spawned = true;
-		}
-
-		if (!spawned)
-		{
-			array<BaseInventoryStorageComponent> storages = {};
-			manager.GetStorages(storages, EStoragePurpose.PURPOSE_ANY);
-			foreach (BaseInventoryStorageComponent storage : storages)
-			{
-				if (!storage)
-					continue;
-
-				if (manager.TrySpawnPrefabToStorage(prefab, storage, -1, storage.GetPurpose()))
-				{
-					spawned = true;
-					break;
-				}
-			}
-		}
-
-		if (!spawned)
-			spawned = manager.TrySpawnPrefabToStorage(prefab, null, -1, EStoragePurpose.PURPOSE_ANY);
-
-		if (!spawned)
-			spawned = TrySpawnInto(vehicle, prefab);
-
-		if (!spawned)
-			spawned = InsertSpawned(vehicle, manager, prefab);
-
-		if (!spawned)
-		{
-			Print("[13RDPA H&M Depot] insertion refusee " + prefab, LogLevel.WARNING);
+			Print(string.Format("[13RDPA H&M Depot] insertion refusee joueur %1 %2", playerId, prefab), LogLevel.WARNING);
 			return false;
 		}
 
 		if (ammo < 0)
 			return true;
 
-		array<IEntity> after = {};
-		GatherItems(manager, after);
-		foreach (IEntity item : after)
-		{
-			if (!item || before.Find(item) >= 0)
-				continue;
-
-			BaseMagazineComponent magazine = BaseMagazineComponent.Cast(item.FindComponent(BaseMagazineComponent));
-			if (magazine)
-				magazine.SetAmmoCount(ammo);
-
-			break;
-		}
+		BaseMagazineComponent magazine = BaseMagazineComponent.Cast(added.FindComponent(BaseMagazineComponent));
+		if (magazine)
+			magazine.SetAmmoCount(ammo);
 
 		return true;
 	}
 
-	protected static bool InsertSpawned(IEntity vehicle, InventoryStorageManagerComponent manager, string prefab)
+	// Le gestionnaire du joueur répond souvent « oui » sans laisser l'objet dans le coffre d'un véhicule moddé.
+	// On ne compte l'ajout que si le coffre contient vraiment le nouvel objet.
+	protected static IEntity PutInTrunk(IEntity vehicle, InventoryStorageManagerComponent manager, BaseInventoryStorageComponent trunk, string prefab, int playerId, array<IEntity> before)
+	{
+		if (!trunk)
+			return PutWithoutTrunk(vehicle, manager, prefab);
+
+		if (manager.TrySpawnPrefabToStorage(prefab, trunk, -1, EStoragePurpose.PURPOSE_ANY))
+		{
+			IEntity spawned = NewlyStored(trunk, before, prefab);
+			if (!spawned)
+				spawned = HeldChild(vehicle, trunk, before, prefab);
+
+			if (spawned)
+				return spawned;
+		}
+
+		if (trunk.GetPurpose() != EStoragePurpose.PURPOSE_ANY && manager.TrySpawnPrefabToStorage(prefab, trunk, -1, trunk.GetPurpose()))
+		{
+			IEntity spawned = NewlyStored(trunk, before, prefab);
+			if (!spawned)
+				spawned = HeldChild(vehicle, trunk, before, prefab);
+
+			if (spawned)
+				return spawned;
+		}
+
+		SweepLoose(vehicle, trunk, prefab, before);
+
+		if (playerId != 0)
+		{
+			IEntity user = GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId);
+			SCR_InventoryStorageManagerComponent playerInv;
+			if (user)
+				playerInv = SCR_InventoryStorageManagerComponent.Cast(user.FindComponent(SCR_InventoryStorageManagerComponent));
+
+			if (playerInv)
+			{
+				array<IEntity> playerBefore = {};
+				playerInv.GetItems(playerBefore);
+				playerInv.TrySpawnPrefabToStorage(prefab, trunk, -1, trunk.GetPurpose());
+				IEntity spawned = NewlyStored(trunk, before, prefab);
+				if (!spawned)
+					spawned = HeldChild(vehicle, trunk, before, prefab);
+
+				if (spawned)
+					return spawned;
+
+				DropFromPlayer(playerInv, playerBefore, prefab);
+				SweepLoose(vehicle, trunk, prefab, before);
+			}
+		}
+
+		IEntity item = SpawnItem(vehicle, prefab);
+		if (!item)
+			return null;
+
+		manager.TryInsertItemInStorage(item, trunk);
+		if (!HeldBy(trunk, item))
+			manager.TryInsertItem(item, EStoragePurpose.PURPOSE_DEPOSIT);
+
+		if (HeldBy(trunk, item))
+			return item;
+
+		if (manager.Contains(item))
+			manager.TryDeleteItem(item);
+
+		SCR_EntityHelper.DeleteEntityAndChildren(item);
+		return null;
+	}
+
+	protected static IEntity PutWithoutTrunk(IEntity vehicle, InventoryStorageManagerComponent manager, string prefab)
+	{
+		int beforeCount = ItemCount(vehicle);
+		bool spawned = TrySpawnInto(vehicle, prefab);
+		if (!spawned)
+			spawned = InsertSpawned(vehicle, manager, prefab);
+
+		if (!spawned || ItemCount(vehicle) <= beforeCount)
+			return null;
+
+		array<IEntity> items = {};
+		GatherItems(manager, items);
+		for (int i = items.Count() - 1; i >= 0; i--)
+		{
+			if (items[i] && PrefabOf(items[i]) == prefab)
+				return items[i];
+		}
+
+		return null;
+	}
+
+	protected static IEntity SpawnItem(IEntity vehicle, string prefab)
 	{
 		Resource resource = Resource.Load(prefab);
 		if (!resource || !resource.IsValid())
 		{
 			Print("[13RDPA H&M Depot] prefab invalide " + prefab, LogLevel.WARNING);
-			return false;
+			return null;
 		}
 
 		EntitySpawnParams params = new EntitySpawnParams();
 		params.TransformMode = ETransformMode.WORLD;
 		Math3D.MatrixIdentity4(params.Transform);
 		params.Transform[3] = vehicle.GetOrigin();
-		IEntity item = GetGame().SpawnEntityPrefab(resource, vehicle.GetWorld(), params);
+		return GetGame().SpawnEntityPrefab(resource, vehicle.GetWorld(), params);
+	}
+
+	protected static IEntity NewlyStored(BaseInventoryStorageComponent trunk, array<IEntity> before, string prefab)
+	{
+		if (!trunk)
+			return null;
+
+		array<IEntity> stored = {};
+		trunk.GetAll(stored);
+		foreach (IEntity item : stored)
+		{
+			if (!item || before.Find(item) >= 0)
+				continue;
+
+			if (PrefabOf(item) != prefab)
+				continue;
+
+			return item;
+		}
+
+		return null;
+	}
+
+	protected static IEntity HeldChild(IEntity vehicle, BaseInventoryStorageComponent trunk, array<IEntity> before, string prefab)
+	{
+		array<IEntity> nodes = {};
+		CollectNodes(vehicle, nodes);
+		foreach (IEntity node : nodes)
+		{
+			if (!node || before.Find(node) >= 0)
+				continue;
+
+			if (PrefabOf(node) != prefab)
+				continue;
+
+			if (!HeldBy(trunk, node))
+				continue;
+
+			return node;
+		}
+
+		return null;
+	}
+
+	protected static bool HeldBy(BaseInventoryStorageComponent trunk, IEntity item)
+	{
+		if (!trunk || !item)
+			return false;
+
+		array<IEntity> stored = {};
+		trunk.GetAll(stored);
+		if (stored.Find(item) >= 0)
+			return true;
+
+		InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+		if (!inventory)
+			return false;
+
+		InventoryStorageSlot slot = inventory.GetParentSlot();
+		if (!slot)
+			return false;
+
+		return slot.GetStorage() == trunk;
+	}
+
+	protected static void OwnTrunk(InventoryStorageManagerComponent manager, BaseInventoryStorageComponent trunk)
+	{
+		if (!manager || !trunk)
+			return;
+
+		array<BaseInventoryStorageComponent> storages = {};
+		manager.GetStorages(storages, EStoragePurpose.PURPOSE_ANY);
+		if (storages.Find(trunk) >= 0)
+			return;
+
+		manager.AddStorage(trunk);
+	}
+
+	protected static void DropFromPlayer(SCR_InventoryStorageManagerComponent playerInv, array<IEntity> before, string prefab)
+	{
+		if (!playerInv)
+			return;
+
+		array<IEntity> after = {};
+		playerInv.GetItems(after);
+		foreach (IEntity item : after)
+		{
+			if (!item || before.Find(item) >= 0)
+				continue;
+
+			if (PrefabOf(item) != prefab)
+				continue;
+
+			playerInv.TryDeleteItem(item);
+			break;
+		}
+	}
+
+	protected static void SweepLoose(IEntity vehicle, BaseInventoryStorageComponent trunk, string prefab, array<IEntity> before)
+	{
+		array<IEntity> nodes = {};
+		CollectNodes(vehicle, nodes);
+		foreach (IEntity node : nodes)
+		{
+			if (!node || node == vehicle)
+				continue;
+
+			if (PrefabOf(node) != prefab)
+				continue;
+
+			if (before.Find(node) >= 0)
+				continue;
+
+			if (HeldBy(trunk, node))
+				continue;
+
+			SCR_EntityHelper.DeleteEntityAndChildren(node);
+		}
+	}
+
+	protected static bool InsertSpawned(IEntity vehicle, InventoryStorageManagerComponent manager, string prefab)
+	{
+		IEntity item = SpawnItem(vehicle, prefab);
 		if (!item)
 			return false;
 
@@ -720,6 +901,50 @@ class HAM_VehicleDepot
 			for (int n = 0; n < counts[i]; n++)
 				SpawnOne(vehicle, prefabs[i], ammos[i], 0);
 		}
+	}
+
+	// Un seul passage sur la liste : l'ancien vidage relançait le scan complet pour chaque objet.
+	protected static int EmptyTrunk(InventoryStorageManagerComponent manager, vector refundAt)
+	{
+		if (!manager)
+			return 0;
+
+		SCR_CampaignMilitaryBaseComponent supplyBase = SupplyBaseAt(refundAt);
+		int done = 0;
+		for (int pass = 0; pass < 4; pass++)
+		{
+			array<IEntity> items = {};
+			GatherItems(manager, items);
+			if (items.IsEmpty())
+				break;
+
+			bool removed = false;
+			for (int i = items.Count() - 1; i >= 0; i--)
+			{
+				IEntity item = items[i];
+				if (!item)
+					continue;
+
+				string prefab = PrefabOf(item);
+				int refund = 0;
+				if (!prefab.IsEmpty())
+					refund = ItemCost(prefab, false);
+
+				if (!manager.TryDeleteItem(item))
+					continue;
+
+				if (refund > 0 && supplyBase)
+					supplyBase.AddSupplies(refund);
+
+				done = done + 1;
+				removed = true;
+			}
+
+			if (!removed)
+				break;
+		}
+
+		return done;
 	}
 
 	protected static bool DeleteOne(IEntity vehicle, string prefab, int ammo, vector refundAt)
@@ -1065,6 +1290,19 @@ class HAM_VehicleDepot
 		}
 	}
 
+	protected static int PackCount(string pack)
+	{
+		array<string> prefabs = {};
+		array<int> ammos = {};
+		array<int> counts = {};
+		ReadPack(pack, prefabs, ammos, counts);
+		int total = 0;
+		for (int i = 0; i < counts.Count(); i++)
+			total = total + counts[i];
+
+		return total;
+	}
+
 	protected static int ItemCount(IEntity vehicle)
 	{
 		InventoryStorageManagerComponent manager = ManagerOf(vehicle);
@@ -1106,41 +1344,70 @@ class HAM_VehicleDepot
 
 	protected static BaseInventoryStorageComponent TrunkOf(IEntity vehicle)
 	{
+		if (!vehicle)
+			return null;
+
+		// Le coffre du châssis, pas la soute d'une tourelle plus volumineuse.
+		BaseInventoryStorageComponent onRoot = BestStorageOn(vehicle);
+		if (onRoot)
+			return onRoot;
+
 		array<IEntity> nodes = {};
 		CollectNodes(vehicle, nodes);
+		BaseInventoryStorageComponent best;
+		float bestVolume = -1;
+		foreach (IEntity node : nodes)
+		{
+			if (!node || node == vehicle)
+				continue;
+
+			BaseInventoryStorageComponent storage = BestStorageOn(node);
+			if (!storage)
+				continue;
+
+			float volume = storage.GetMaxVolumeCapacity();
+			if (volume <= bestVolume)
+				continue;
+
+			best = storage;
+			bestVolume = volume;
+		}
+
+		return best;
+	}
+
+	protected static BaseInventoryStorageComponent BestStorageOn(IEntity node)
+	{
+		if (!node)
+			return null;
+
 		BaseInventoryStorageComponent bestDeposit;
 		BaseInventoryStorageComponent bestAny;
 		float bestDepositVolume = -1;
 		float bestAnyVolume = -1;
-		foreach (IEntity node : nodes)
+		array<Managed> components = {};
+		node.FindComponents(UniversalInventoryStorageComponent, components);
+		foreach (Managed managed : components)
 		{
-			if (!node)
+			UniversalInventoryStorageComponent storage = UniversalInventoryStorageComponent.Cast(managed);
+			if (!storage)
 				continue;
 
-			array<Managed> components = {};
-			node.FindComponents(UniversalInventoryStorageComponent, components);
-			foreach (Managed managed : components)
+			float volume = storage.GetMaxVolumeCapacity();
+			if (volume > bestAnyVolume)
 			{
-				UniversalInventoryStorageComponent storage = UniversalInventoryStorageComponent.Cast(managed);
-				if (!storage)
-					continue;
-
-				float volume = storage.GetMaxVolumeCapacity();
-				if (volume > bestAnyVolume)
-				{
-					bestAny = storage;
-					bestAnyVolume = volume;
-				}
-
-				if (storage.GetPurpose() != EStoragePurpose.PURPOSE_DEPOSIT)
-					continue;
-
-				if (volume < bestDepositVolume)
-					continue;
-
-				bestDeposit = storage;
-				bestDepositVolume = volume;
+				bestAny = storage;
+				bestAnyVolume = volume;
 			}
+
+			if (storage.GetPurpose() != EStoragePurpose.PURPOSE_DEPOSIT)
+				continue;
+
+			if (volume < bestDepositVolume)
+				continue;
+
+			bestDeposit = storage;
+			bestDepositVolume = volume;
 		}
 
 		if (bestDeposit)
@@ -1227,6 +1494,19 @@ class HAM_VehicleDepot
 
 	protected static InventoryStorageManagerComponent ManagerOf(IEntity vehicle)
 	{
+		if (!vehicle)
+			return null;
+
+		InventoryStorageManagerComponent root = InventoryStorageManagerComponent.Cast(vehicle.FindComponent(InventoryStorageManagerComponent));
+		BaseInventoryStorageComponent trunk = TrunkOf(vehicle);
+		if (root)
+		{
+			if (trunk)
+				OwnTrunk(root, trunk);
+
+			return root;
+		}
+
 		array<IEntity> nodes = {};
 		CollectNodes(vehicle, nodes);
 		InventoryStorageManagerComponent fallback;
@@ -1241,6 +1521,9 @@ class HAM_VehicleDepot
 
 			if (!fallback)
 				fallback = manager;
+
+			if (trunk)
+				OwnTrunk(manager, trunk);
 
 			array<BaseInventoryStorageComponent> storages = {};
 			if (manager.GetStorages(storages) > 0)

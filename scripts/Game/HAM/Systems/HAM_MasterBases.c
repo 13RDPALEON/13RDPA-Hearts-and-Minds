@@ -252,7 +252,6 @@ class HAM_MasterBases
 	protected static const ResourceName GARAGE_HEAVY = "{2FE44206E527DA4C}Prefabs/Props/Military/Compositions/US/VehicleService_US_Medium.et";
 	protected static const ResourceName REPAIR_RAMP = "{74FAABE8512145EF}Prefabs/Structures/Industrial/Repair/RampVehicle_01/RampVehicle_01_metal.et";
 	protected static const float PREFAB_SEARCH = 200;
-	protected static const float PREFAB_DOUBLE = 40;
 	protected static ref map<string, float> s_mExplainAt;
 
 	//------------------------------------------------------------------------------------------------
@@ -364,6 +363,7 @@ class HAM_MasterBases
 			HAM_MasterLinkComponent existingLink = LinkOf(cell);
 			if (existingLink)
 			{
+				HAM_Mission.CountZonePrefab(false);
 				if (existingLink.CellName().IsEmpty())
 					existingLink.Setup(cell.m_sName, Math.Round(cell.m_Master.Radius()));
 				else
@@ -753,19 +753,6 @@ class HAM_MasterBases
 		if (!best)
 			return null;
 
-		float doubleSq = PREFAB_DOUBLE * PREFAB_DOUBLE;
-		foreach (IEntity ent : s_aSamePrefab)
-		{
-			if (!ent || ent == best)
-				continue;
-
-			if (vector.DistanceSqXZ(ent.GetOrigin(), best.GetOrigin()) > doubleSq)
-				continue;
-
-			HAM_Util.Forget(ent);
-			HAM_Util.Delete(ent);
-		}
-
 		HAM_Util.Forget(best);
 		return best;
 	}
@@ -790,7 +777,12 @@ class HAM_MasterBases
 
 		IEntity baseEntity = HAM_Util.Spawn(BASE, zone, 0);
 		if (!baseEntity)
+		{
+			HAM_Mission.FailZonePrefab("base " + cell.m_sName);
 			return;
+		}
+
+		HAM_Mission.CountZonePrefab(true);
 
 		string factionKey = HAM_Units.ENEMY_FACTION;
 		if (cell.m_Master.m_bPlayer)
@@ -1124,7 +1116,6 @@ class HAM_MasterBases
 		HAM_EMasterType type = cell.m_Master.m_Def.m_eType;
 		if (type == HAM_EMasterType.FUEL)
 		{
-			ClearCustomFuel(pos);
 			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos, pos + Vector(16, 0, 0), 90, 8, cell.m_sName);
 			if (link)
 				link.RememberProp(fuel);
@@ -1159,51 +1150,50 @@ class HAM_MasterBases
 	{
 		IEntity kept = TakeExisting(prefab, zone, PREFAB_SEARCH);
 		IEntity twin = TakeExisting(other, zone, PREFAB_SEARCH);
-		if (kept && twin)
-		{
-			float doubleSq = PREFAB_DOUBLE * PREFAB_DOUBLE;
-			if (vector.DistanceSqXZ(kept.GetOrigin(), twin.GetOrigin()) <= doubleSq)
-			{
-				HAM_Util.Forget(twin);
-				HAM_Util.Delete(twin);
-			}
-			else if (vector.DistanceSqXZ(twin.GetOrigin(), zone) < vector.DistanceSqXZ(kept.GetOrigin(), zone))
-			{
-				kept = twin;
-			}
-		}
+		if (kept && twin && vector.DistanceSqXZ(twin.GetOrigin(), zone) < vector.DistanceSqXZ(kept.GetOrigin(), zone))
+			kept = twin;
 		else if (!kept)
 		{
 			kept = twin;
 		}
 
+		bool spawned = false;
 		if (!kept)
-			kept = HAM_Util.SpawnLevelled(prefab, Fit(pos, footprint, label), yaw);
+		{
+			kept = HAM_Util.Spawn(prefab, pos, yaw);
+			spawned = true;
+		}
 
+		if (!kept)
+		{
+			HAM_Mission.FailZonePrefab(label);
+			return null;
+		}
+
+		HAM_Mission.CountZonePrefab(spawned);
 		return kept;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected static IEntity PlaceProp(HAM_MasterLinkComponent link, ResourceName prefab, vector zone, vector pos, float yaw, float footprint)
 	{
+		bool spawned = false;
 		IEntity prop = TakeExisting(prefab, zone, PREFAB_SEARCH);
 		if (!prop)
-			prop = HAM_Util.SpawnLevelled(prefab, Fit(pos, footprint, prefab), yaw);
+		{
+			prop = HAM_Util.Spawn(prefab, pos, yaw);
+			spawned = true;
+		}
+
+		if (!prop)
+			HAM_Mission.FailZonePrefab(HAM_Util.PrefabFileName(prefab));
+		else
+			HAM_Mission.CountZonePrefab(spawned);
+
 		if (link)
 			link.RememberProp(prop);
 
 		return prop;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static vector Fit(vector preferred, float footprint, string label)
-	{
-		vector spot;
-		if (HAM_Util.FindSite(preferred, footprint, spot))
-			return spot;
-
-		Print(string.Format("[13RDPA H&M] Pas de sol plat pour %1, posé sur le moins pentu", label), LogLevel.WARNING);
-		return HAM_Util.Flattest(preferred, footprint);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1215,7 +1205,6 @@ class HAM_MasterBases
 		HAM_EMasterType type = slave.m_Def.m_eType;
 		if (type == HAM_EMasterType.FUEL)
 		{
-			ClearCustomFuel(pos);
 			IEntity fuel = KeepComposition(FUEL, FUEL_PLAYER, pos, pos + Vector(16, 0, 0), 90, 8, slave.m_Def.m_sName);
 			if (fuel)
 				slave.m_aTypeProps.Insert(fuel);
@@ -1448,9 +1437,25 @@ class HAM_MasterBases
 	//------------------------------------------------------------------------------------------------
 	protected static void RememberSlave(HAM_Point slave, ResourceName prefab, vector zone, vector pos, float yaw, float footprint)
 	{
+		bool spawned = false;
 		IEntity prop = TakeExisting(prefab, zone, PREFAB_SEARCH);
 		if (!prop)
-			prop = HAM_Util.SpawnLevelled(prefab, Fit(pos, footprint, slave.m_Def.m_sName), yaw);
+		{
+			prop = HAM_Util.Spawn(prefab, pos, yaw);
+			spawned = true;
+		}
+
+		if (!prop)
+		{
+			string label = HAM_Util.PrefabFileName(prefab);
+			if (slave && slave.m_Def)
+				label = slave.m_Def.m_sName + " " + label;
+
+			HAM_Mission.FailZonePrefab(label);
+		}
+		else
+			HAM_Mission.CountZonePrefab(spawned);
+
 		if (prop)
 			slave.m_aTypeProps.Insert(prop);
 	}
@@ -1649,7 +1654,7 @@ class HAM_MasterBases
 			yaw = Math3D.MatrixToAngles(transform)[0];
 		}
 
-		IEntity next = HAM_Util.SpawnLevelled(prefab, pos, yaw);
+		IEntity next = HAM_Util.Spawn(prefab, pos, yaw);
 		if (!next)
 		{
 			Print(string.Format("[13RDPA H&M] Composition %1 introuvable, l'ancienne reste en place", prefab), LogLevel.WARNING);
@@ -1864,7 +1869,7 @@ class HAM_MasterBases
 		prop.GetWorldTransform(transform);
 		vector pos = prop.GetOrigin();
 		float yaw = Math3D.MatrixToAngles(transform)[0];
-		IEntity next = HAM_Util.SpawnLevelled(prefab, pos, yaw);
+		IEntity next = HAM_Util.Spawn(prefab, pos, yaw);
 		if (!next)
 		{
 			Print(string.Format("[13RDPA H&M] Stockage %1 introuvable, l'ancien reste en place", prefab), LogLevel.WARNING);
@@ -1878,30 +1883,6 @@ class HAM_MasterBases
 		HAM_MasterLinkComponent.SetEntityFaction(next, factionKey);
 		OpenBuilt(next, factionKey);
 		return next;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static ref array<IEntity> s_aOldFuel;
-
-	//------------------------------------------------------------------------------------------------
-	protected static bool SeeCustomFuel(IEntity ent)
-	{
-		if (!ent || !ent.GetPrefabData())
-			return true;
-
-		if (ent.GetPrefabData().GetPrefabName().Contains("HAM_FuelStation"))
-			s_aOldFuel.Insert(ent);
-
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected static void ClearCustomFuel(vector pos)
-	{
-		s_aOldFuel = {};
-		GetGame().GetWorld().QueryEntitiesBySphere(pos, 40, SeeCustomFuel);
-		foreach (IEntity old : s_aOldFuel)
-			HAM_Util.Delete(old);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1922,15 +1903,9 @@ class HAM_MasterBases
 				return null;
 			}
 
-			SCR_DestructibleBuildingEntity savedHouse = HideoutHouse(saved, buildings);
-			if (savedHouse && HideoutRoom(savedHouse, saved))
-			{
-				IEntity restored = SpawnHideout(saved, name, "reprise");
-				if (restored)
-					return restored;
-			}
-
-			Print(string.Format("[13RDPA H&M] Cache de planque %1 reprise hors d'une pièce, on la repose", name), LogLevel.WARNING);
+			IEntity restored = SpawnHideout(saved, name, "reprise");
+			if (restored)
+				return restored;
 		}
 
 		for (int attempt = 0; attempt < 24 && !buildings.IsEmpty(); attempt++)

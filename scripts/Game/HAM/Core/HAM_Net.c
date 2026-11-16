@@ -1034,42 +1034,4 @@ modded class SCR_PlayerController
 	{
 		HAM_CivilianTalkUI.ShowAnswer(text, canPay, confirm);
 	}
-
-	//------------------------------------------------------------------------------------------------
-	//! Le client GM envoie la position de sa caméra. Le serveur la pose sur l'entité éditeur,
-	//! c'est elle que la voix de proximité interroge.
-	void HAM_PushGmVoice(vector origin)
-	{
-		if (Replication.IsServer())
-		{
-			HAM_ApplyGmVoice(origin);
-			return;
-		}
-
-		Rpc(HAM_RpcGmVoice, origin);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void HAM_RpcGmVoice(vector origin)
-	{
-		HAM_ApplyGmVoice(origin);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected void HAM_ApplyGmVoice(vector origin)
-	{
-		SCR_EditorManagerCore core = SCR_EditorManagerCore.Cast(SCR_EditorManagerCore.GetInstance(SCR_EditorManagerCore));
-		if (!core)
-			return;
-
-		SCR_EditorManagerEntity editor = core.GetEditorManager(GetPlayerId());
-		if (!editor || !editor.IsOpened())
-			return;
-
-		vector mat[4];
-		editor.GetWorldTransform(mat);
-		mat[3] = origin;
-		editor.SetWorldTransform(mat);
-	}
 }

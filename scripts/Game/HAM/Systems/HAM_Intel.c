@@ -229,12 +229,6 @@ class HAM_Intel
 		if (def.m_eRole != HAM_ERole.MASTER && def.m_eRole != HAM_ERole.SLAVE && def.m_eRole != HAM_ERole.ENEMY_HQ)
 			return false;
 
-		if (def.m_eType == HAM_EMasterType.BASE)
-			return false;
-
-		if (def.m_eType == HAM_EMasterType.SUPPLY_VANILLA || def.m_eType == HAM_EMasterType.SUPPLY_PERSONAL)
-			return false;
-
 		return true;
 	}
 
@@ -317,14 +311,15 @@ class HAM_Intel
 		if (nearest > activate)
 			return;
 
-		state.m_aCivilianPoints.Insert(name);
-		state.m_bCiviliansActive = true;
 		int count = settings.CiviliansOf(zoneDef);
-		if (count < 1)
+		if (!zoneDef || settings.TuneFor(zoneDef).m_iCivilians < 0)
 			count = settings.m_iCivilianGroups * CIVILIANS_PER_GROUP;
 
 		if (count < 1)
 			return;
+
+		state.m_aCivilianPoints.Insert(name);
+		state.m_bCiviliansActive = true;
 
 		HAM_CivilianWave wave = new HAM_CivilianWave();
 		wave.m_Point = point;

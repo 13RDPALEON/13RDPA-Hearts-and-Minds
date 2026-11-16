@@ -110,7 +110,12 @@ class HAM_Convoys
 		convoy.m_vTarget = HAM_Mission.BasePos(toBase);
 
 		vector origin = HAM_Mission.BasePos(fromBase);
-		vector park = HAM_Util.ParkSpot(origin);
+		vector park = HAM_Util.ConvoyPark(origin);
+		string parkKind = "clairière";
+		if (HAM_Util.ConvoyParkUsedFallback())
+			parkKind = "repli DryAround";
+
+		Print(string.Format("[13RDPA H&M] Convoi joueur %1 : %2 -> %3, position %4 (%5)", HAM_Util.PlayerTag(playerId), fromBase, toBase, park, parkKind), LogLevel.NORMAL);
 		vector roadEnd;
 		bool dryRoad = HAM_Util.RoadPoint(convoy.m_vTarget, 250, roadEnd) && !HAM_Util.IsNearWater(roadEnd);
 		if (!dryRoad)
@@ -131,11 +136,9 @@ class HAM_Convoys
 				load = remaining;
 
 			remaining -= load;
-			vector prefer = park;
+			vector slot = park;
 			if (i > 0)
-				prefer = park - along * (i * 16.0);
-
-			vector slot = HAM_Util.ParkSpot(prefer);
+				slot = HAM_Util.ConvoySlot(origin, park, along, i);
 			array<vector> route = {roadEnd};
 			Vehicle vehicle = HAM_Garrison.SpawnCrewedVehicle(vehiclePrefab, slot, yaw, false, route, HAM_Units.WP_MOVE, 30, convoy.m_aGroups, false, HAM_Units.GROUP_PLAYER_CONVOY);
 			if (!vehicle)

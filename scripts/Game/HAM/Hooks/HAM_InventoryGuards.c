@@ -18,6 +18,8 @@ modded class SCR_InventoryMenuUI
 
 modded class SCR_InventorySlotUI
 {
+	protected static bool s_bHAM_AllFactionsLogged;
+
 	protected override void Init()
 	{
 		m_iPage = -1;
@@ -68,5 +70,36 @@ modded class SCR_InventorySlotUI
 
 		if (m_pStorageUI && m_pStorageUI.GetInventoryMenuHandler())
 			m_pStorageUI.GetInventoryMenuHandler().RegisterUIStorage(this);
+	}
+
+	// Aucun coffre n'est réservé à une faction : le joueur voit et remplit chaque véhicule.
+	protected override bool ShouldVehicleSlotBeVisible(SCR_InventoryVehicleVisibilityAttribute attr)
+	{
+		if (!m_pItem || !attr)
+			return false;
+
+		IEntity owner = m_pItem.GetOwner();
+		if (!s_bHAM_AllFactionsLogged)
+		{
+			s_bHAM_AllFactionsLogged = true;
+			string prefab = "?";
+			if (owner && owner.GetPrefabData())
+				prefab = HAM_Util.PrefabFileName(owner.GetPrefabData().GetPrefabName());
+
+			Print(string.Format("[13RDPA H&M] Coffre visible pour toutes les factions, premier contrôle %1", prefab), LogLevel.NORMAL);
+		}
+
+		if (!owner)
+			return false;
+
+		IEntity vehicle = owner;
+		if (!Vehicle.Cast(vehicle) && vehicle.GetParent())
+			vehicle = vehicle.GetParent();
+
+		SCR_VehicleDamageManagerComponent damage = SCR_VehicleDamageManagerComponent.Cast(vehicle.FindComponent(SCR_VehicleDamageManagerComponent));
+		if (damage && damage.IsDestroyed())
+			return false;
+
+		return true;
 	}
 }

@@ -1,7 +1,7 @@
 GenericEntity {
  ID "EE001B18632DA401"
  components {
-  TRN_Para_ParachuteV2AnimComponent "{EE001B18632DA404}" {
+  HAM_Para_ParachuteV2AnimComponent "{EE001B18632DA404}" {
    m_DeployAnim "{F359E74C735A81EA}Assets/Parachutes/GMS_ParachuteV2/gms_pdbag_deploy_demo.anm"
    m_SteerRAnim "{D42307D0AD8105F1}Assets/Parachutes/GMS_ParachuteV2/gms_pdbag_steer_r.anm"
    m_SteerLAnim "{25283F84DEDE301D}Assets/Parachutes/GMS_ParachuteV2/gms_pdbag_steer_l.anm"

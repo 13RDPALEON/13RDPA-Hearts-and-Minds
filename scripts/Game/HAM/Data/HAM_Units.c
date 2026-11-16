@@ -21,7 +21,17 @@ class HAM_Units
 
 	static const ResourceName VEHICLE_M1025 = "{3EA6F47D95867115}Prefabs/Vehicles/Wheeled/M998/M1025_armed_M2HB.et";
 	static const ResourceName VEHICLE_LAV = "{0FBF8F010F81A4E6}Prefabs/Vehicles/Wheeled/LAV25/LAV25.et";
-	static const ResourceName VEHICLE_UH1H = "{21E9A875C0A3C40A}Prefabs/Vehicles/Helicopters/UH1H/UH1H_armed_gunship_HE.et";
+	//! Enfants des AH-1S WCS : le composant AeroPilot est ajouté ici, comme sur l'UH-1H.
+	static const ResourceName VEHICLE_AH1S_ARMY_M261 = "{A13D0F1A00001101}Prefabs/Vehicles/Helicopters/AH1S/HAM_AH1S_Army_M261_X4.et";
+	static const ResourceName VEHICLE_AH1S_BLACK_M261 = "{A13D0F1A00001102}Prefabs/Vehicles/Helicopters/AH1S/HAM_AH1S_Black_M261_X4.et";
+	static const ResourceName VEHICLE_AH1S_ARMY_M299 = "{A13D0F1A00001103}Prefabs/Vehicles/Helicopters/AH1S/HAM_AH1S_Army_M299_X2.et";
+	//! Deux pilotes REAPER. L'AH-1S a un pilote et un mitrailleur.
+	static const ResourceName GROUP_HELI_PILOTS = "{1F06EFF03F88E82D}Prefabs/Groups/BLUFOR/REAPER_US_Pilots.et";
+	static const ResourceName VEHICLE_M1A1_CAMO = "{56DB823510AFCD8D}Prefabs/Vehicles/Tracked/M1A1/M1A1_Camo_Net.et";
+	static const ResourceName VEHICLE_M1A1_TUSK = "{CD7AF2F088265D6C}Prefabs/Vehicles/Tracked/M1A1/M1A1_TUSK_Olive.et";
+	static const ResourceName VEHICLE_M1A2_TUSK = "{97E6C6D819561161}Prefabs/Vehicles/Tracked/M1A1/M1A2/SEP/M1A2_SEP_TUSK_Olive.et";
+	//! Quatre hommes. Le char n'en garde que trois : conducteur, tireur, chargeur.
+	static const ResourceName GROUP_FIRE = "{84E5BBAB25EA23E5}Prefabs/Groups/BLUFOR/Group_US_FireTeam.et";
 
 	static const ResourceName CQB_MG = "{ADB0F1274E9A0670}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_MG.et";
 	static const ResourceName CQB_RIFLEMAN = "{F44F87222B67E26A}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et";
@@ -45,6 +55,8 @@ class HAM_Units
 
 	// Ennemi : véhicules autour des zones, tirés selon les pourcentages du bloc vehicles du JSON
 	static ref array<ResourceName> s_aEnemyZoneArmor;
+	static ref array<ResourceName> s_aEnemyZoneTank;
+	static ref array<ResourceName> s_aEnemyHelicopters;
 	static ref array<ResourceName> s_aEnemyZoneBtr;
 	static ref array<ResourceName> s_aEnemyZoneTruck;
 	static ref array<ResourceName> s_aEnemyZoneCar;
@@ -159,6 +171,14 @@ class HAM_Units
 
 		s_aEnemyZoneArmor = {};
 		s_aEnemyZoneArmor.Insert(VEHICLE_LAV);
+		s_aEnemyZoneTank = {};
+		s_aEnemyZoneTank.Insert(VEHICLE_M1A1_CAMO);
+		s_aEnemyZoneTank.Insert(VEHICLE_M1A1_TUSK);
+		s_aEnemyZoneTank.Insert(VEHICLE_M1A2_TUSK);
+		s_aEnemyHelicopters = {};
+		s_aEnemyHelicopters.Insert(VEHICLE_AH1S_ARMY_M261);
+		s_aEnemyHelicopters.Insert(VEHICLE_AH1S_BLACK_M261);
+		s_aEnemyHelicopters.Insert(VEHICLE_AH1S_ARMY_M299);
 		s_aEnemyZoneBtr = {};
 		s_aEnemyZoneTruck = {};
 		s_aEnemyZoneCar = {};
@@ -334,16 +354,22 @@ class HAM_Units
 		return Pick(s_aEnemyCqb, s_aEnemyInfantry);
 	}
 
-	//! LAV ou M1025, au prorata des deux pourcentages restants.
-	static ResourceName EnemyZoneVehicle(int lav, int car)
+	//! LAV, char ou M1025, au prorata des trois pourcentages.
+	static ResourceName EnemyZoneVehicle(int lav, int tank, int car)
 	{
 		if (lav < 0)
 			lav = 0;
 
+		if (tank < 0)
+			tank = 0;
+
 		if (car < 0)
 			car = 0;
 
-		int total = lav + car;
+		if (!s_aEnemyZoneTank || s_aEnemyZoneTank.IsEmpty())
+			tank = 0;
+
+		int total = lav + tank + car;
 		if (total < 1)
 			return VEHICLE_M1025;
 
@@ -351,7 +377,19 @@ class HAM_Units
 		if (roll < lav)
 			return VEHICLE_LAV;
 
+		if (roll < lav + tank)
+			return s_aEnemyZoneTank.GetRandomElement();
+
 		return VEHICLE_M1025;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static ResourceName EnemyHelicopter()
+	{
+		if (!s_aEnemyHelicopters || s_aEnemyHelicopters.IsEmpty())
+			return VEHICLE_AH1S_ARMY_M261;
+
+		return s_aEnemyHelicopters.GetRandomElement();
 	}
 
 	static ResourceName EnemyCounterGroup()

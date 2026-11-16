@@ -70,6 +70,7 @@ class HAM_RadioChannels
 			return;
 
 		s_bBound = true;
+		HAM_ClientWatch.Start();
 		input.AddActionListener("HAM_RadioChannelAdd", EActionTrigger.DOWN, OnAddPressed);
 		input.AddActionListener("HAM_RadioChannelRemove", EActionTrigger.DOWN, OnRemovePressed);
 	}
@@ -334,6 +335,7 @@ class HAM_RadioChannels
 				if (live == freqs[i])
 					continue;
 
+				NoteFreq(playerId, i, freqs[i], live, "AbsorbLive");
 				freqs[i] = live;
 				changed = true;
 			}
@@ -343,6 +345,7 @@ class HAM_RadioChannels
 				int talk = Snap(KhzFromRaw(LiveFreq(radio, 0)));
 				if (talk != freqs[active])
 				{
+					NoteFreq(playerId, active, freqs[active], talk, "AbsorbLive");
 					freqs[active] = talk;
 					changed = true;
 				}
@@ -360,6 +363,7 @@ class HAM_RadioChannels
 				if (live == freqs[i])
 					continue;
 
+				NoteFreq(playerId, i, freqs[i], live, "AbsorbLive");
 				freqs[i] = live;
 				changed = true;
 			}
@@ -516,7 +520,9 @@ class HAM_RadioChannels
 			if (i == 0)
 			{
 				int sample = transceiver.GetFrequency();
-				transceiver.SetFrequency(ScaleFreq(sample, khz));
+				int next = ScaleFreq(sample, khz);
+				NoteFreq(PlayerOfRadio(main), 0, sample, next, "TuneListenRadio");
+				transceiver.SetFrequency(next);
 				transceiver.SetRange(RADIO_RANGE);
 				continue;
 			}
@@ -567,7 +573,9 @@ class HAM_RadioChannels
 			if (!transceiver)
 				continue;
 
-			transceiver.SetFrequency(ScaleFreq(sample, freqs[i]));
+			int next = ScaleFreq(sample, freqs[i]);
+			NoteFreq(ownerId, i, transceiver.GetFrequency(), next, "ApplyRow");
+			transceiver.SetFrequency(next);
 			transceiver.SetRange(RADIO_RANGE);
 		}
 
@@ -860,6 +868,20 @@ class HAM_RadioChannels
 			return khz * 1000;
 
 		return khz;
+	}
+
+	protected static void NoteFreq(int playerId, int index, int oldValue, int newValue, string caller)
+	{
+		if (oldValue == newValue)
+			return;
+
+		int oldKhz = KhzFromRaw(oldValue);
+		int newKhz = KhzFromRaw(newValue);
+		string raw = "";
+		if (oldValue != oldKhz || newValue != newKhz)
+			raw = string.Format(", brut %1 -> %2", oldValue, newValue);
+
+		Print(string.Format("[13RDPA H&M] Radio freq joueur %1 TX%2 %3 -> %4 kHz%5 (%6)", HAM_Util.PlayerTag(playerId), index, oldKhz, newKhz, raw, caller), LogLevel.NORMAL);
 	}
 
 	protected static int Snap(int freq)
@@ -1192,7 +1214,9 @@ class HAM_RadioChannels
 			return;
 
 		int sample = talk.GetFrequency();
-		talk.SetFrequency(ScaleFreq(sample, khz));
+		int next = ScaleFreq(sample, khz);
+		NoteFreq(ownerId, 0, sample, next, "ApplyTalk");
+		talk.SetFrequency(next);
 		talk.SetRange(RADIO_RANGE);
 		extra.SetPower(true);
 	}
