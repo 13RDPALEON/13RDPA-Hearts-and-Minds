@@ -1252,6 +1252,8 @@ class HAM_MasterBases
 			return;
 		}
 
+		ClearRadioFlags(slave.Pos());
+		HAM_Save.KeepWorldBuilt(RadioRoot(radio));
 		HAM_RadioLink.RememberAntenna(radio);
 		HAM_RadioLink.Apply(radio);
 		HAM_Util.Info(string.Format("Radio esclave %1 : antenne déjà posée branchée", slave.m_Def.m_sName));
@@ -1275,7 +1277,7 @@ class HAM_MasterBases
 		s_mRadioTries.Set(name, tries);
 		if (tries >= 6)
 		{
-			Print(string.Format("[13RDPA H&M] Pas de radio déjà posée pour %1 : esclave ignoré", name), LogLevel.WARNING);
+			PlaceMissingRadio(slave);
 			return;
 		}
 
@@ -1309,6 +1311,86 @@ class HAM_MasterBases
 		s_aRadioWait.Clear();
 		foreach (HAM_Point slave : waiting)
 			HookSlaveRadio(slave);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! L'antenne utile est souvent une pièce de la composition. On sauve la composition.
+	protected static IEntity RadioRoot(IEntity radio)
+	{
+		if (!radio)
+			return null;
+
+		IEntity parent = radio.GetParent();
+		if (!parent || !parent.GetPrefabData())
+			return radio;
+
+		if (parent.GetPrefabData().GetPrefabName().Contains("Antenna_S_US"))
+			return parent;
+
+		return radio;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool HasPlacedRadio(vector pos)
+	{
+		return FindPlacedRadio(pos) != null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Le calque n'a pas fourni d'antenne. On en pose une, et la sauvegarde la reprend.
+	protected static void PlaceMissingRadio(HAM_Point slave)
+	{
+		if (!slave || !slave.m_Def)
+			return;
+
+		ClearRadioFlags(slave.Pos());
+		IEntity radio = HAM_Util.Spawn(ANTENNA, slave.Pos(), 0);
+		if (!radio)
+		{
+			Print(string.Format("[13RDPA H&M] Pas de radio déjà posée pour %1 : pose impossible", slave.m_Def.m_sName), LogLevel.WARNING);
+			return;
+		}
+
+		HAM_Save.KeepWorldBuilt(radio);
+		HAM_RadioLink.RememberAntenna(radio);
+		HAM_RadioLink.Apply(radio);
+		HAM_Util.Info(string.Format("Radio esclave %1 : antenne reposée et sauvée", slave.m_Def.m_sName));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static ref array<IEntity> s_aRadioFlags;
+
+	//------------------------------------------------------------------------------------------------
+	protected static bool SeeRadioFlag(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return true;
+
+		string name = ent.GetPrefabData().GetPrefabName();
+		if (name.Contains("HAM_Slave") || name.Contains("FlagPole_01_empty"))
+			s_aRadioFlags.Insert(ent);
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Ancien drapeau d'esclave collé au centre de la tour. Il ne remplace pas l'antenne.
+	protected static void ClearRadioFlags(vector pos)
+	{
+		BaseWorld world = GetGame().GetWorld();
+		if (!world)
+			return;
+
+		s_aRadioFlags = {};
+		world.QueryEntitiesBySphere(pos, 8, SeeRadioFlag);
+		foreach (IEntity flag : s_aRadioFlags)
+		{
+			if (!flag)
+				continue;
+
+			HAM_Util.Forget(flag);
+			HAM_Util.Delete(flag);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1422,7 +1504,8 @@ class HAM_MasterBases
 		if (!ent || !ent.GetPrefabData())
 			return false;
 
-		return ent.GetPrefabData().GetPrefabName().Contains("Antenna_S_US");
+		string name = ent.GetPrefabData().GetPrefabName();
+		return name.Contains("Antenna_S_US") || name.Contains("Antenna_01");
 	}
 
 	//------------------------------------------------------------------------------------------------

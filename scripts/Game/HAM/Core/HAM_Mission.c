@@ -670,6 +670,10 @@ class HAM_Mission
 				continue;
 			}
 
+			// La tour radio est déjà dans le calque. Le drapeau d'esclave se poserait dessus.
+			if (point.m_Def.m_eType == HAM_EMasterType.RADIO)
+				continue;
+
 			point.m_Prop = PlaceProp(HAM_Units.ZONE_SLAVE, point.m_Def.m_sName, point.m_Def.m_eRole, point.Pos());
 		}
 

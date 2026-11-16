@@ -1266,6 +1266,10 @@ class HAM_Save
 			if (HAM_MasterBases.SystemPrefabNear(built.m_sPrefab, built.m_vPos, 20))
 				continue;
 
+			// Le mât de secours ne se rajoute pas si la composition du calque est là.
+			if (built.m_sPrefab.Contains("Antenna_01") && HAM_MasterBases.HasPlacedRadio(built.m_vPos))
+				continue;
+
 			if (built.m_Entity && !HAM_Util.IsDead(built.m_Entity))
 				continue;
 
@@ -1312,6 +1316,40 @@ class HAM_Save
 	protected static void EndRestoringBuilt()
 	{
 		s_bRestoringBuilt = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Tour du calque ou antenne reposée : elle entre dans la sauvegarde même pendant la pose système.
+	static void KeepWorldBuilt(IEntity ent)
+	{
+		if (!ent || !ent.GetPrefabData())
+			return;
+
+		string prefab = ent.GetPrefabData().GetPrefabName();
+		if (prefab.IsEmpty())
+			return;
+
+		if (!s_aBuilt)
+			s_aBuilt = {};
+
+		vector here = WorldPos(ent);
+		HAM_BuiltRecord near = BuiltRecordNear(prefab, here, 8);
+		if (!near)
+			near = BuiltRecordOf(ent);
+
+		if (near)
+		{
+			ApplyBuiltTransform(near, ent);
+			HAM_Util.Forget(ent);
+			return;
+		}
+
+		HAM_BuiltRecord built = new HAM_BuiltRecord();
+		built.m_sPrefab = prefab;
+		ApplyBuiltTransform(built, ent);
+		s_aBuilt.Insert(built);
+		HAM_Util.Forget(ent);
+		HAM_Mission.MarkDirty();
 	}
 
 	//------------------------------------------------------------------------------------------------

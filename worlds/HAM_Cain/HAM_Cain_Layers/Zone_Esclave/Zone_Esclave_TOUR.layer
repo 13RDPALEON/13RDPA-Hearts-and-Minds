@@ -1,4 +1,4 @@
-$grp GenericEntity : "{8B4B8BF44162B24F}Prefabs/Compositions/Slotted/SlotFlatSmall/Antenna_S_US_01.et" {
+$grp GenericEntity : "{8B4B8BF44162B24E}Prefabs/Compositions/Slotted/SlotFlatSmall/Antenna_S_US_01.et" {
  Ugoldar_Tour_UgoldarBaseRadio_R200 {
   coords 5974.035 9.303 3113.396
  }
