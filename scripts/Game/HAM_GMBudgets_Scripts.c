@@ -100,6 +100,10 @@ modded class SCR_BudgetEditorComponent {
 	{
 		if (this.ClassName() == "SCR_CampaignBuildingBudgetEditorComponent")
 			return super.IsBudgetCapEnabled();
+
+		// Éditeur GM en H&M : aucune quantité d'IA, de props, de véhicules ou de systèmes.
+		if (HAM_Mission.IsActive())
+			return false;
 		
 		if (!SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
 			return false;
@@ -122,7 +126,7 @@ modded class SCR_BudgetEditorComponent {
 modded class SCR_PlacingEditorComponent {
 	override bool IsThereEnoughBudgetToSpawn(IEntityComponentSource entitySource)
 	{
-		if (!SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
+		if (HAM_Mission.IsActive() || !SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
 			return true;
 		
 		return super.IsThereEnoughBudgetToSpawn(entitySource);
@@ -138,7 +142,7 @@ modded class SCR_PlacingEditorComponent {
 //	
     override void CheckBudgetOwner()
     {
-		if (!SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
+		if (HAM_Mission.IsActive() || !SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
 			return;
 		
 		super.CheckBudgetOwner();
@@ -146,6 +150,9 @@ modded class SCR_PlacingEditorComponent {
 
     override void OnBudgetMaxReached(EEditableEntityBudget entityBudget, bool maxReached)
     {
+		if (HAM_Mission.IsActive())
+			return;
+
 		if (SCR_BaseGameMode.s_HAM_GMBudgets_Budgets.Contains(entityBudget) && !SCR_BaseGameMode.s_bTRN_GMBudgets_BudgetsEnabled)
 			return;
 		

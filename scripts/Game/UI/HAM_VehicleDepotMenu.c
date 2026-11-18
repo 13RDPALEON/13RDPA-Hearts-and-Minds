@@ -874,14 +874,21 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 	protected void FillFromPrefabs()
 	{
 		array<string> prefabs = {};
+		array<string> seen = {};
 		HAM_ArsenalCatalog.CollectPrefabs(prefabs);
 		foreach (string prefab : prefabs)
 		{
 			if (prefab.IsEmpty())
 				continue;
 
+			string path = ItemPath(prefab);
+			if (seen.Contains(path))
+				continue;
+
 			if (!HAM_ArsenalBoardStore.IsShown(prefab))
 				continue;
+
+			seen.Insert(path);
 
 			bool shown = HAM_VehicleDepotFilter.IsShown(prefab, true);
 			if (!m_bFilter && !shown)
@@ -904,11 +911,7 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 
 			m_aItemPrefab.Insert(prefab);
 			m_aItemLabel.Insert(label);
-			int cost = 0;
-			if (HAM_ArsenalBoardStore.HasCostOverride(prefab))
-				cost = HAM_ArsenalBoardStore.BoardPrice(prefab);
-
-			m_aItemCost.Insert(cost);
+			m_aItemCost.Insert(HAM_VehicleDepot.ShownPrice(prefab));
 			if (shown)
 				m_aItemShown.Insert(1);
 			else
@@ -936,6 +939,7 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 		m_aItemShown.Clear();
 
 		array<SCR_ArsenalItem> items = {};
+		array<string> seen = {};
 		CollectUsArsenalItems(items);
 		if (items.IsEmpty())
 		{
@@ -949,8 +953,14 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 				continue;
 
 			string prefab = item.GetItemResourceName();
+			string path = ItemPath(prefab);
+			if (seen.Contains(path))
+				continue;
+
 			if (!HAM_ArsenalBoardStore.IsShown(prefab))
 				continue;
+
+			seen.Insert(path);
 
 			bool shown = HAM_VehicleDepotFilter.IsShown(prefab, Kept(item));
 			if (!m_bFilter && !shown)
@@ -970,13 +980,9 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 			if (!SearchHit(label))
 				continue;
 
-			int cost = item.GetSupplyCost(SCR_EArsenalSupplyCostType.DEFAULT, false);
-			if (HAM_ArsenalBoardStore.HasCostOverride(prefab))
-				cost = HAM_ArsenalBoardStore.BoardPrice(prefab);
-
 			m_aItemPrefab.Insert(prefab);
 			m_aItemLabel.Insert(label);
-			m_aItemCost.Insert(cost);
+			m_aItemCost.Insert(HAM_VehicleDepot.ShownPrice(prefab));
 			if (shown)
 				m_aItemShown.Insert(1);
 			else
@@ -1157,6 +1163,15 @@ class HAM_VehicleDepotHandler : ScriptedWidgetEventHandler
 			return 5;
 
 		return HAM_ArsenalCatalog.CategoryOfPrefab(item.GetItemResourceName());
+	}
+
+	protected string ItemPath(string prefab)
+	{
+		int brace = prefab.IndexOf("}");
+		if (brace < 0 || brace + 1 >= prefab.Length())
+			return prefab;
+
+		return prefab.Substring(brace + 1, prefab.Length() - brace - 1);
 	}
 
 	protected bool Kept(SCR_ArsenalItem item)

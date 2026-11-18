@@ -128,6 +128,9 @@ modded class SCR_EntityCatalogManagerComponent
 			if (!item)
 				continue;
 
+			if (HAM_ArsenalBoardStore.IsVehicleItem(item))
+				continue;
+
 			string prefab = item.GetItemResourceName();
 			int brace = prefab.IndexOf("}");
 			if (brace >= 0 && brace + 1 < prefab.Length())
@@ -540,6 +543,9 @@ modded class SCR_ResourcePlayerControllerInventoryComponent
 		if (HAM_ArsenalBoardStore.IsHidden(resourceNameItem))
 			return;
 
+		if (HAM_ArsenalBoardStore.IsVehiclePart(resourceNameItem))
+			return;
+
 		HAM_BeginCost(resourceNameItem, true);
 		super.RpcAsk_ArsenalRequestItem_(resourceComponentRplId, storageComponentRplId, resourceNameItem, resourceType);
 		HAM_EndCost();
@@ -615,6 +621,11 @@ modded class SCR_ResourcePlayerControllerInventoryComponent
 		if (!HAM_SupplyRules.GlobalSuppliesEnabled())
 			return true;
 
+		// Le calcul vanilla multiplie ensuite par le générateur et la faction, puis arrondit vers le haut.
+		// On crédite le prix réellement payé : coût du tableau ou coût vanilla, multiplicateur d'achat compris.
+		if (HAM_RefundContext.Active() && HAM_RefundContext.Paid() > 0)
+			resourceValue = HAM_RefundContext.Paid();
+
 		return super.TryPerformResourceGeneration(actor, resourceValue);
 	}
 }
@@ -629,11 +640,13 @@ class HAM_RefundContext
 	protected static float s_fGenerator;
 	protected static float s_fSameFaction;
 	protected static float s_fOtherFaction;
+	protected static int s_iPaid;
 	protected static SCR_Faction s_Faction;
 
 	static void Begin(SCR_ResourceComponent resources)
 	{
 		s_bActive = true;
+		s_iPaid = 0;
 		s_fBuy = 1;
 		s_fGenerator = 1;
 		s_fSameFaction = 1;
@@ -670,11 +683,25 @@ class HAM_RefundContext
 	static void End()
 	{
 		s_bActive = false;
+		s_iPaid = 0;
 	}
 
 	static bool Active()
 	{
 		return s_bActive;
+	}
+
+	static void NotePaid(int unit)
+	{
+		if (!s_bActive || unit <= 0)
+			return;
+
+		s_iPaid = s_iPaid + Math.Round(unit * s_fBuy);
+	}
+
+	static int Paid()
+	{
+		return s_iPaid;
 	}
 
 	static int PurchaseRefund(SCR_ArsenalItem item, int unit)
@@ -780,6 +807,9 @@ modded class SCR_ArsenalItem
 	override int GetSupplyRefundAmount(SCR_EArsenalSupplyCostType supplyCostType, bool addAdditionalCosts = true, IEntity item = null)
 	{
 		int unit = GetSupplyCost(supplyCostType, addAdditionalCosts);
+		if (HAM_RefundContext.Active())
+			HAM_RefundContext.NotePaid(unit);
+
 		return HAM_RefundContext.PurchaseRefund(this, unit);
 	}
 

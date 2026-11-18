@@ -1172,6 +1172,16 @@ class HAM_ArsenalBoardHandler : ScriptedWidgetEventHandler
 
 	protected void AddListedPrefab(string prefab, SCR_ArsenalItem item)
 	{
+		if (item)
+		{
+			if (HAM_ArsenalBoardStore.IsVehicleItem(item))
+				return;
+		}
+		else if (HAM_ArsenalBoardStore.IsVehiclePart(prefab))
+		{
+			return;
+		}
+
 		string label = DisplayName(prefab);
 		if (!SearchHit(label))
 			return;

@@ -354,11 +354,7 @@ class HAM_VehicleBoardStore
 			return;
 
 		SendHidden(player);
-		string costs;
-		string ranks;
-		string cargos;
-		PackParams(costs, ranks, cargos);
-		player.HAM_VehicleBoardSyncParams(costs, ranks, cargos);
+		SendParams(player);
 	}
 
 	static void ApplyHiddenPack(string pack)
@@ -432,15 +428,9 @@ class HAM_VehicleBoardStore
 			return;
 
 		s_bLoaded = true;
-		s_aCostPrefab = {};
-		s_aCostValue = {};
-		s_aRankPrefab = {};
-		s_aRankValue = {};
-		s_aCargoPrefab = {};
-		s_aCargoValue = {};
-		ParseIntPairs(costs, s_aCostPrefab, s_aCostValue);
-		ParseIntPairs(ranks, s_aRankPrefab, s_aRankValue);
-		ParseFloatPairs(cargos, s_aCargoPrefab, s_aCargoValue);
+		ApplyIntChunk(costs, s_aCostPrefab, s_aCostValue);
+		ApplyIntChunk(ranks, s_aRankPrefab, s_aRankValue);
+		ApplyFloatChunk(cargos, s_aCargoPrefab, s_aCargoValue);
 		HAM_VehicleSpawnUI.RefreshIfOpen();
 	}
 
@@ -567,15 +557,54 @@ class HAM_VehicleBoardStore
 
 		array<int> ids = {};
 		players.GetPlayers(ids);
-		string costs;
-		string ranks;
-		string cargos;
-		PackParams(costs, ranks, cargos);
 		foreach (int playerId : ids)
 		{
 			SCR_PlayerController player = SCR_PlayerController.Cast(players.GetPlayerController(playerId));
 			if (player)
-				player.HAM_VehicleBoardSyncParams(costs, ranks, cargos);
+				SendParams(player);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Un seul paquet coupe la fin quand la liste est longue. Le dernier réglage n'arrivait plus.
+	protected static void SendParams(SCR_PlayerController player)
+	{
+		if (!player)
+			return;
+
+		int costCount = 0;
+		int rankCount = 0;
+		int cargoCount = 0;
+		if (s_aCostPrefab)
+			costCount = s_aCostPrefab.Count();
+		if (s_aRankPrefab)
+			rankCount = s_aRankPrefab.Count();
+		if (s_aCargoPrefab)
+			cargoCount = s_aCargoPrefab.Count();
+
+		int total = costCount;
+		if (rankCount > total)
+			total = rankCount;
+		if (cargoCount > total)
+			total = cargoCount;
+
+		if (total < 1)
+		{
+			player.HAM_VehicleBoardSyncParams("!|", "!|", "!|");
+			return;
+		}
+
+		int cursor = 0;
+		bool first = true;
+		while (cursor < total)
+		{
+			string prefix = "*|";
+			if (first)
+				prefix = "!|";
+
+			first = false;
+			player.HAM_VehicleBoardSyncParams(prefix + SliceInts(s_aCostPrefab, s_aCostValue, cursor, 8), prefix + SliceInts(s_aRankPrefab, s_aRankValue, cursor, 8), prefix + SliceFloats(s_aCargoPrefab, s_aCargoValue, cursor, 8));
+			cursor = cursor + 8;
 		}
 	}
 
@@ -591,28 +620,110 @@ class HAM_VehicleBoardStore
 		return outPack;
 	}
 
-	protected static void PackParams(out string costs, out string ranks, out string cargos)
+	protected static string SliceInts(array<string> keys, array<int> values, int start, int count)
 	{
-		costs = string.Empty;
-		ranks = string.Empty;
-		cargos = string.Empty;
-		if (s_aCostPrefab)
+		string pack = string.Empty;
+		if (!keys || !values || start >= keys.Count())
+			return pack;
+
+		int end = start + count;
+		if (end > keys.Count())
+			end = keys.Count();
+
+		for (int i = start; i < end; i++)
 		{
-			for (int i = 0; i < s_aCostPrefab.Count(); i++)
-				costs = costs + s_aCostPrefab[i] + "~" + s_aCostValue[i].ToString() + "|";
+			if (i >= values.Count())
+				break;
+
+			pack = pack + keys[i] + "~" + values[i].ToString() + "|";
 		}
 
-		if (s_aRankPrefab)
+		return pack;
+	}
+
+	protected static string SliceFloats(array<string> keys, array<float> values, int start, int count)
+	{
+		string pack = string.Empty;
+		if (!keys || !values || start >= keys.Count())
+			return pack;
+
+		int end = start + count;
+		if (end > keys.Count())
+			end = keys.Count();
+
+		for (int i = start; i < end; i++)
 		{
-			for (int i = 0; i < s_aRankPrefab.Count(); i++)
-				ranks = ranks + s_aRankPrefab[i] + "~" + s_aRankValue[i].ToString() + "|";
+			if (i >= values.Count())
+				break;
+
+			pack = pack + keys[i] + "~" + values[i].ToString() + "|";
 		}
 
-		if (s_aCargoPrefab)
+		return pack;
+	}
+
+	protected static string ParamBody(string pack)
+	{
+		if (pack.Length() <= 2)
+			return string.Empty;
+
+		return pack.Substring(2, pack.Length() - 2);
+	}
+
+	protected static void ApplyIntChunk(string pack, out array<string> keys, out array<int> values)
+	{
+		bool reset = true;
+		string body = pack;
+		if (pack.IndexOf("*|") == 0)
 		{
-			for (int i = 0; i < s_aCargoPrefab.Count(); i++)
-				cargos = cargos + s_aCargoPrefab[i] + "~" + s_aCargoValue[i].ToString() + "|";
+			reset = false;
+			body = ParamBody(pack);
 		}
+		else if (pack.IndexOf("!|") == 0)
+		{
+			body = ParamBody(pack);
+		}
+
+		array<string> parsedKeys;
+		array<int> parsedValues;
+		ParseIntPairs(body, parsedKeys, parsedValues);
+		if (reset || !keys)
+		{
+			keys = parsedKeys;
+			values = parsedValues;
+			return;
+		}
+
+		for (int i = 0; i < parsedKeys.Count(); i++)
+			UpsertInt(keys, values, parsedKeys[i], parsedValues[i]);
+	}
+
+	protected static void ApplyFloatChunk(string pack, out array<string> keys, out array<float> values)
+	{
+		bool reset = true;
+		string body = pack;
+		if (pack.IndexOf("*|") == 0)
+		{
+			reset = false;
+			body = ParamBody(pack);
+		}
+		else if (pack.IndexOf("!|") == 0)
+		{
+			body = ParamBody(pack);
+		}
+
+		array<string> parsedKeys;
+		array<float> parsedValues;
+		ParseFloatPairs(body, parsedKeys, parsedValues);
+		if (reset || !keys)
+		{
+			keys = parsedKeys;
+			values = parsedValues;
+			return;
+		}
+
+		for (int i = 0; i < parsedKeys.Count(); i++)
+			UpsertFloat(keys, values, parsedKeys[i], parsedValues[i]);
 	}
 
 	protected static void ParseIntPairs(string pack, out array<string> keys, out array<int> values)

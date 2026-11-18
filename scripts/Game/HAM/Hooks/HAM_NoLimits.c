@@ -2,13 +2,14 @@
 // Aucun plafond de quantité en H&M : props, IA et véhicules construits par base, délai entre deux
 // poses, bases établies par faction, recrues par groupe de joueur, délai entre deux demandes aux
 // générateurs (dans HAM_SCR_CatalogEntitySpawnerComponent.c). Les fournitures et les grades restent dus.
-// La limite d'IA actives du monde vient du JSON (ai.activeLimit), comme sur le Conflit.
+// -1 est le « sans plafond » du fournisseur : IsThereEnoughBudgetToSpawn ignore ce budget.
+// La limite d'IA simulées en même temps vient du JSON (ai.activeLimit). Elle n'interdit pas la pose.
 //------------------------------------------------------------------------------------------------
 
 class HAM_NoLimits
 {
-	//! Assez haut pour ne jamais être atteint, et lisible dans les jauges de l'éditeur (-1 ne l'est pas).
-	static const int UNLIMITED = 100000;
+	//! Le fournisseur de construction traite -1 comme « ne jamais refuser ».
+	static const int UNLIMITED = -1;
 
 	protected static int s_iEngineAiLimit = -1;
 

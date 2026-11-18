@@ -957,7 +957,7 @@ class HAM_VehicleDepot
 		GatherItems(manager, items);
 		foreach (IEntity item : items)
 		{
-			if (!item || PrefabOf(item) != prefab)
+			if (!item || !SamePrefab(PrefabOf(item), prefab))
 				continue;
 
 			if (ammo >= 0 && AmmoOf(item) != ammo)
@@ -1035,7 +1035,7 @@ class HAM_VehicleDepot
 	// Tableau = liste maître. Le filtre du garage est la seconde couche.
 	protected static bool GarageAllows(string prefab)
 	{
-		if (prefab.IsEmpty() || !HAM_ArsenalBoardStore.IsShown(prefab))
+		if (prefab.IsEmpty() || HAM_ArsenalBoardStore.IsVehiclePart(prefab) || !HAM_ArsenalBoardStore.IsShown(prefab))
 			return false;
 
 		if (!HAM_VehicleDepotFilter.IsShown(prefab, true))
@@ -1044,19 +1044,30 @@ class HAM_VehicleDepot
 		return ArsenalData(prefab) != null;
 	}
 
+	//! Prix affiché, prix payé à l'ajout, prix rendu au retrait. Override du tableau, sinon le coût vanilla.
+	static int ShownPrice(string prefab)
+	{
+		return ItemCost(prefab, true);
+	}
+
 	protected static int ItemCost(string prefab, bool buy)
 	{
-		SCR_ArsenalItem data = ArsenalData(prefab);
-		if (!data)
-			return 0;
-
-		int cost = data.GetSupplyCost(SCR_EArsenalSupplyCostType.DEFAULT, false);
+		int cost = 0;
 		if (HAM_ArsenalBoardStore.HasCostOverride(prefab))
+		{
 			cost = HAM_ArsenalBoardStore.BoardPrice(prefab);
+		}
 		else
 		{
+			SCR_ArsenalItem data = ArsenalData(prefab);
+			if (!data)
+				return 0;
+
+			SCR_ArsenalItem.HAM_SetRawCost(true);
+			cost = data.GetSupplyCost(SCR_EArsenalSupplyCostType.DEFAULT, false);
+			SCR_ArsenalItem.HAM_SetRawCost(false);
 			string named = data.GetItemResourceName();
-			if (named != prefab && HAM_ArsenalBoardStore.HasCostOverride(named))
+			if (HAM_ArsenalBoardStore.HasCostOverride(named))
 				cost = HAM_ArsenalBoardStore.BoardPrice(named);
 		}
 
@@ -1551,6 +1562,17 @@ class HAM_VehicleDepot
 			return "";
 
 		return ent.GetPrefabData().GetPrefabName();
+	}
+
+	protected static bool SamePrefab(string a, string b)
+	{
+		if (a == b)
+			return true;
+
+		if (a.IsEmpty() || b.IsEmpty())
+			return false;
+
+		return PrefabPath(a) == PrefabPath(b);
 	}
 
 	//! Les garages donnent des véhicules de toutes les factions : seule l'IA posée par H&M est écartée.
